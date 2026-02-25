@@ -1,0 +1,69 @@
+networks:
+  micro-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
+
+services:
+
+  # Postgres Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=keycloak_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups/keycloak_backup.sql:/docker-entrypoint-initdb.d/keycloak_backup.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - micro-network
+
+
+  # PgAdmin
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-ms
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - micro-network
+
+
+  # Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1
+    container_name: keycloak
+    command: [ "-c", "/opt/keycloak/bin/kc.sh build && /opt/keycloak/bin/kc.sh start-dev" ]
+    entrypoint: /bin/sh
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak_db
+      - KC_DB_USERNAME=admin
+      - KC_DB_PASSWORD=password
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_HTTP_PORT=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak-extensions/tskhra-theme:/opt/keycloak/themes/tskhra-theme
+      - ./keycloak-extensions/providers/UserRegistrationSpi-1.0-SNAPSHOT.jar:/opt/keycloak/providers/UserRegistrationSpi.jar
+    depends_on:
+      - postgres
+    networks:
+      - micro-network
+
+  # todo minio
+  # todo modulith
+
