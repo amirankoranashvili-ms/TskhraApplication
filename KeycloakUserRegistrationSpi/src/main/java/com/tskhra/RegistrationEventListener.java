@@ -13,6 +13,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+// todo change souts to debug level logging
 public class RegistrationEventListener implements EventListenerProvider {
 
     private final KeycloakSession session;
@@ -29,10 +30,7 @@ public class RegistrationEventListener implements EventListenerProvider {
             System.out.println("EvenListener: REGISTER even caught");
             RealmModel realm = session.getContext().getRealm();
             UserModel user = session.users().getUserById(realm, event.getUserId());
-
-            // todo send to api
             System.out.println("EvenListener: onEvent before sendUser");
-
             sendUser(user);
         }
     }
