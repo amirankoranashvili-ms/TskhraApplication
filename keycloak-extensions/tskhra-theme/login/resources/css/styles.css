@@ -1,0 +1,257 @@
+/* ===== GLOBAL ===== */
+
+body {
+  margin: 0;
+  background: #ffffff;
+  font-family: "Inter", sans-serif;
+}
+
+/* ===== PAGE CENTERING ===== */
+
+.login-pf-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f7fa;
+  padding: 20px;
+  flex-direction: column;
+}
+
+/* ===== CARD ===== */
+
+.card-pf {
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  border: none;
+  padding: 30px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0;
+}
+
+/* ===== HEADER ===== */
+
+#kc-header-wrapper {
+  font-size: 28px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#kc-page-title {
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.subtitle{
+  display: none;
+}
+
+
+/* ===== INPUTS ===== */
+
+.pf-c-form-control,
+.pf-m-control {
+  border-radius: 12px !important;
+  background: #f1f1f1 !important;
+  border: 1px solid transparent !important;
+  /*padding: 10px 14px;*/
+  transition: all 0.2s ease;
+}
+
+.pf-c-form-control:focus,
+.pf-m-control:focus {
+  background: #ffffff !important;
+  border: 1px solid #1877f2 !important;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.15);
+}
+
+#input-error{
+  color: red;
+}
+
+.pf-m-error{
+  color: red !important;
+}
+
+
+/* ===== INPUT GROUP ===== */
+
+.pf-c-input-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+
+/* ===== MAIN LOGIN BUTTON ===== */
+
+.btn-lg {
+  width: 100%;
+  border-radius: 14px;
+  background: #000000 !important;
+  border: 1px solid #000000;
+  color: #ffffff !important;
+  font-weight: 500;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-lg:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000;
+}
+
+/* ===== SOCIAL SECTION ===== */
+
+.pf-c-login__main-footer-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* ===== FACEBOOK BUTTON ===== */
+
+#social-facebook {
+  background: #1877f2 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  transition: 0.3s ease;
+}
+
+#social-facebook:hover {
+  background: #166fe5 !important;
+}
+
+.fa-facebook::before {
+  color: #ffffff !important;
+}
+
+/* ===== GOOGLE BUTTON ===== */
+
+#social-google {
+  background: #ffffff !important;
+  border: 1px solid #dadce0;
+  color: #3c4043 !important;
+  border-radius: 12px;
+  transition: 0.3s ease;
+}
+
+#social-google:hover {
+  background: #f7f8f8 !important;
+}
+
+/* ===== TEXT UNDER SOCIAL ICON ===== */
+
+.kc-social-icon-text {
+  font-weight: 500;
+}
+
+/* ===== REMOVE DEFAULT PATTERNFLY EFFECT ===== */
+
+.pf-c-button::after {
+  border: none;
+}
+
+/* ===== LINKS ===== */
+
+a {
+  color: #1877f2;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+
+
+/*============REGISTRATION======*/
+
+.register-btn{
+  margin-top: 20px;
+}
+
+#kc-form-options{
+  margin-top: 20px;
+  text-align: center;
+}
+
+.go-to-login-txt{
+  font-weight: bold;
+  margin-right: 5px;
+  font-size: 15px;
+}
+
+.link-login{
+  font-size: 15px;
+}
+
+#kc-page-title{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.some-class{
+  width: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.go-back{
+  text-decoration: none;
+  all: unset;
+  cursor: pointer;
+}
+
+.go-back:hover{
+  text-decoration: none;
+  color: inherit;
+}
+
+
+/*dynamic errors*/
+.error-message {
+  color: #e5484d;
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%; /* Заставляем ошибку занимать всю ширину новой строки */
+}
+
+.input-error {
+  border-color: #e5484d !important;
+}
+
+
+.flex-div{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ===== DISABLED BUTTON STATE ===== */
+.btn-lg:disabled,
+.register-btn:disabled,
+input[type="submit"]:disabled,
+button[type="submit"]:disabled {
+  background: #cccccc !important;
+  border-color: #cccccc !important;
+  color: #777777 !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-lg:disabled:hover {
+  background: #cccccc !important;
+  color: #777777 !important;
+}
