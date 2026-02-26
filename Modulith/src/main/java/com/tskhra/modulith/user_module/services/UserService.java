@@ -60,7 +60,7 @@ public class UserService {
                 userRepository.save(createdUser);
 
             } else if (response.getStatus() == 409) {
-                throw new UserAlreadyExistsException(response.readEntity(String.class)); // todo figure how to extract message
+                throw new HttpConflictException(response.readEntity(String.class)); // todo figure how to extract message
             } else if (response.getStatus() == 400) {
                 // todo handle
                 throw new RuntimeException("Bad Request. Failed to register user.");
