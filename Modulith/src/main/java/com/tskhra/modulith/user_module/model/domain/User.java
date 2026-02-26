@@ -4,6 +4,7 @@ import com.tskhra.modulith.user_module.model.enums.Gender;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,6 +16,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class User {
 
     @Id
