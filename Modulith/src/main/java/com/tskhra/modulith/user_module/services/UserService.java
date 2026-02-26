@@ -1,5 +1,6 @@
 package com.tskhra.modulith.user_module.services;
 
+import com.tskhra.modulith.user_module.exception.UserAlreadyExistsException;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
@@ -29,16 +30,13 @@ public class UserService {
     private final Keycloak keycloak;
 
 
-    public String registerUser(UserRegistrationRequestDto dto) {
-        // todo validation when?
+    public void registerUser(UserRegistrationRequestDto dto) {
         if (userRepository.existsByUsername(dto.username())) {
-            // todo handle
-            throw new RuntimeException("User Already Exists");
+            throw new UserAlreadyExistsException("Username Already Exists");
         }
 
         if (userRepository.existsByEmail(dto.email())) {
-            // todo handle
-            throw new RuntimeException("User Already Exists");
+            throw new UserAlreadyExistsException("Email Already Exists");
         }
 
         UserRepresentation user = getUserRepresentation(dto);
@@ -59,12 +57,10 @@ public class UserService {
                         .updatedAt(now)
                         .build();
 
-                User savedUser = userRepository.save(createdUser);
-                return savedUser.getId().toString();
+                userRepository.save(createdUser);
 
             } else if (response.getStatus() == 409) {
-                // todo handle
-                throw new RuntimeException("User already exists.");
+                throw new UserAlreadyExistsException(response.readEntity(String.class)); // todo figure how to extract message
             } else if (response.getStatus() == 400) {
                 // todo handle
                 throw new RuntimeException("Bad Request. Failed to register user.");
@@ -95,4 +91,5 @@ public class UserService {
         String path = response.getLocation().getPath();
         return path.substring(path.lastIndexOf("/") + 1);
     }
+
 }
