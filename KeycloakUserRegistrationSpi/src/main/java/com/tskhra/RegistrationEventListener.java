@@ -44,7 +44,7 @@ public class RegistrationEventListener implements EventListenerProvider {
         );
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://10.3.12.234:8081/users/kc-register"))
+                .uri(URI.create("http://10.3.12.234:8081/users/kc-register")) // fixme url should be changed
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();

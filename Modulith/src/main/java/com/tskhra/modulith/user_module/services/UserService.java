@@ -4,6 +4,7 @@ import com.tskhra.modulith.user_module.exception.HttpConflictException;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
+import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
@@ -92,4 +93,20 @@ public class UserService {
         return path.substring(path.lastIndexOf("/") + 1);
     }
 
+    public void registerKcUser(KeycloakSpiUserRegistrationDto dto) {
+        LocalDateTime now = LocalDateTime.now();
+
+        User user = User.builder()
+                .username(dto.username())
+                .email(dto.email())
+                .keycloakId(UUID.fromString(dto.keycloakId()))
+                .userStatus(UserStatus.ACTIVE)
+                .kycStatus(KycStatus.NONE)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        userRepository.save(user);
+
+    }
 }

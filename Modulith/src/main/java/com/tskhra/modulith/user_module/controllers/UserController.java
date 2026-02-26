@@ -1,5 +1,6 @@
 package com.tskhra.modulith.user_module.controllers;
 
+import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
 import com.tskhra.modulith.user_module.services.UserService;
 import jakarta.validation.Valid;
@@ -21,6 +22,14 @@ public class UserController {
     public ResponseEntity<Void> registerUser(@Valid @RequestBody UserRegistrationRequestDto dto) {
 
         userService.registerUser(dto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    // todo figure how to make it safe
+    @PostMapping("/kc-register")
+    public ResponseEntity<Void> registerKcUser(@RequestBody KeycloakSpiUserRegistrationDto dto) {
+
+        userService.registerKcUser(dto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
