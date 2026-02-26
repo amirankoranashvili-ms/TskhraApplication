@@ -1,6 +1,6 @@
 package com.tskhra.modulith.user_module.services;
 
-import com.tskhra.modulith.user_module.exception.UserAlreadyExistsException;
+import com.tskhra.modulith.user_module.exception.HttpConflictException;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
@@ -32,11 +32,11 @@ public class UserService {
 
     public void registerUser(UserRegistrationRequestDto dto) {
         if (userRepository.existsByUsername(dto.username())) {
-            throw new UserAlreadyExistsException("Username Already Exists");
+            throw new HttpConflictException("Username Already Exists");
         }
 
         if (userRepository.existsByEmail(dto.email())) {
-            throw new UserAlreadyExistsException("Email Already Exists");
+            throw new HttpConflictException("Email Already Exists");
         }
 
         UserRepresentation user = getUserRepresentation(dto);

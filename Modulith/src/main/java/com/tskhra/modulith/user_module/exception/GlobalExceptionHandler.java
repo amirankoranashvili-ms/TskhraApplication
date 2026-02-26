@@ -1,9 +1,9 @@
 package com.tskhra.modulith.user_module.exception;
 
-import com.tskhra.modulith.user_module.model.responses.BadRequestErrorResponse;
-import com.tskhra.modulith.user_module.model.responses.ConflictErrorResponse;
 import com.tskhra.modulith.user_module.model.responses.ErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,22 +14,21 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        ErrorResponse response = new ConflictErrorResponse(ex.getMessage());
-        return new ResponseEntity<>(response, response.getStatus());
+    @ExceptionHandler(HttpConflictException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(HttpConflictException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class) // todo return better messages
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
+        List<String> errors = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .toList();
 
-        ErrorResponse response = new BadRequestErrorResponse(errors.toString());
-        return new ResponseEntity<>(response, response.getStatus());
+        ErrorResponse response = new ErrorResponse(errors.toString());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }
