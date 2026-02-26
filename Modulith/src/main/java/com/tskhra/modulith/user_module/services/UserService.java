@@ -1,11 +1,13 @@
 package com.tskhra.modulith.user_module.services;
 
 import com.tskhra.modulith.user_module.exception.HttpConflictException;
+import com.tskhra.modulith.user_module.exception.HttpNotFoundException;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
 import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
+import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -108,5 +111,19 @@ public class UserService {
 
         userRepository.save(user);
 
+    }
+
+    public UserSelfDto currentUser(Jwt jwt) {
+        String keycloakId = jwt.getClaimAsString("sub");
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
+                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+
+        return new UserSelfDto(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getKycStatus() == KycStatus.APPROVED
+        );
     }
 }

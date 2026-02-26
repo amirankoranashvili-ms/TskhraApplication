@@ -2,11 +2,14 @@ package com.tskhra.modulith.user_module.controllers;
 
 import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
+import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -31,6 +34,13 @@ public class UserController {
 
         userService.registerKcUser(dto);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserSelfDto> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+
+        UserSelfDto self = userService.currentUser(jwt);
+        return ResponseEntity.status(HttpStatus.OK).body(self);
     }
 
     @GetMapping("/sanity-check")
