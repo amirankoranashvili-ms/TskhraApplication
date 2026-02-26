@@ -73,6 +73,7 @@ services:
       - SERVER_PORT=8081
       - DB_HOST=postgres
       - DB_NAME=tskhra_db
+      - KEYCLOAK_HOST=keycloak
     ports:
       - "8081:8081"
     depends_on:
