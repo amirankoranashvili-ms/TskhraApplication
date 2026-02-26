@@ -1,11 +1,11 @@
 server:
-  port: 8082
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
     name: Modulith
   datasource:
-    url: jdbc:postgresql://localhost:5432/tskhra_db
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:tskhra_db}
     username: admin
     password: password
     driver-class-name: org.postgresql.Driver
@@ -16,7 +16,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://10.3.12.234:8080/realms/tskhra
+          issuer-uri: http://10.227.164.247:8080/realms/tskhra
 
 
 

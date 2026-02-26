@@ -11,7 +11,7 @@ services:
   # Postgres Database
   postgres:
     image: postgres:16-alpine
-    container_name: postgres
+    container_name: postgres-tskhra
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
@@ -28,7 +28,7 @@ services:
   # PgAdmin
   pgAdmin:
     image: dpage/pgadmin4
-    container_name: pgadmin-ms
+    container_name: pgadmin-tskhra
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
@@ -43,7 +43,7 @@ services:
   # Keycloak
   keycloak:
     image: quay.io/keycloak/keycloak:26.1
-    container_name: keycloak
+    container_name: keycloak-tskhra
     command: [ "-c", "/opt/keycloak/bin/kc.sh build && /opt/keycloak/bin/kc.sh start-dev" ]
     entrypoint: /bin/sh
     environment:
@@ -64,6 +64,23 @@ services:
     networks:
       - micro-network
 
+
+  # Modulith
+  modulith:
+    build: ./Modulith
+    container_name: modulith-tskhra
+    environment:
+      - SERVER_PORT=8081
+      - DB_HOST=postgres
+      - DB_NAME=tskhra_db
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - keycloak
+    networks:
+      - micro-network
+
+
   # todo minio
-  # todo modulith
 
