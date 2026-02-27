@@ -58,7 +58,7 @@ services:
       - "8080:8080"
     volumes:
       - ./keycloak-extensions/tskhra-theme:/opt/keycloak/themes/tskhra-theme
-      - ./keycloak-extensions/providers/UserRegistrationSpi-1.0-SNAPSHOT.jar:/opt/keycloak/providers/UserRegistrationSpi.jar
+      - ./keycloak-extensions/providers/KeycloakUserRegistrationSpi-1.0-SNAPSHOT.jar:/opt/keycloak/providers/KeycloakUserRegistrationSpi-1.0-SNAPSHOT.jar
     depends_on:
       - postgres
     networks:
