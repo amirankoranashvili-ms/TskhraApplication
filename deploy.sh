@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- Configuration ---
-SERVER="your_username@your_server_ip"
+SERVER="user@10.227.164.247"
 PROJECT_DIR="$HOME/Projects/TskhraApplication"
 
 echo "🚀 Starting deployment to $SERVER..."
