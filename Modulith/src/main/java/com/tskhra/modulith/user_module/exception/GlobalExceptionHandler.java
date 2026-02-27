@@ -37,4 +37,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(HttpBadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(HttpBadRequestException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpUnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedFound(HttpUnauthorizedException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
 }
