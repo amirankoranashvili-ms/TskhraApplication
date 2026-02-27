@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "My App API",
+                title = "Tskhra App API",
                 version = "v1",
                 description = "API Documentation for My App"
         ),
