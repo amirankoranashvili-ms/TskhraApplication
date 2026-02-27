@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "Tskhra App API",
                 version = "v1",
-                description = "API Documentation for My App"
+                description = "API Documentation for My App Tskhra"
         ),
         security = @SecurityRequirement(name = "bearerAuth")
 )
