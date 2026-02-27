@@ -7,21 +7,14 @@ import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ErrorHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClient;
 
-import java.io.IOException;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 @Service
 public class AuthService {
