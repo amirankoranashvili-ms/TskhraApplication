@@ -81,6 +81,7 @@ services:
     depends_on:
       - postgres
       - keycloak
+      - minio
     networks:
       - micro-network
 
