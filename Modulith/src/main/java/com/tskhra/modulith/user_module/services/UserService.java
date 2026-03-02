@@ -30,7 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
 
-    @Value("${keycloak.realm}")
+    @Value("${keycloak.realm}") // todo propertiess!!
     private String realm;
 
     private final UserRepository userRepository;
