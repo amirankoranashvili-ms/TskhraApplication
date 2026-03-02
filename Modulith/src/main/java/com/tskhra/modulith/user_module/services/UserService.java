@@ -21,6 +21,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -34,6 +35,7 @@ public class UserService {
     private String realm;
 
     private final UserRepository userRepository;
+    private final ImageService imageService;
     private final Keycloak keycloak;
 
 
@@ -128,7 +130,8 @@ public class UserService {
                 user.getEmail(),
                 user.getKycStatus() == KycStatus.APPROVED,
                 user.getProfilePictureUri() == null ?
-                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" : user.getProfilePictureUri()
+                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" :
+                        imageService.getAvatarUrl(user.getProfilePictureUri())
         );
     }
 
@@ -148,7 +151,8 @@ public class UserService {
                 user.getGender() == null ? null : user.getGender().name(),
                 user.getBirthDate(),
                 user.getProfilePictureUri() == null ?
-                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" : user.getProfilePictureUri()
+                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" :
+                        imageService.getAvatarUrl(user.getProfilePictureUri())
         );
     }
 
@@ -163,6 +167,16 @@ public class UserService {
         user.setPhoneNumber(dto.phoneCountryCode() + dto.phoneNumber());
         user.setBirthDate(dto.birthDate());
 
+        userRepository.save(user);
+    }
+
+    public void uploadAvatar(MultipartFile file, Jwt jwt) {
+        String keycloakId = jwt.getClaimAsString("sub");
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
+                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+
+        String uri = imageService.uploadAvatar(file);
+        user.setProfilePictureUri(uri);
         userRepository.save(user);
     }
 }

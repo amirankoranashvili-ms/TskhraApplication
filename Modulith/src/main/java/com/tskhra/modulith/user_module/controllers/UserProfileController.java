@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user-profile")
@@ -33,7 +34,11 @@ public class UserProfileController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-// todo   @PostMapping("/me/avatar")
+    @PostMapping("/me/avatar")
+    public ResponseEntity<Void> updateAvatar(@AuthenticationPrincipal Jwt jwt,
+                                             @RequestParam("file") MultipartFile file) {
 
-
+        userService.uploadAvatar(file, jwt);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
