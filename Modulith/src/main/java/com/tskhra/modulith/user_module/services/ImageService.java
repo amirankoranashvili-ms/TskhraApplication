@@ -2,31 +2,38 @@ package com.tskhra.modulith.user_module.services;
 
 import com.tskhra.modulith.common.properties.MinioProperties;
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.http.Method;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
-@RequiredArgsConstructor
 public class ImageService {
 
-    private final MinioClient minioClient;
+    private final MinioClient minioInternalClient;
+    private final MinioClient minioExternalClient;
     private final MinioProperties minioProperties;
+
+    public ImageService(@Qualifier("minioInternalClient") MinioClient minioInternalClient,
+                        @Qualifier("minioExternalClient") MinioClient minioExternalClient,
+                        MinioProperties minioProperties) {
+
+        this.minioInternalClient = minioInternalClient;
+        this.minioExternalClient = minioExternalClient;
+        this.minioProperties = minioProperties;
+    }
 
     @PostConstruct
     public void init() throws Exception {
         String bucketName = minioProperties.bucketName();
-        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        boolean found = minioInternalClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         if (!found) {
-            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            minioInternalClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         }
     }
 
@@ -42,7 +49,7 @@ public class ImageService {
         String fileName = UUID.randomUUID() + (extension == null ? "" : "." + extension);
 
         try (InputStream inputStream = file.getInputStream()) {
-            minioClient.putObject(
+            minioInternalClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
                             .object(fileName)
@@ -58,12 +65,10 @@ public class ImageService {
     }
 
     public String getAvatarUrl(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            return null;
-        }
+        if (fileName == null || fileName.isEmpty()) return null;
 
         try {
-            return minioClient.getPresignedObjectUrl(
+            return minioExternalClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioProperties.bucketName())
