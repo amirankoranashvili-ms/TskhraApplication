@@ -72,6 +72,7 @@ public class ImageService {
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioProperties.bucketName())
+                            .region("us-east-1")
                             .object(fileName)
                             .build()
             );
