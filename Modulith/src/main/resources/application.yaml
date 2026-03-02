@@ -26,4 +26,8 @@ keycloak:
   client-id: user-service
   client-secret: hiDfHEHBRbi6VuEPvBDirMecSqINIXit # todo add to env
 
-
+minio:
+  url: http://${MINIO_HOST:localhost}:9000
+  access-key: admin
+  secret-key: password
+  bucket-name: user-avatars

@@ -75,6 +75,7 @@ services:
       - DB_HOST=postgres
       - DB_NAME=tskhra_db
       - KEYCLOAK_HOST=keycloak
+      - MINIO_HOST=minio
     ports:
       - "8081:8081"
     depends_on:
@@ -83,6 +84,21 @@ services:
     networks:
       - micro-network
 
+  # Minio
+  minio:
+    image: minio/minio:latest
+    container_name: minio-tskhra
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
 
-  # todo minio
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - micro-network
+
 
