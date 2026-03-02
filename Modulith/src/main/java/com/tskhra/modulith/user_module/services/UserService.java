@@ -127,7 +127,9 @@ public class UserService {
                 user.getLastName(),
                 user.getEmail(),
                 user.getKycStatus() == KycStatus.APPROVED,
-                "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg"); // todo unmock
+                user.getProfilePictureUri() == null ?
+                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" : user.getProfilePictureUri()
+        );
     }
 
     public UserProfileSelfDto getCurrentUserProfile(Jwt jwt) {
@@ -143,9 +145,10 @@ public class UserService {
                 user.getKycStatus() == KycStatus.APPROVED,
                 user.getCreatedAt().toLocalDate(),
                 user.getPhoneNumber(),
-                user.getGender().name(),
+                user.getGender() == null ? null : user.getGender().name(),
                 user.getBirthDate(),
-                "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" // todo unmock
+                user.getProfilePictureUri() == null ?
+                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" : user.getProfilePictureUri()
         );
     }
 
