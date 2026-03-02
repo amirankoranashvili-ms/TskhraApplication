@@ -16,7 +16,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/tskhra
+          issuer-uri: http://10.227.164.247:8080/realms/tskhra
 
 
 keycloak:
