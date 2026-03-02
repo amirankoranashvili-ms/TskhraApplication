@@ -63,26 +63,12 @@ public class ImageService {
         }
 
         try {
-//            return  minioClient.getPresignedObjectUrl(
-//                    GetPresignedObjectUrlArgs.builder()
-//                            .method(Method.GET)
-//                            .bucket(minioProperties.bucketName())
-//                            .object(fileName)
-//                            .build()
-//            );
-            String internalPresignedUrl = minioClient.getPresignedObjectUrl(
+            return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioProperties.bucketName())
                             .object(fileName)
-                            .expiry(1, TimeUnit.HOURS)
                             .build()
-            );
-
-            // 2. Swap the internal Docker URL with the external public URL
-            return internalPresignedUrl.replace(
-                    minioProperties.url(),
-                    minioProperties.externalUrl()
             );
         } catch (Exception e) {
             return null;
