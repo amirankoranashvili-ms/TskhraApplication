@@ -70,6 +70,8 @@ services:
   modulith:
     build: ./Modulith
     container_name: modulith-tskhra
+    extra_hosts:
+      - "10.227.164.247:host-gateway"
     environment:
       - SERVER_PORT=8081
       - DB_HOST=postgres
