@@ -7,6 +7,7 @@ import org.springframework.modulith.NamedInterface;
 @ConfigurationProperties(prefix = "minio")
 public record MinioProperties(
         String url,
+        String externalUrl,
         String accessKey,
         String secretKey,
         String bucketName

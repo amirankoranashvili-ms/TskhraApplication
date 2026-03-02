@@ -28,6 +28,7 @@ keycloak:
 
 minio:
   url: http://${MINIO_HOST:localhost}:9000
+  external-url: http://localhost:9000
   access-key: admin
   secret-key: password
   bucket-name: user-avatars
