@@ -3,10 +3,13 @@ package com.tskhra.modulith.user_module.services;
 import com.tskhra.modulith.user_module.exception.HttpConflictException;
 import com.tskhra.modulith.user_module.exception.HttpNotFoundException;
 import com.tskhra.modulith.user_module.model.domain.User;
+import com.tskhra.modulith.user_module.model.enums.Gender;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
 import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
+import com.tskhra.modulith.user_module.model.requests.UserProfileUpdateDto;
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
+import com.tskhra.modulith.user_module.model.responses.UserProfileSelfDto;
 import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
@@ -123,7 +126,40 @@ public class UserService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getKycStatus() == KycStatus.APPROVED
+                user.getKycStatus() == KycStatus.APPROVED,
+                "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg"); // todo unmock
+    }
+
+    public UserProfileSelfDto getCurrentUserProfile(Jwt jwt) {
+        String keycloakId = jwt.getClaimAsString("sub");
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
+                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+
+        return new UserProfileSelfDto(
+                user.getEmail(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getKycStatus() == KycStatus.APPROVED,
+                user.getCreatedAt().toLocalDate(),
+                user.getPhoneNumber(),
+                user.getGender().name(),
+                user.getBirthDate(),
+                "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" // todo unmock
         );
+    }
+
+    public void updateProfile(UserProfileUpdateDto dto, Jwt jwt) {
+        String keycloakId = jwt.getClaimAsString("sub");
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
+                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+
+        user.setFirstName(dto.firstName());
+        user.setLastName(dto.lastName());
+        user.setGender(Gender.valueOf(dto.gender().toUpperCase()));
+        user.setPhoneNumber(dto.phoneCountryCode() + dto.phoneNumber());
+        user.setBirthDate(dto.birthDate());
+
+        userRepository.save(user);
     }
 }

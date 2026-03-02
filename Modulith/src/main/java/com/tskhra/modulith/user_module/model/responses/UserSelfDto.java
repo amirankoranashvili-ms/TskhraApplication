@@ -5,6 +5,6 @@ public record UserSelfDto(
         String firstName,
         String lastName,
         String userEmail,
-        boolean isVerified
-) {
+        boolean isVerified,
+        String avatar) {
 }

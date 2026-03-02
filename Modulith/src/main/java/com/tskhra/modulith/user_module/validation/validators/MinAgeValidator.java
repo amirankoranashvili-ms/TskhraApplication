@@ -10,8 +10,6 @@ import java.time.Period;
 public class MinAgeValidator implements ConstraintValidator<MinAge, LocalDate> {
 
     private int minAge;
-    private LocalDate birthDate;
-    private ConstraintValidatorContext context;
 
     @Override
     public void initialize(MinAge constraintAnnotation) {
@@ -20,8 +18,6 @@ public class MinAgeValidator implements ConstraintValidator<MinAge, LocalDate> {
 
     @Override
     public boolean isValid(LocalDate birthDate, ConstraintValidatorContext context) {
-        this.birthDate = birthDate;
-        this.context = context;
         if (birthDate == null) {
             return true;
         }
