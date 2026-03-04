@@ -109,7 +109,7 @@ public class UserService {
                 user.getEmail(),
                 user.getKycStatus() == KycStatus.APPROVED,
                 user.getProfilePictureUri() == null ?
-                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" :
+                        null :
                         imageService.getAvatarUrl(user.getProfilePictureUri())
         );
     }
