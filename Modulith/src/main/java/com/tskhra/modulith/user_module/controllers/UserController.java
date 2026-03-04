@@ -4,6 +4,7 @@ import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistratio
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
 import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.services.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ public class UserController {
     }
 
     // todo figure how to make it safe
+    @Hidden
     @PostMapping("/kc-register")
     public ResponseEntity<Void> registerKcUser(@RequestBody KeycloakSpiUserRegistrationDto dto) {
 
@@ -46,6 +48,18 @@ public class UserController {
     @GetMapping("/sanity-check")
     public ResponseEntity<String> sanityCheck() {
         return ResponseEntity.ok("Sanity check passed!");
+    }
+
+    @PostMapping("/me/verify")
+    public ResponseEntity<Void> selfVerify(@AuthenticationPrincipal Jwt jwt) {
+        userService.selfVerify(jwt);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/me/unverify")
+    public ResponseEntity<Void> selfUnverify(@AuthenticationPrincipal Jwt jwt) {
+        userService.selfUnverify(jwt);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

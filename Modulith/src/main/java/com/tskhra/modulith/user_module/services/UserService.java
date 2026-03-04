@@ -14,6 +14,7 @@ import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -177,6 +178,23 @@ public class UserService {
 
         String uri = imageService.uploadAvatar(file);
         user.setProfilePictureUri(uri);
+        userRepository.save(user);
+    }
+
+    public void selfVerify(Jwt jwt) {
+        setKycStatus(KycStatus.APPROVED, jwt);
+    }
+
+    public void selfUnverify(Jwt jwt) {
+        setKycStatus(KycStatus.NONE, jwt);
+    }
+
+    private void setKycStatus(KycStatus status, Jwt jwt) {
+        String keycloakId = jwt.getClaimAsString("sub");
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
+                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+
+        user.setKycStatus(status);
         userRepository.save(user);
     }
 }
