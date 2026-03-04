@@ -13,8 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -41,7 +39,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserSelfDto> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
 
-        UserSelfDto self = userService.currentUser(jwt);
+        UserSelfDto self = userService.getCurrentUserInfo(jwt);
         return ResponseEntity.status(HttpStatus.OK).body(self);
     }
 

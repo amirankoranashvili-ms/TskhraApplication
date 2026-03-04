@@ -42,4 +42,11 @@ public class UserProfileController {
         userService.uploadAvatar(file, jwt);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping("/me/avatar")
+    public ResponseEntity<Void> deleteAvatar(@AuthenticationPrincipal Jwt jwt) {
+
+        userService.deleteAvatar(jwt);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

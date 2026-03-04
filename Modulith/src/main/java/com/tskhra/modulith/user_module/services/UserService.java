@@ -14,6 +14,7 @@ import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -81,26 +82,6 @@ public class UserService {
 
     }
 
-    private UserRepresentation getUserRepresentation(UserRegistrationRequestDto dto) {
-        UserRepresentation user = new UserRepresentation();
-        user.setUsername(dto.username());
-        user.setEmail(dto.email());
-        user.setEnabled(true);
-
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(dto.password());
-        credential.setTemporary(false);
-
-        user.setCredentials(Collections.singletonList(credential));
-        return user;
-    }
-
-    private String getCreatedId(Response response) {
-        String path = response.getLocation().getPath();
-        return path.substring(path.lastIndexOf("/") + 1);
-    }
-
     public void registerKcUser(KeycloakSpiUserRegistrationDto dto) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -118,10 +99,8 @@ public class UserService {
 
     }
 
-    public UserSelfDto currentUser(Jwt jwt) {
-        String keycloakId = jwt.getClaimAsString("sub");
-        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
-                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+    public UserSelfDto getCurrentUserInfo(Jwt jwt) {
+        User user = getCurrentUser(jwt);
 
         return new UserSelfDto(
                 user.getUsername(),
@@ -136,9 +115,7 @@ public class UserService {
     }
 
     public UserProfileSelfDto getCurrentUserProfile(Jwt jwt) {
-        String keycloakId = jwt.getClaimAsString("sub");
-        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
-                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+        User user = getCurrentUser(jwt);
 
         return new UserProfileSelfDto(
                 user.getEmail(),
@@ -157,9 +134,7 @@ public class UserService {
     }
 
     public void updateProfile(UserProfileUpdateDto dto, Jwt jwt) {
-        String keycloakId = jwt.getClaimAsString("sub");
-        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
-                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+        User user = getCurrentUser(jwt);
 
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
@@ -171,12 +146,17 @@ public class UserService {
     }
 
     public void uploadAvatar(MultipartFile file, Jwt jwt) {
-        String keycloakId = jwt.getClaimAsString("sub");
-        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
-                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+        User user = getCurrentUser(jwt);
 
         String uri = imageService.uploadAvatar(file);
         user.setProfilePictureUri(uri);
+        userRepository.save(user);
+    }
+
+    public void deleteAvatar(Jwt jwt) {
+        User user = getCurrentUser(jwt);
+
+        user.setProfilePictureUri(null);
         userRepository.save(user);
     }
 
@@ -188,12 +168,38 @@ public class UserService {
         setKycStatus(KycStatus.NONE, jwt);
     }
 
+
+//    Helper methods
     private void setKycStatus(KycStatus status, Jwt jwt) {
-        String keycloakId = jwt.getClaimAsString("sub");
-        User user = userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
-                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+        User user = getCurrentUser(jwt);
 
         user.setKycStatus(status);
         userRepository.save(user);
+    }
+
+    private @NonNull User getCurrentUser(Jwt jwt) {
+        String keycloakId = jwt.getClaimAsString("sub");
+        return userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
+                .orElseThrow(() -> new HttpNotFoundException("Current user not found."));
+    }
+
+    private String getCreatedId(Response response) {
+        String path = response.getLocation().getPath();
+        return path.substring(path.lastIndexOf("/") + 1);
+    }
+
+    private UserRepresentation getUserRepresentation(UserRegistrationRequestDto dto) {
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(dto.username());
+        user.setEmail(dto.email());
+        user.setEnabled(true);
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(dto.password());
+        credential.setTemporary(false);
+
+        user.setCredentials(Collections.singletonList(credential));
+        return user;
     }
 }
