@@ -1,7 +1,7 @@
 package com.tskhra.modulith.user_module.services;
 
-import com.tskhra.modulith.user_module.exception.HttpConflictException;
-import com.tskhra.modulith.user_module.exception.HttpNotFoundException;
+import com.tskhra.modulith.common.exception.HttpConflictException;
+import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.Gender;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
@@ -14,7 +14,6 @@ import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;

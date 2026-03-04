@@ -1,4 +1,4 @@
-package com.tskhra.modulith.user_module.exception;
+package com.tskhra.modulith.common.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -12,7 +12,6 @@ public record UserProfileSelfDto(
         String phoneNumber,
         String gender,
         LocalDate birthDate,
-
         String avatar
 ) {
 }

@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @NotBlank(message = "Password cannot be blank")
 @Size(min = 8, message = "Password must be at least 8 characters long")
 @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_]).*$",
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_]).*$", // todo add other special characters
         message = "Password must contain at least one lowercase letter, uppercase letter, number, and special character - !@#$%^&*()_"
 )
 

@@ -1,8 +1,8 @@
 package com.tskhra.modulith.user_module.services;
 
 import com.tskhra.modulith.common.properties.KeycloakProperties;
-import com.tskhra.modulith.user_module.exception.HttpBadRequestException;
-import com.tskhra.modulith.user_module.exception.HttpUnauthorizedException;
+import com.tskhra.modulith.common.exception.HttpBadRequestException;
+import com.tskhra.modulith.common.exception.HttpUnauthorizedException;
 import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;

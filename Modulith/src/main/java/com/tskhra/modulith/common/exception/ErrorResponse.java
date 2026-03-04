@@ -1,4 +1,4 @@
-package com.tskhra.modulith.user_module.model.responses;
+package com.tskhra.modulith.common.exception;
 
 
 public record ErrorResponse(
