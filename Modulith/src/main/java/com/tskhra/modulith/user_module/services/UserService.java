@@ -128,7 +128,7 @@ public class UserService {
                 user.getGender() == null ? null : user.getGender().name(),
                 user.getBirthDate(),
                 user.getProfilePictureUri() == null ?
-                        "https://m.media-amazon.com/images/I/51P7JzxB6+L._SX679_.jpg" :
+                        null :
                         imageService.getAvatarUrl(user.getProfilePictureUri())
         );
     }

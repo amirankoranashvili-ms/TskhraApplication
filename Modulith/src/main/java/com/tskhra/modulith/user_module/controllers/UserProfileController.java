@@ -35,12 +35,12 @@ public class UserProfileController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // todo PUT more correct?
     public ResponseEntity<Void> updateAvatar(@AuthenticationPrincipal Jwt jwt,
                                              @RequestParam("file") MultipartFile file) {
 
         userService.uploadAvatar(file, jwt);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); // todo OK?
     }
 
     @DeleteMapping("/me/avatar")
