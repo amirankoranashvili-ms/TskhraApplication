@@ -31,4 +31,5 @@ minio:
   external-url: http://10.227.164.247:9000
   access-key: admin
   secret-key: password
-  bucket-name: user-avatars
+  bucket-name: tskhra-images
+  avatar-folder: user-avatars/

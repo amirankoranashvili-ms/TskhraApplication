@@ -10,6 +10,7 @@ public record MinioProperties(
         String externalUrl,
         String accessKey,
         String secretKey,
-        String bucketName
+        String bucketName,
+        String avatarFolder
 ) {
 }

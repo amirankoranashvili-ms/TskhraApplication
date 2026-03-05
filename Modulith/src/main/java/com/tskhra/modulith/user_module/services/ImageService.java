@@ -43,6 +43,7 @@ public class ImageService {
         }
 
         String bucketName = minioProperties.bucketName();
+        String folderPrefix = minioProperties.avatarFolder();
         String originalFilename = file.getOriginalFilename();
 
         String extension = StringUtils.getFilenameExtension(originalFilename);
@@ -52,7 +53,7 @@ public class ImageService {
             minioInternalClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(fileName)
+                            .object(folderPrefix + fileName)
                             .stream(inputStream, file.getSize(), -1)
                             .contentType(file.getContentType())
                             .build()
@@ -67,13 +68,15 @@ public class ImageService {
     public String getAvatarUrl(String fileName) {
         if (fileName == null || fileName.isEmpty()) return null;
 
+        String objectKey = minioProperties.avatarFolder() + fileName;
+
         try {
             return minioExternalClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioProperties.bucketName())
                             .region("us-east-1")
-                            .object(fileName)
+                            .object(objectKey)
                             .build()
             );
         } catch (Exception e) {
