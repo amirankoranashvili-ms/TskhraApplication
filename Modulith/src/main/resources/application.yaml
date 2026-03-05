@@ -18,6 +18,9 @@ spring:
         jwt:
 #          issuer-uri: http://10.227.164.247:8080/realms/tskhra
           jwk-set-uri: http://keycloak:8080/realms/tskhra/protocol/openid-connect/certs # add WORKS!
+  servlet:
+    multipart:
+      max-file-size: 5MB
 
 
 keycloak:
