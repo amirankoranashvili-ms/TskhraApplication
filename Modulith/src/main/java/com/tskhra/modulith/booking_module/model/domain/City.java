@@ -1,21 +1,24 @@
-package com.tskhra.modulith.user_module.model.domain;
+package com.tskhra.modulith.booking_module.model.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "admins")
+@Table(name = "cities")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Admin {
+@Getter
+@Setter
+public class City {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
-
-    private String email;
+    @Column(unique = true, nullable = false)
+    private String name;
 
 }

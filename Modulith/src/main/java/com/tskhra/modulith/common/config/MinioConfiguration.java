@@ -3,10 +3,8 @@ package com.tskhra.modulith.common.config;
 import com.tskhra.modulith.common.properties.MinioProperties;
 import io.minio.MinioClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 @Configuration
 @RequiredArgsConstructor

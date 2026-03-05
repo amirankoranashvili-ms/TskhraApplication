@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthController { // todo /login and /refresh endpoints for mobile
+public class AuthController {
 
     private final AuthService authService;
 
