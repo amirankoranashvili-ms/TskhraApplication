@@ -1,6 +1,7 @@
 package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
+import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
 import jakarta.validation.Valid;
@@ -22,11 +23,11 @@ public class BusinessController {
     private final BusinessService businessService;
 
     @PostMapping("/individual")
-    public ResponseEntity<IdResponseDto> createBusiness(@AuthenticationPrincipal Jwt jwt,
-                                                        @Valid @RequestBody BusinessRegistrationDto dto) {
+    public ResponseEntity<BusinessIdResponseDto> createBusiness(@AuthenticationPrincipal Jwt jwt,
+                                                                @Valid @RequestBody BusinessRegistrationDto dto) {
 
         Long id = businessService.register(dto, jwt);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(id.toString()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BusinessIdResponseDto(id.toString()));
     }
 
 }
