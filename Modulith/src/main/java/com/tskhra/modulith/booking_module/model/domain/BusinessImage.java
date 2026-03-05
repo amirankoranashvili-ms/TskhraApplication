@@ -23,6 +23,9 @@ public class BusinessImage {
     @JoinColumn(name = "business_id")
     private Business business;
 
+    @Column(nullable = false)
+    private boolean isMain = false;
+
     @Column(nullable = false, unique = true)
     private String filename;
 
