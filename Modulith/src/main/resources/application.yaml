@@ -33,3 +33,4 @@ minio:
   secret-key: password
   bucket-name: tskhra-images
   avatar-folder: user-avatars/
+  business-folder: business-pictures/

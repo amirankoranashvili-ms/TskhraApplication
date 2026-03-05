@@ -11,6 +11,7 @@ public record MinioProperties(
         String accessKey,
         String secretKey,
         String bucketName,
-        String avatarFolder
+        String avatarFolder,
+        String businessFolder
 ) {
 }

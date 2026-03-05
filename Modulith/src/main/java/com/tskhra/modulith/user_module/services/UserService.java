@@ -2,6 +2,7 @@ package com.tskhra.modulith.user_module.services;
 
 import com.tskhra.modulith.common.exception.HttpConflictException;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
+import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.Gender;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
@@ -20,6 +21,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.modulith.NamedInterface;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +32,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@NamedInterface
 public class UserService {
 
     @Value("${keycloak.realm}") // todo propertiess!!
@@ -177,7 +180,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private @NonNull User getCurrentUser(Jwt jwt) {
+    public @NonNull User getCurrentUser(Jwt jwt) {
         String keycloakId = jwt.getClaimAsString("sub");
         return userRepository.findUserByKeycloakId(UUID.fromString(keycloakId))
                 .orElseThrow(() -> new HttpNotFoundException("Current user not found."));

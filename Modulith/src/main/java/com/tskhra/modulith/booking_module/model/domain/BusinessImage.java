@@ -1,10 +1,7 @@
 package com.tskhra.modulith.booking_module.model.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class BusinessImage {
 
     @Id
@@ -22,7 +20,7 @@ public class BusinessImage {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "business_id", nullable = false)
+    @JoinColumn(name = "business_id")
     private Business business;
 
     @Column(nullable = false, unique = true)

@@ -1,10 +1,11 @@
-package com.tskhra.modulith.user_module.services;
+package com.tskhra.modulith.common.services;
 
 import com.tskhra.modulith.common.properties.MinioProperties;
 import io.minio.*;
 import io.minio.http.Method;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.modulith.NamedInterface;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 @Service
+@NamedInterface
 public class ImageService {
 
     private final MinioClient minioInternalClient;
@@ -81,6 +83,35 @@ public class ImageService {
             );
         } catch (Exception e) {
             return null;
+        }
+    }
+
+
+    public String uploadBusinessImage(MultipartFile file) { // todo decompose
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Cannot upload an empty file.");
+        }
+
+        String bucketName = minioProperties.bucketName();
+        String folderPrefix = minioProperties.businessFolder();
+        String originalFilename = file.getOriginalFilename();
+
+        String extension = StringUtils.getFilenameExtension(originalFilename);
+        String fileName = UUID.randomUUID() + (extension == null ? "" : "." + extension);
+
+        try (InputStream inputStream = file.getInputStream()) {
+            minioInternalClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(folderPrefix + fileName)
+                            .stream(inputStream, file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+            return fileName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload file: " + originalFilename, e);
         }
     }
 
