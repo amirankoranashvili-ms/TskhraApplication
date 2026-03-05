@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,7 +21,7 @@ public class BusinessImageController {
 
     private final BusinessImageService businessImageService;
 
-    @PostMapping("/images")
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<IdResponseDto> uploadBusinessImage(@AuthenticationPrincipal Jwt jwt,
                                                              @RequestParam("file") MultipartFile file) {
 
