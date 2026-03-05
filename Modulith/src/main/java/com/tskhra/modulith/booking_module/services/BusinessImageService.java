@@ -2,8 +2,8 @@ package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.BusinessImage;
 import com.tskhra.modulith.booking_module.repositories.BusinessImageRepository;
+import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
-import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,7 +19,7 @@ public class BusinessImageService {
     private final UserService userService;
 
 
-    public Long uploadImage(MultipartFile file, Jwt jwt) { // todo check createdAt
+    public Long uploadImage(MultipartFile file, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         String filename = imageService.uploadBusinessImage(file);
         BusinessImage businessImage = BusinessImage.builder()
