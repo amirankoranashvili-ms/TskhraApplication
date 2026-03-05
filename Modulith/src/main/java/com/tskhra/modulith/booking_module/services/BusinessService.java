@@ -34,6 +34,17 @@ public class BusinessService {
         LocalDateTime now = LocalDateTime.now();
         Long userId = userService.getCurrentUser(jwt).getId();
 
+
+//        Address
+        String cityName = dto.city();
+        City city = cityRepository.findByName(cityName)
+                .orElseThrow(() -> new HttpNotFoundException("No such city: " + cityName));
+        Address address = new Address();
+        address.setCity(city);
+        address.setDetails(dto.addressDetails());
+        Address savedAddress = addressRepository.save(address);
+
+//        Business
         Business business = Business.builder()
                 .name(dto.businessName())
                 .userId(userId)
@@ -48,15 +59,6 @@ public class BusinessService {
                 .build();
 
         Business savedBusiness = businessRepository.save(business);
-
-//        Address
-        String cityName = dto.city();
-        City city = cityRepository.findByName(cityName)
-                .orElseThrow(() -> new HttpNotFoundException("No such city: " + cityName));
-        Address address = new Address();
-        address.setCity(city);
-        address.setDetails(dto.addressDetails());
-        Address savedAddress = addressRepository.save(address);
         savedBusiness.setAddress(savedAddress);
 
 //        Category
