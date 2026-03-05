@@ -3,6 +3,7 @@ package com.tskhra.modulith.booking_module.model.domain;
 import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BusinessType;
+import com.tskhra.modulith.booking_module.model.enums.CallType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -30,6 +31,8 @@ public class Business {
     @Column(nullable = false)
     private String name;
 
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -37,10 +40,9 @@ public class Business {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "main_image_id")
-    @Setter(AccessLevel.NONE)
-    private BusinessImage mainImage;
+    private String instagramUrl;
+
+    private String facebookUrl;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
@@ -55,6 +57,11 @@ public class Business {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "activity_status", columnDefinition = "activity_status", nullable = false)
     private ActivityStatus activityStatus;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "call_type", columnDefinition = "call_type")
+    private CallType callType;
 
     @OneToMany(mappedBy = "business", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BusinessSchedule> businessSchedules = new ArrayList<>();
@@ -137,13 +144,6 @@ public class Business {
     public void removeBusinessImage(BusinessImage businessImage) {
         this.businessImages.remove(businessImage);
         businessImage.setBusiness(null);
-    }
-
-    public void setMainImage(BusinessImage businessImage) {
-        this.mainImage = businessImage;
-        if (businessImage != null) {
-            businessImage.setBusiness(this);
-        }
     }
 
 }
