@@ -67,14 +67,14 @@ public class BusinessService {
         savedBusiness.setCategory(category);
 
 //        Main Image
-        Long mainImageId = Long.valueOf(dto.mainImageId());
+        Long mainImageId = Long.valueOf(dto.mainPhotoId());
         BusinessImage mainImage = businessImageRepository.findById(mainImageId)
                 .orElseThrow(() -> new HttpNotFoundException("No such image with id " + mainImageId));
         mainImage.setBusiness(savedBusiness);
         mainImage.setMain(true);
 
 //        Gallery Images
-        dto.galleryImageIds().stream()
+        dto.galleryPhotoIds().stream()
                 .map(Long::valueOf)
                 .map(businessImageRepository::findById)
                 .map(opt ->

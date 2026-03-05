@@ -11,8 +11,8 @@ public record BusinessRegistrationDto(
         String city, // search by name
         String addressDetails, // just address details
         String description,
-        String mainImageId,
-        List<String> galleryImageIds,
+        String mainPhotoId,
+        List<String> galleryPhotoIds,
         String subCategory,
         List<WeekTimeInterval> workTimes,
         List<WeekTimeInterval> restTimes,
