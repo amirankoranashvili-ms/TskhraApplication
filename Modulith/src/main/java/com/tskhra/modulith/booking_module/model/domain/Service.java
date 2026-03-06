@@ -32,6 +32,9 @@ public class Service {
     @Column(name = "activity_status", columnDefinition = "activity_status")
     private ActivityStatus activityStatus;
 
+    @Column(nullable = false)
+    private String name;
+
     private int capacity;
 
     private String description;
