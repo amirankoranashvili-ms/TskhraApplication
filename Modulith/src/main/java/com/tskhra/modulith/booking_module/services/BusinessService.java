@@ -109,8 +109,8 @@ public class BusinessService {
                 .map(b -> new BusinessDetailsDto(
                         b.getId().toString(),
                         b.getName(),
-                        b.getCategory().getName(),
-                        b.getCategory().getParent().getName(),
+                        b.getCategory() == null ? null : b.getCategory().getName(),
+                        b.getCategory().getParent() == null ? null : b.getCategory().getParent().getName(),
                         imageService.getBusinessImageUrl(
                                 b.getBusinessImages().stream()
                                         .filter(BusinessImage::isMain)
@@ -121,8 +121,8 @@ public class BusinessService {
                                 .map(BusinessImage::getFilename)
                                 .map(imageService::getBusinessImageUrl)
                                 .toList(),
-                        b.getAddress().getCity().getName(),
-                        b.getAddress().getDetails(),
+                        b.getAddress() == null ? null : b.getAddress().getCity().getName(),
+                        b.getAddress() == null ? null : b.getAddress().getDetails(),
                         b.getCallType(),
                         b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
                         b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
@@ -136,8 +136,8 @@ public class BusinessService {
                 .map(b -> new BusinessDetailsDto(
                         b.getId().toString(),
                         b.getName(),
-                        b.getCategory().getName(),
-                        b.getCategory().getParent().getName(),
+                        b.getCategory() == null ? null : b.getCategory().getName(),
+                        b.getCategory().getParent() == null ? null : b.getCategory().getParent().getName(),
                         imageService.getBusinessImageUrl(
                                 b.getBusinessImages().stream()
                                         .filter(BusinessImage::isMain)
@@ -148,8 +148,8 @@ public class BusinessService {
                                 .map(BusinessImage::getFilename)
                                 .map(imageService::getBusinessImageUrl)
                                 .toList(),
-                        b.getAddress().getCity().getName(),
-                        b.getAddress().getDetails(),
+                        b.getAddress() == null ? null : b.getAddress().getCity().getName(),
+                        b.getAddress() == null ? null : b.getAddress().getDetails(),
                         b.getCallType(),
                         b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
                         b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
