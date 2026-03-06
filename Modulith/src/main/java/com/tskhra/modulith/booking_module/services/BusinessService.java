@@ -12,6 +12,8 @@ import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -126,5 +128,32 @@ public class BusinessService {
                         b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
                 ))
                 .toList();
+    }
+
+    public Page<BusinessDetailsDto> getAllBusinessPage(Pageable pageable) {
+        Page<Business> businesses = businessRepository.findAll(pageable);
+        return businesses
+                .map(b -> new BusinessDetailsDto(
+                        b.getId().toString(),
+                        b.getName(),
+                        b.getCategory().getName(),
+                        b.getCategory().getParent().getName(),
+                        imageService.getBusinessImageUrl(
+                                b.getBusinessImages().stream()
+                                        .filter(BusinessImage::isMain)
+                                        .toList().getFirst().getFilename()
+                        ),
+                        b.getBusinessImages().stream()
+                                .filter(bi -> !bi.isMain())
+                                .map(BusinessImage::getFilename)
+                                .map(imageService::getBusinessImageUrl)
+                                .toList(),
+                        b.getAddress().getCity().getName(),
+                        b.getAddress().getDetails(),
+                        b.getCallType(),
+                        b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
+                        b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
+                ));
+
     }
 }

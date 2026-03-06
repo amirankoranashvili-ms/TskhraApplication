@@ -7,6 +7,9 @@ import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,6 +40,14 @@ public class BusinessController {
     }
 
    // todo Pagination on all businesses
+    @GetMapping
+    public ResponseEntity<Page<BusinessDetailsDto>> getAllBusinesses(@RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BusinessDetailsDto> businessPage = businessService.getAllBusinessPage(pageable);
+        return ResponseEntity.ok(businessPage);
+    }
 
 
 
