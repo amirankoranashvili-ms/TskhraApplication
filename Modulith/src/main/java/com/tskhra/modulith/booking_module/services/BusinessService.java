@@ -141,7 +141,10 @@ public class BusinessService {
                         imageService.getBusinessImageUrl(
                                 b.getBusinessImages().stream()
                                         .filter(BusinessImage::isMain)
-                                        .toList().getFirst().getFilename()
+                                        .findFirst()
+                                        .map(BusinessImage::getFilename)
+                                        .map(imageService::getBusinessImageUrl)
+                                        .orElse(null)
                         ),
                         b.getBusinessImages().stream()
                                 .filter(bi -> !bi.isMain())
