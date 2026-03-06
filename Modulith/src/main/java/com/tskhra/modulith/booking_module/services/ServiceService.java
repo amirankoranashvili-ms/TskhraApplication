@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import com.tskhra.modulith.booking_module.model.domain.Service;
 
+import java.util.List;
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class ServiceService {
@@ -40,4 +42,11 @@ public class ServiceService {
         Service savedService = serviceRepository.save(service);
         return savedService.getId();
     }
+
+    public List<Long> createServices(List<ServiceRegistrationDto> dtos, Long businessId, Jwt jwt) {
+        return dtos.stream()
+                .map(dto -> createService(dto, businessId, jwt))
+                .toList();
+    }
+
 }
