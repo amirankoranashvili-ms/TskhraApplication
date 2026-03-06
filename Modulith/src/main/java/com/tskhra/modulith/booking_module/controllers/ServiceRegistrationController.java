@@ -1,5 +1,6 @@
 package com.tskhra.modulith.booking_module.controllers;
 
+import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.ServiceService;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/business")
@@ -28,6 +31,12 @@ public class ServiceRegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(createdId.toString()));
     }
 
+    @GetMapping("/{id}/services")
+    public ResponseEntity<List<ServiceFullDto>> getBusinessServices(@PathVariable("id") Long businessId) {
+
+        List<ServiceFullDto> services = serviceService.getBusinessServices(businessId);
+        return ResponseEntity.ok(services);
+    }
 
 
 }

@@ -3,6 +3,7 @@ package com.tskhra.modulith.booking_module.services;
 import com.tskhra.modulith.booking_module.model.domain.Business;
 import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
+import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
 import com.tskhra.modulith.booking_module.repositories.ServiceRepository;
@@ -43,4 +44,19 @@ public class ServiceService {
         return savedService.getId();
     }
 
+    public List<ServiceFullDto> getBusinessServices(Long businessId) {
+        Business business = businessRepository.findById(businessId).orElseThrow(
+                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+        );
+
+        return business.getServices().stream()
+                .map(s -> new ServiceFullDto(
+                        s.getId().toString(),
+                        s.getName(),
+                        s.getDescription(),
+                        s.getSessionPrice(),
+                        s.getSessionDuration()
+                ))
+                .toList();
+    }
 }
