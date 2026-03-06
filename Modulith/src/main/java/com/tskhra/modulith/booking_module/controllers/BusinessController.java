@@ -42,7 +42,7 @@ public class BusinessController {
    // todo Pagination on all businesses
     @GetMapping
     public ResponseEntity<Page<BusinessDetailsDto>> getAllBusinesses(@RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "10") int size) {
+                                                                     @RequestParam(defaultValue = "12") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<BusinessDetailsDto> businessPage = businessService.getAllBusinessPage(pageable);
