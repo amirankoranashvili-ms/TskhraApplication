@@ -28,7 +28,7 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/users/sanity-check",
-                                "/categories/*",
+                                "/categories/**",
                                 "/cities"
                         ).permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
