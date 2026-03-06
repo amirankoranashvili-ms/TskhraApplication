@@ -28,7 +28,6 @@ public class ServiceRegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(createdId.toString()));
     }
 
-    @GetMapping("/{id}/services")
 
 
 }
