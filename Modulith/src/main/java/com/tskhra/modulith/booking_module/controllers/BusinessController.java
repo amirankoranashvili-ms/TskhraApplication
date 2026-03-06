@@ -49,6 +49,13 @@ public class BusinessController {
         return ResponseEntity.ok(businessPage);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BusinessDetailsDto> getBusiness(@PathVariable("id") Long businessId) {
+
+        BusinessDetailsDto dto = businessService.getSpecificBusiness(businessId);
+        return ResponseEntity.ok(dto);
+    }
+
 
 
 
