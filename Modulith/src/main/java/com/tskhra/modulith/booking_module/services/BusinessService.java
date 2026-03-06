@@ -110,7 +110,7 @@ public class BusinessService {
                         b.getId().toString(),
                         b.getName(),
                         b.getCategory() == null ? null : b.getCategory().getName(),
-                        b.getCategory().getParent() == null ? null : b.getCategory().getParent().getName(),
+                        b.getCategory() == null ? null : b.getCategory().getParent().getName(),
                         imageService.getBusinessImageUrl(
                                 b.getBusinessImages().stream()
                                         .filter(BusinessImage::isMain)
@@ -137,7 +137,7 @@ public class BusinessService {
                         b.getId().toString(),
                         b.getName(),
                         b.getCategory() == null ? null : b.getCategory().getName(),
-                        b.getCategory().getParent() == null ? null : b.getCategory().getParent().getName(),
+                        b.getCategory() == null ? null : b.getCategory().getParent().getName(),
                         imageService.getBusinessImageUrl(
                                 b.getBusinessImages().stream()
                                         .filter(BusinessImage::isMain)
