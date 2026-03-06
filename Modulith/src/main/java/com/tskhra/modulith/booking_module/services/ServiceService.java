@@ -43,10 +43,4 @@ public class ServiceService {
         return savedService.getId();
     }
 
-    public List<Long> createServices(List<ServiceRegistrationDto> dtos, Long businessId, Jwt jwt) {
-        return dtos.stream()
-                .map(dto -> createService(dto, businessId, jwt))
-                .toList();
-    }
-
 }

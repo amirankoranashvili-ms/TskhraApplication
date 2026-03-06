@@ -24,30 +24,13 @@ public class ServiceRegistrationController {
     private final ServiceService serviceService;
 
     @PostMapping("/{id}/services")
-    public ResponseEntity<List<IdResponseDto>> createService(@AuthenticationPrincipal Jwt jwt,
-                                                       @PathVariable("id") Long businessId,
-                                                       @RequestBody List<ServiceRegistrationDto> dtos) {
-
-        log.warn("Creating service for business: {}", businessId);
-        log.warn("Service: {}", dtos);
-        List<Long> createdId = serviceService.createServices(dtos, businessId, jwt);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                createdId.stream()
-                        .map(Object::toString)
-                        .map(IdResponseDto::new)
-                        .toList()
-        );
-    }
-
-    @PostMapping("/{id}/services/single")
     public ResponseEntity<IdResponseDto> createService(@AuthenticationPrincipal Jwt jwt,
-                                                       @PathVariable("id") Long businessId,
-                                                       @RequestBody ServiceRegistrationDto dto) {
+                                                             @PathVariable("id") Long businessId,
+                                                             @RequestBody ServiceRegistrationDto dto) {
 
-        log.warn("Creating service for business: {}", businessId);
-        log.warn("Service: {}", dto);
         Long createdId = serviceService.createService(dto, businessId, jwt);
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(createdId.toString()));
     }
+
 
 }
