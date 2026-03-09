@@ -143,7 +143,6 @@ public class BusinessService {
                                         .filter(BusinessImage::isMain)
                                         .findFirst()
                                         .map(BusinessImage::getFilename)
-                                        .map(imageService::getBusinessImageUrl)
                                         .orElse(null)
                         ),
                         b.getBusinessImages().stream()
@@ -174,7 +173,6 @@ public class BusinessService {
                                 .filter(BusinessImage::isMain)
                                 .findFirst()
                                 .map(BusinessImage::getFilename)
-                                .map(imageService::getBusinessImageUrl)
                                 .orElse(null)
                 ),
                 b.getBusinessImages().stream()

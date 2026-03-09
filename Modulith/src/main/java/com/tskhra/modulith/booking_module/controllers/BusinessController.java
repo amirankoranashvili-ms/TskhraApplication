@@ -39,7 +39,6 @@ public class BusinessController {
         return ResponseEntity.ok(businesses);
     }
 
-   // todo Pagination on all businesses
     @GetMapping
     public ResponseEntity<Page<BusinessDetailsDto>> getAllBusinesses(@RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "12") int size) {
