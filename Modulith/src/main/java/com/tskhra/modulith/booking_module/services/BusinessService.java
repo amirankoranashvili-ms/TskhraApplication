@@ -127,6 +127,7 @@ public class BusinessService {
         return savedBusiness.getId();
     }
 
+    @Transactional(readOnly = true)
     public List<BusinessDetailsDto> getCurrentUserBusinesses(Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
 
@@ -137,11 +138,13 @@ public class BusinessService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public Page<BusinessDetailsDto> getAllBusinessPage(Pageable pageable) {
         Page<Business> businesses = businessRepository.findAll(pageable);
         return businesses.map(this::mapToDto);
     }
 
+    @Transactional(readOnly = true)
     public BusinessDetailsDto getSpecificBusiness(Long businessId) {
         Business b = businessRepository.findById(businessId).orElseThrow(
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)
@@ -200,6 +203,7 @@ public class BusinessService {
         return mapToDto(saved);
     }
 
+    @Transactional
     public void deleteBusiness(Long businessId) {
         Business business = businessRepository.findById(businessId).orElseThrow(
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)

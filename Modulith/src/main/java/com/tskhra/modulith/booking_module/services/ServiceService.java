@@ -26,6 +26,7 @@ public class ServiceService {
     private final BusinessRepository businessRepository;
     private final UserService userService;
 
+    @Transactional
     public Long createService(ServiceRegistrationDto dto, Long businessId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findById(businessId).orElseThrow(

@@ -16,6 +16,7 @@ import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
 
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class BookingService {
     private final UserService userService;
 
 
+    @Transactional
     public void createBooking(IndividualBookingRequest request, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Service service = serviceRepository.findById(Long.valueOf(request.serviceId())).orElseThrow(
