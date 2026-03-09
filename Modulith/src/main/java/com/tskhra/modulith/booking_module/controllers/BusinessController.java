@@ -3,7 +3,6 @@ package com.tskhra.modulith.booking_module.controllers;
 import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
-import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

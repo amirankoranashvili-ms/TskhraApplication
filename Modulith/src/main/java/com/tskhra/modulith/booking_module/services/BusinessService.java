@@ -106,63 +106,23 @@ public class BusinessService {
 
         List<Business> businesses = businessRepository.findByUserId(userId);
         return businesses.stream()
-                .map(b -> new BusinessDetailsDto(
-                        b.getId().toString(),
-                        b.getName(),
-                        b.getCategory() == null ? null : b.getCategory().getName(),
-                        b.getCategory() == null ? null : b.getCategory().getParent().getName(),
-                        imageService.getBusinessImageUrl(
-                                b.getBusinessImages().stream()
-                                        .filter(BusinessImage::isMain)
-                                        .toList().getFirst().getFilename()
-                        ),
-                        b.getBusinessImages().stream()
-                                .filter(bi -> !bi.isMain())
-                                .map(BusinessImage::getFilename)
-                                .map(imageService::getBusinessImageUrl)
-                                .toList(),
-                        b.getAddress() == null ? null : b.getAddress().getCity().getName(),
-                        b.getAddress() == null ? null : b.getAddress().getDetails(),
-                        b.getCallType(),
-                        b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
-                        b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
-                ))
+                .map(this::mapToDto)
                 .toList();
     }
 
     public Page<BusinessDetailsDto> getAllBusinessPage(Pageable pageable) {
         Page<Business> businesses = businessRepository.findAll(pageable);
-        return businesses
-                .map(b -> new BusinessDetailsDto(
-                        b.getId().toString(),
-                        b.getName(),
-                        b.getCategory() == null ? null : b.getCategory().getName(),
-                        b.getCategory() == null ? null : b.getCategory().getParent().getName(),
-                        imageService.getBusinessImageUrl(
-                                b.getBusinessImages().stream()
-                                        .filter(BusinessImage::isMain)
-                                        .findFirst()
-                                        .map(BusinessImage::getFilename)
-                                        .orElse(null)
-                        ),
-                        b.getBusinessImages().stream()
-                                .filter(bi -> !bi.isMain())
-                                .map(BusinessImage::getFilename)
-                                .map(imageService::getBusinessImageUrl)
-                                .toList(),
-                        b.getAddress() == null ? null : b.getAddress().getCity().getName(),
-                        b.getAddress() == null ? null : b.getAddress().getDetails(),
-                        b.getCallType(),
-                        b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
-                        b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
-                ));
-
+        return businesses.map(this::mapToDto);
     }
 
     public BusinessDetailsDto getSpecificBusiness(Long businessId) {
         Business b = businessRepository.findById(businessId).orElseThrow(
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)
         );
+        return mapToDto(b);
+    }
+
+    private BusinessDetailsDto mapToDto(Business b) {
         return new BusinessDetailsDto(
                 b.getId().toString(),
                 b.getName(),
