@@ -1,15 +1,13 @@
 package com.tskhra.modulith.booking_module.services;
 
-import com.tskhra.modulith.booking_module.model.domain.Booking;
-import com.tskhra.modulith.booking_module.model.domain.Business;
-import com.tskhra.modulith.booking_module.model.domain.Resource;
+import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
+import com.tskhra.modulith.booking_module.model.enums.BusinessType;
+import com.tskhra.modulith.booking_module.model.enums.WeekDay;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
-import com.tskhra.modulith.booking_module.repositories.BookingRepository;
-import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
-import com.tskhra.modulith.booking_module.repositories.ResourceRepository;
-import com.tskhra.modulith.booking_module.repositories.ServiceRepository;
+import com.tskhra.modulith.booking_module.repositories.*;
+import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpConflictException;
 import com.tskhra.modulith.common.exception.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
@@ -19,6 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,6 +29,9 @@ public class BookingService {
     private final ServiceRepository serviceRepository;
     private final BusinessRepository businessRepository;
     private final ResourceRepository resourceRepository;
+    private final BusinessScheduleRepository businessScheduleRepository;
+    private final BusinessUnavailableScheduleRepository businessUnavailableScheduleRepository;
+    private final BusinessUnavailableOnetimeRepository businessUnavailableOnetimeRepository;
 
     private final UserService userService;
 
@@ -44,8 +46,17 @@ public class BookingService {
                 () -> new HttpNotFoundException("Business not found")
         );
 
-        if (!isTimeAvailable(request)) {
-            throw new HttpNotFoundException("Time slot not available");
+        if (business.getBusinessType() != BusinessType.INDIVIDUAL) {
+            throw new HttpBadRequestException("This booking flow is only for INDIVIDUAL businesses");
+        }
+
+        if (request.date().isBefore(LocalDate.now())) {
+            throw new HttpBadRequestException("Booking date cannot be in the past");
+        }
+
+        int endTime = request.startTime() + service.getSessionDuration();
+        if (!isTimeAvailable(business.getId(), request.date(), request.startTime(), endTime)) {
+            throw new HttpConflictException("Time slot not available");
         }
 
         List<Resource> activeResources = resourceRepository.findByBusinessIdAndActivityStatus(business.getId(), ActivityStatus.ACTIVE);
@@ -74,8 +85,40 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    private boolean isTimeAvailable(IndividualBookingRequest request) {
-        return true;
+    private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
+        WeekDay weekDay = WeekDay.from(date.getDayOfWeek());
+
+        List<BusinessSchedule> schedules = businessScheduleRepository.findByBusinessIdAndIntervalWeekDay(businessId, weekDay);
+        boolean withinSchedule = schedules.stream().anyMatch(s ->
+                s.getInterval().getStartTime() <= startTime && endTime <= s.getInterval().getEndTime()
+        );
+        if (!withinSchedule) {
+            return false;
+        }
+
+        List<BusinessUnavailableSchedule> unavailableSchedules = businessUnavailableScheduleRepository.findByBusinessIdAndIntervalWeekDay(businessId, weekDay);
+        boolean overlapsUnavailable = unavailableSchedules.stream().anyMatch(u ->
+                startTime < u.getInterval().getEndTime() && u.getInterval().getStartTime() < endTime
+        );
+        if (overlapsUnavailable) {
+            return false;
+        }
+
+        List<BusinessUnavailableOnetime> onetimes = businessUnavailableOnetimeRepository.findByBusinessIdAndDate(businessId, date);
+        boolean overlapsOnetime = onetimes.stream().anyMatch(o ->
+                startTime < o.getEndTime() && o.getStartTime() < endTime
+        );
+        if (overlapsOnetime) {
+            return false;
+        }
+
+        List<Booking> existingBookings = bookingRepository.findByBusinessIdAndDateAndStatuses(
+                businessId, date, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED)
+        );
+        boolean overlapsBooking = existingBookings.stream().anyMatch(b ->
+                startTime < (b.getStartTime() + b.getDuration()) && b.getStartTime() < endTime
+        );
+        return !overlapsBooking;
     }
 
     public void approveRequest(Long bookingId, Jwt jwt) {
