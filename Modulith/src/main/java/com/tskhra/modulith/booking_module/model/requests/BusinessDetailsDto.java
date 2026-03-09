@@ -16,7 +16,11 @@ public record BusinessDetailsDto(
         String addressDetail,
         CallType callType,
         List<WeekTimeInterval> workTimes,
-        List<WeekTimeInterval> restTimes
+        List<WeekTimeInterval> restTimes,
+        Info info,
+        String description
+        // info
+        // description
 
 ) {
 }

@@ -6,6 +6,7 @@ import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BusinessType;
 import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
+import com.tskhra.modulith.booking_module.model.requests.Info;
 import com.tskhra.modulith.booking_module.repositories.*;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
@@ -144,7 +145,9 @@ public class BusinessService {
                 b.getAddress() == null ? null : b.getAddress().getDetails(),
                 b.getCallType(),
                 b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
-                b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList()
+                b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList(),
+                new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
+                b.getDescription()
         );
     }
 }
