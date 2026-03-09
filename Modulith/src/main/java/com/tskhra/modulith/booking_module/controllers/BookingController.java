@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.services.BookingService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class BookingController {
 
     private final BookingService bookingService;
 
+    @Operation(summary = "User Books Service")
     @PostMapping("/individual")
     public ResponseEntity<Void> createBooking(@AuthenticationPrincipal Jwt jwt,
                                               @Valid @RequestBody IndividualBookingRequest request) {
@@ -24,6 +26,7 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Business Owner Approves")
     @PostMapping("/{id}/approve")
     public ResponseEntity<Void> approveRequest(@PathVariable Long id,
                                                @AuthenticationPrincipal Jwt jwt) {
@@ -31,6 +34,7 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(summary = "Business Owner rejects")
     @PostMapping("/{id}/reject")
     public ResponseEntity<Void> rejectRequest(@PathVariable Long id,
                                               @AuthenticationPrincipal Jwt jwt) {
