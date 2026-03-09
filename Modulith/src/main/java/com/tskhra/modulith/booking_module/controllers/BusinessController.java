@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -62,6 +63,12 @@ public class BusinessController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+//    @GetMapping("/{id}/availability")
+//    @Hidden
+//    public ResponseEntity<Object> getBusinessAvailabilityTimeslots(@PathVariable Long id,@RequestBody LocalDate day) {
+//        Object out = businessService.getAvailableTimeslots(id, day);
+//        return ResponseEntity.ok(out);
+//    }
 
 
 

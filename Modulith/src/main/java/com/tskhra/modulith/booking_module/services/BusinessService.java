@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,6 +45,7 @@ public class BusinessService {
 
     private static final int MAX_BUSINESSES_PER_USER = 5;
 
+    @Transactional
     public Long register(@Valid BusinessRegistrationDto dto, Jwt jwt) {
         LocalDateTime now = LocalDateTime.now();
         Long userId = userService.getCurrentUser(jwt).getId();
