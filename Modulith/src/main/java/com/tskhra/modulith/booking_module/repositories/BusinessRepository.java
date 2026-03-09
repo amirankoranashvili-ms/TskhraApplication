@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, Long> {
     List<Business> findByUserId(Long userId);
+    long countByUserId(Long userId);
 }

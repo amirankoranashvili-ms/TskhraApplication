@@ -8,6 +8,7 @@ import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
 import com.tskhra.modulith.booking_module.model.requests.Info;
 import com.tskhra.modulith.booking_module.repositories.*;
+import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,16 +36,22 @@ public class BusinessService {
     private final BusinessUnavailableScheduleRepository businessUnavailableScheduleRepository;
     private final ServiceRepository serviceRepository;
     private final ResourceRepository resourceRepository;
+    private final BookingRepository bookingRepository;
 
     private final UserService userService;
     private final ImageService imageService;
 
 
+    private static final int MAX_BUSINESSES_PER_USER = 5;
+
     public Long register(@Valid BusinessRegistrationDto dto, Jwt jwt) {
         LocalDateTime now = LocalDateTime.now();
         Long userId = userService.getCurrentUser(jwt).getId();
 
-//        Business
+        if (businessRepository.countByUserId(userId) >= MAX_BUSINESSES_PER_USER) {
+            throw new HttpBadRequestException("A user can have at most " + MAX_BUSINESSES_PER_USER + " businesses");
+        }
+
         Business business = Business.builder()
                 .name(dto.businessName())
                 .userId(userId)
@@ -79,16 +87,24 @@ public class BusinessService {
         Long mainImageId = Long.valueOf(dto.mainPhotoId());
         BusinessImage mainImage = businessImageRepository.findById(mainImageId)
                 .orElseThrow(() -> new HttpNotFoundException("No such image with id " + mainImageId));
+        if (mainImage.getBusiness() != null) {
+            throw new HttpBadRequestException("Image with id " + mainImageId + " is already assigned to a business");
+        }
         mainImage.setBusiness(savedBusiness);
         mainImage.setMain(true);
 
 //        Gallery Images
-        dto.galleryPhotoIds().stream()
+        List<BusinessImage> galleryImages = dto.galleryPhotoIds().stream()
                 .map(Long::valueOf)
-                .map(businessImageRepository::findById)
-                .map(opt ->
-                        opt.orElseThrow(() -> new HttpNotFoundException("No such image with id " + mainImageId)))
-                .forEach(businessImage -> businessImage.setBusiness(savedBusiness));
+                .map(id -> businessImageRepository.findById(id)
+                        .orElseThrow(() -> new HttpNotFoundException("No such image with id " + id)))
+                .toList();
+        for (BusinessImage galleryImage : galleryImages) {
+            if (galleryImage.getBusiness() != null) {
+                throw new HttpBadRequestException("Image with id " + galleryImage.getId() + " is already assigned to a business");
+            }
+            galleryImage.setBusiness(savedBusiness);
+        }
 
 //        Work Times
         dto.workTimes().stream()
@@ -193,5 +209,15 @@ public class BusinessService {
         }
 
 
+    }
+
+    public Object getAvailableTimeslots(Long id, LocalDate day) {
+        Business business = businessRepository.findById(id).orElseThrow(
+                () -> new HttpNotFoundException("Business not found.")
+        );
+        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
+        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
+        List<Booking> bookings = bookingRepository.getBusinessBookingsByDate(business.getId(), day);
+        return null;
     }
 }
