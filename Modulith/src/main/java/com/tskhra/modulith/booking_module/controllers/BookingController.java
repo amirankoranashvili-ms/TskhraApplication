@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.services.BookingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class BookingController {
 
     @PostMapping("/individual")
     public ResponseEntity<Void> createBooking(@AuthenticationPrincipal Jwt jwt,
-                                              @RequestBody IndividualBookingRequest request) {
+                                              @Valid @RequestBody IndividualBookingRequest request) {
         bookingService.createBooking(request, jwt);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

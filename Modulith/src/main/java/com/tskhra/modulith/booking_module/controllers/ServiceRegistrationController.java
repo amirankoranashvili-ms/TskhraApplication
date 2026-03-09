@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.ServiceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class ServiceRegistrationController {
     @PostMapping("/{id}/services")
     public ResponseEntity<IdResponseDto> createService(@AuthenticationPrincipal Jwt jwt,
                                                              @PathVariable("id") Long businessId,
-                                                             @RequestBody ServiceRegistrationDto dto) {
+                                                             @Valid @RequestBody ServiceRegistrationDto dto) {
 
         Long createdId = serviceService.createService(dto, businessId, jwt);
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(createdId.toString()));
