@@ -1,6 +1,7 @@
 package com.tskhra.modulith.booking_module.model.embeddable;
 
 import com.tskhra.modulith.booking_module.model.enums.WeekDay;
+import com.tskhra.modulith.booking_module.validation.ValidTimeInterval;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -18,6 +19,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @ToString
 @Embeddable
+@ValidTimeInterval
 public class WeekTimeInterval {
 
     @NotNull
