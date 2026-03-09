@@ -211,13 +211,13 @@ public class BusinessService {
 
     }
 
-    public Object getAvailableTimeslots(Long id, LocalDate day) {
-        Business business = businessRepository.findById(id).orElseThrow(
-                () -> new HttpNotFoundException("Business not found.")
-        );
-        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
-        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
-        List<Booking> bookings = bookingRepository.getBusinessBookingsByDate(business.getId(), day);
-        return null;
-    }
+//    public Object getAvailableTimeslots(Long id, LocalDate day) {
+//        Business business = businessRepository.findById(id).orElseThrow(
+//                () -> new HttpNotFoundException("Business not found.")
+//        );
+//        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
+//        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
+//        List<Booking> bookings = bookingRepository.getBusinessBookingsByDate(business.getId(), day);
+//        return null;
+//    }
 }
