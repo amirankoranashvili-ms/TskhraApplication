@@ -1,6 +1,8 @@
 package com.tskhra.modulith.booking_module.model.domain;
 
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
+import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
+import com.tskhra.modulith.booking_module.repositories.BookingRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,8 +51,8 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "activity_status", columnDefinition = "activity_status")
-    private ActivityStatus activityStatus;
+    @Column(name = "booking_status", columnDefinition = "booking_status")
+    private BookingStatus bookingStatus;
 
     @CreationTimestamp
     private LocalDateTime bookedAt;

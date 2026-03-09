@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,6 +55,7 @@ public class BusinessController {
         return ResponseEntity.ok(dto);
     }
 
+    @Hidden
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBusiness(@PathVariable("id") Long businessId) {
         businessService.deleteBusiness(businessId);
