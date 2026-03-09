@@ -25,12 +25,15 @@ public class ServiceService {
     private final ServiceRepository serviceRepository;
     private final BusinessRepository businessRepository;
     private final UserService userService;
+    
+    private static final String BUSINESS_NOT_FOUND_MESSAGE = "Business not found with id: ";
+    private static final String SERVICE_NOT_FOUND_MESSAGE = "Service not found with id: ";
 
     @Transactional
     public Long createService(ServiceRegistrationDto dto, Long businessId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+                () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
         verifyOwnership(business, userId);
@@ -50,10 +53,9 @@ public class ServiceService {
         return savedService.getId();
     }
 
-    @Transactional(readOnly = true)
     public List<ServiceFullDto> getBusinessServices(Long businessId) {
         businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+                () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
         return serviceRepository.findByBusinessIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).stream()
@@ -61,18 +63,17 @@ public class ServiceService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public ServiceFullDto getService(Long businessId, Long serviceId) {
         businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+                () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
         Service service = serviceRepository.findByIdAndActivityStatus(serviceId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Service not found with id: " + serviceId)
+                () -> new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId)
         );
 
         if (!Objects.equals(service.getBusiness().getId(), businessId)) {
-            throw new HttpNotFoundException("Service not found with id: " + serviceId + " for business: " + businessId);
+            throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId + " for business: " + businessId);
         }
 
         return mapToDto(service);
@@ -82,17 +83,17 @@ public class ServiceService {
     public ServiceFullDto updateService(Long businessId, Long serviceId, ServiceRegistrationDto dto, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+                () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
         verifyOwnership(business, userId);
 
         Service service = serviceRepository.findByIdAndActivityStatus(serviceId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Service not found with id: " + serviceId)
+                () -> new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId)
         );
 
         if (!Objects.equals(service.getBusiness().getId(), businessId)) {
-            throw new HttpNotFoundException("Service not found with id: " + serviceId + " for business: " + businessId);
+            throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId + " for business: " + businessId);
         }
 
         service.setName(dto.name());
@@ -109,17 +110,17 @@ public class ServiceService {
     public void deleteService(Long businessId, Long serviceId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+                () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
         verifyOwnership(business, userId);
 
         Service service = serviceRepository.findByIdAndActivityStatus(serviceId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Service not found with id: " + serviceId)
+                () -> new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId)
         );
 
         if (!Objects.equals(service.getBusiness().getId(), businessId)) {
-            throw new HttpNotFoundException("Service not found with id: " + serviceId + " for business: " + businessId);
+            throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId + " for business: " + businessId);
         }
 
         service.setActivityStatus(ActivityStatus.DELETED);
