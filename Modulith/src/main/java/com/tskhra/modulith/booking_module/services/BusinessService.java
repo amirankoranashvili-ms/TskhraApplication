@@ -140,13 +140,13 @@ public class BusinessService {
 
     @Transactional(readOnly = true)
     public Page<BusinessDetailsDto> getAllBusinessPage(Pageable pageable) {
-        Page<Business> businesses = businessRepository.findAll(pageable);
+        Page<Business> businesses = businessRepository.findAllByActivityStatus(ActivityStatus.ACTIVE, pageable);
         return businesses.map(this::mapToDto);
     }
 
     @Transactional(readOnly = true)
     public BusinessDetailsDto getSpecificBusiness(Long businessId) {
-        Business b = businessRepository.findById(businessId).orElseThrow(
+        Business b = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)
         );
         return mapToDto(b);
@@ -204,55 +204,22 @@ public class BusinessService {
     }
 
     @Transactional
-    public void deleteBusiness(Long businessId) {
+    public void deleteBusiness(Long businessId, Jwt jwt) {
         Business business = businessRepository.findById(businessId).orElseThrow(
-                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+                () -> new HttpNotFoundException("Business not found")
         );
 
-        Address address = business.getAddress();
-        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
-        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
-        List<BusinessImage> businessImages = business.getBusinessImages();
-        List<com.tskhra.modulith.booking_module.model.domain.Service> services = business.getServices();
-        List<Resource> resources = business.getResources();
-
-        businessRepository.delete(business);
-
-
-        if (address != null) {
-            addressRepository.delete(address);
+        Long userId = userService.getCurrentUser(jwt).getId();
+        if (!business.getUserId().equals(userId)) {
+            throw new HttpForbiddenError("You are not authorized to delete this business");
         }
 
-        if (businessSchedules != null) {
-            businessScheduleRepository.deleteAll(businessSchedules);
-        }
+        business.setActivityStatus(ActivityStatus.DELETED);
 
-        if (businessUnavailableSchedules != null) {
-            businessUnavailableScheduleRepository.deleteAll(businessUnavailableSchedules);
-        }
+        business.getServices().forEach(s -> s.setActivityStatus(ActivityStatus.DELETED));
+        business.getResources().forEach(r -> r.setActivityStatus(ActivityStatus.DELETED));
 
-        if (businessImages != null) {
-            businessImageRepository.deleteAll(businessImages);
-        }
-
-        if (services != null) {
-            serviceRepository.deleteAll(services);
-        }
-
-        if (resources != null) {
-            resourceRepository.deleteAll(resources);
-        }
-
-
+        businessRepository.save(business);
     }
 
-//    public Object getAvailableTimeslots(Long id, LocalDate day) {
-//        Business business = businessRepository.findById(id).orElseThrow(
-//                () -> new HttpNotFoundException("Business not found.")
-//        );
-//        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
-//        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
-//        List<Booking> bookings = bookingRepository.getBusinessBookingsByDate(business.getId(), day);
-//        return null;
-//    }
 }

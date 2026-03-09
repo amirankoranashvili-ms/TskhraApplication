@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @org.springframework.stereotype.Service
@@ -36,10 +37,10 @@ public class BookingService {
     @Transactional
     public void createBooking(IndividualBookingRequest request, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
-        Service service = serviceRepository.findById(Long.valueOf(request.serviceId())).orElseThrow(
+        Service service = serviceRepository.findByIdAndActivityStatus(Long.valueOf(request.serviceId()), ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Service not found")
         );
-        Business business = businessRepository.findById(service.getBusiness().getId()).orElseThrow(
+        Business business = businessRepository.findByIdAndActivityStatus(service.getBusiness().getId(), ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found")
         );
 
@@ -47,15 +48,16 @@ public class BookingService {
             throw new HttpNotFoundException("Time slot not available");
         }
 
-        Resource res = null;
-        if (business.getResources() == null || business.getResources().isEmpty()) {
+        List<Resource> activeResources = resourceRepository.findByBusinessIdAndActivityStatus(business.getId(), ActivityStatus.ACTIVE);
+        Resource res;
+        if (activeResources.isEmpty()) {
             Resource resource = new Resource();
             resource.setBusiness(business);
             resource.setName("self");
             resource.setActivityStatus(ActivityStatus.ACTIVE);
             res = resourceRepository.save(resource);
         } else {
-            res = business.getResources().getFirst();
+            res = activeResources.getFirst();
         }
 
         Booking booking = Booking.builder()

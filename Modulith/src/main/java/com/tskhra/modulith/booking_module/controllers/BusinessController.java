@@ -65,20 +65,11 @@ public class BusinessController {
         return ResponseEntity.ok(updated);
     }
 
-    @Hidden
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBusiness(@PathVariable("id") Long businessId) {
-        businessService.deleteBusiness(businessId);
+    public ResponseEntity<Void> deleteBusiness(@PathVariable("id") Long businessId, @AuthenticationPrincipal Jwt jwt) {
+        businessService.deleteBusiness(businessId, jwt);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-//    @GetMapping("/{id}/availability")
-//    @Hidden
-//    public ResponseEntity<Object> getBusinessAvailabilityTimeslots(@PathVariable Long id,@RequestBody LocalDate day) {
-//        Object out = businessService.getAvailableTimeslots(id, day);
-//        return ResponseEntity.ok(out);
-//    }
-
 
 
 }
