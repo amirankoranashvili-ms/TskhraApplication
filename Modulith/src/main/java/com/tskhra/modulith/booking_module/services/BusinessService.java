@@ -96,16 +96,18 @@ public class BusinessService {
         mainImage.setMain(true);
 
 //        Gallery Images
-        List<BusinessImage> galleryImages = dto.galleryPhotoIds().stream()
-                .map(Long::valueOf)
-                .map(id -> businessImageRepository.findById(id)
-                        .orElseThrow(() -> new HttpNotFoundException("No such image with id " + id)))
-                .toList();
-        for (BusinessImage galleryImage : galleryImages) {
-            if (galleryImage.getBusiness() != null) {
-                throw new HttpBadRequestException("Image with id " + galleryImage.getId() + " is already assigned to a business");
+        if (dto.galleryPhotoIds() != null) {
+            List<BusinessImage> galleryImages = dto.galleryPhotoIds().stream()
+                    .map(Long::valueOf)
+                    .map(id -> businessImageRepository.findById(id)
+                            .orElseThrow(() -> new HttpNotFoundException("No such image with id " + id)))
+                    .toList();
+            for (BusinessImage galleryImage : galleryImages) {
+                if (galleryImage.getBusiness() != null) {
+                    throw new HttpBadRequestException("Image with id " + galleryImage.getId() + " is already assigned to a business");
+                }
+                galleryImage.setBusiness(savedBusiness);
             }
-            galleryImage.setBusiness(savedBusiness);
         }
 
 //        Work Times
@@ -114,9 +116,11 @@ public class BusinessService {
                 .forEach(businessScheduleRepository::save);
 
 //        Rest Times
-        dto.restTimes().stream()
-                .map(interval -> new BusinessUnavailableSchedule(null, savedBusiness, interval))
-                .forEach(businessUnavailableScheduleRepository::save);
+        if (dto.restTimes() != null) {
+            dto.restTimes().stream()
+                    .map(interval -> new BusinessUnavailableSchedule(null, savedBusiness, interval))
+                    .forEach(businessUnavailableScheduleRepository::save);
+        }
 
         return savedBusiness.getId();
     }
@@ -147,8 +151,8 @@ public class BusinessService {
         return new BusinessDetailsDto(
                 b.getId().toString(),
                 b.getName(),
+                b.getCategory() == null || b.getCategory().getParent() == null ? null : b.getCategory().getParent().getName(),
                 b.getCategory() == null ? null : b.getCategory().getName(),
-                b.getCategory() == null ? null : b.getCategory().getParent().getName(),
                 imageService.getBusinessImageUrl(
                         b.getBusinessImages().stream()
                                 .filter(BusinessImage::isMain)
