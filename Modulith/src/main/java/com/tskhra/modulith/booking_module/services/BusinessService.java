@@ -158,36 +158,36 @@ public class BusinessService {
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)
         );
 
-        Address address = business.getAddress();
-        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
-        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
-        List<BusinessImage> businessImages = business.getBusinessImages();
-        List<com.tskhra.modulith.booking_module.model.domain.Service> services = business.getServices();
-        List<Resource> resources = business.getResources();
-
-        if (address != null) {
-            addressRepository.delete(address);
-        }
-
-        if (businessSchedules != null) {
-            businessScheduleRepository.deleteAll(businessSchedules);
-        }
-
-        if (businessUnavailableSchedules != null) {
-            businessUnavailableScheduleRepository.deleteAll(businessUnavailableSchedules);
-        }
-
-        if (businessImages != null) {
-            businessImageRepository.deleteAll(businessImages);
-        }
-
-        if (services != null) {
-            serviceRepository.deleteAll(services);
-        }
-
-        if (resources != null) {
-            resourceRepository.deleteAll(resources);
-        }
+//        Address address = business.getAddress();
+//        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
+//        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
+//        List<BusinessImage> businessImages = business.getBusinessImages();
+//        List<com.tskhra.modulith.booking_module.model.domain.Service> services = business.getServices();
+//        List<Resource> resources = business.getResources();
+//
+//        if (address != null) {
+//            addressRepository.delete(address);
+//        }
+//
+//        if (businessSchedules != null) {
+//            businessScheduleRepository.deleteAll(businessSchedules);
+//        }
+//
+//        if (businessUnavailableSchedules != null) {
+//            businessUnavailableScheduleRepository.deleteAll(businessUnavailableSchedules);
+//        }
+//
+//        if (businessImages != null) {
+//            businessImageRepository.deleteAll(businessImages);
+//        }
+//
+//        if (services != null) {
+//            serviceRepository.deleteAll(services);
+//        }
+//
+//        if (resources != null) {
+//            resourceRepository.deleteAll(resources);
+//        }
 
         businessRepository.delete(business);
 
