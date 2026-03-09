@@ -1,6 +1,7 @@
 package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.services.CityService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ public class CityController {
 
     private final CityService cityService;
 
+    @Operation(summary = "List all available cities")
     @GetMapping
     public ResponseEntity<List<String>> getAll() {
         List<String> cities = cityService.getAllCityNames();

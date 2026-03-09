@@ -1,6 +1,7 @@
 package com.tskhra.modulith.user_module.controllers;
 
 import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
+import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.services.AuthService;
@@ -18,12 +19,14 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "Authenticate and obtain tokens")
     @PostMapping("/login")
     public ResponseEntity<TokensResponse> login(@RequestBody LoginRequestDto dto) {
         TokensResponse tokens = authService.login(dto);
         return ResponseEntity.ok(tokens);
     }
 
+    @Operation(summary = "Refresh access token")
     @PostMapping("/refresh")
     public ResponseEntity<TokensResponse> refresh(@RequestBody RefreshTokenRequest dto) {
         TokensResponse token = authService.refreshToken(dto);

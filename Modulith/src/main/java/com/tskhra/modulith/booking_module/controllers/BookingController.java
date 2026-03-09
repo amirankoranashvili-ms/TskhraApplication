@@ -18,7 +18,7 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    @Operation(summary = "User Books Service")
+    @Operation(summary = "User Books an individual service")
     @PostMapping("/individual")
     public ResponseEntity<Void> createBooking(@AuthenticationPrincipal Jwt jwt,
                                               @Valid @RequestBody IndividualBookingRequest request) {
@@ -26,7 +26,7 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Business Owner Approves")
+    @Operation(summary = "Business Owner Approves a booking request")
     @PostMapping("/{id}/approve")
     public ResponseEntity<Void> approveRequest(@PathVariable Long id,
                                                @AuthenticationPrincipal Jwt jwt) {
@@ -34,7 +34,7 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "Business Owner rejects")
+    @Operation(summary = "Business Owner Rejects a booking request")
     @PostMapping("/{id}/reject")
     public ResponseEntity<Void> rejectRequest(@PathVariable Long id,
                                               @AuthenticationPrincipal Jwt jwt) {

@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.ServiceService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class ServiceRegistrationController {
 
     private final ServiceService serviceService;
 
+    @Operation(summary = "Add a service to a business")
     @PostMapping("/{id}/services")
     public ResponseEntity<IdResponseDto> createService(@AuthenticationPrincipal Jwt jwt,
                                                              @PathVariable("id") Long businessId,
@@ -32,6 +34,7 @@ public class ServiceRegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(createdId.toString()));
     }
 
+    @Operation(summary = "List services of a business")
     @GetMapping("/{id}/services")
     public ResponseEntity<List<ServiceFullDto>> getBusinessServices(@PathVariable("id") Long businessId) {
 
@@ -39,6 +42,7 @@ public class ServiceRegistrationController {
         return ResponseEntity.ok(services);
     }
 
+    @Operation(summary = "Get a specific business service")
     @GetMapping("/{businessId}/services/{serviceId}")
     public ResponseEntity<ServiceFullDto> getService(@PathVariable Long businessId,
                                                      @PathVariable Long serviceId) {
@@ -46,6 +50,7 @@ public class ServiceRegistrationController {
         return ResponseEntity.ok(service);
     }
 
+    @Operation(summary = "Update a business service")
     @PutMapping("/{businessId}/services/{serviceId}")
     public ResponseEntity<ServiceFullDto> updateService(@AuthenticationPrincipal Jwt jwt,
                                                         @PathVariable Long businessId,
@@ -55,6 +60,7 @@ public class ServiceRegistrationController {
         return ResponseEntity.ok(updated);
     }
 
+    @Operation(summary = "Delete a business service")
     @DeleteMapping("/{businessId}/services/{serviceId}")
     public ResponseEntity<Void> deleteService(@AuthenticationPrincipal Jwt jwt,
                                               @PathVariable Long businessId,

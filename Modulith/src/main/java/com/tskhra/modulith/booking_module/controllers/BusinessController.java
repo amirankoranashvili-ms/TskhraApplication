@@ -6,6 +6,7 @@ import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class BusinessController {
 
     private final BusinessService businessService;
 
+    @Operation(summary = "Register a new individual business")
     @PostMapping("/individual")
     public ResponseEntity<BusinessIdResponseDto> createBusiness(@AuthenticationPrincipal Jwt jwt,
                                                                 @Valid @RequestBody BusinessRegistrationDto dto) {
@@ -35,12 +37,14 @@ public class BusinessController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new BusinessIdResponseDto(id.toString()));
     }
 
+    @Operation(summary = "Get current user's businesses")
     @GetMapping("/me")
     public ResponseEntity<List<BusinessDetailsDto>> getCurrentUserBusiness(@AuthenticationPrincipal Jwt jwt) {
         List<BusinessDetailsDto> businesses = businessService.getCurrentUserBusinesses(jwt);
         return ResponseEntity.ok(businesses);
     }
 
+    @Operation(summary = "List all businesses (paginated)")
     @GetMapping
     public ResponseEntity<Page<BusinessDetailsDto>> getAllBusinesses(@RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "12") int size) {
@@ -50,6 +54,7 @@ public class BusinessController {
         return ResponseEntity.ok(businessPage);
     }
 
+    @Operation(summary = "Get business by ID")
     @GetMapping("/{id}")
     public ResponseEntity<BusinessDetailsDto> getBusiness(@PathVariable("id") Long businessId) {
 
@@ -57,6 +62,7 @@ public class BusinessController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Update business by ID")
     @PutMapping("/{id}")
     public ResponseEntity<BusinessDetailsDto> updateBusiness(@AuthenticationPrincipal Jwt jwt,
                                                              @PathVariable("id") Long businessId,
@@ -65,6 +71,7 @@ public class BusinessController {
         return ResponseEntity.ok(updated);
     }
 
+    @Operation(summary = "Delete business by ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBusiness(@PathVariable("id") Long businessId, @AuthenticationPrincipal Jwt jwt) {
         businessService.deleteBusiness(businessId, jwt);

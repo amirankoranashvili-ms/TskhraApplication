@@ -1,6 +1,7 @@
 package com.tskhra.modulith.user_module.controllers;
 
 import com.tskhra.modulith.user_module.model.requests.UserProfileUpdateDto;
+import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.responses.UserProfileSelfDto;
 import com.tskhra.modulith.user_module.services.UserService;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ public class UserProfileController {
 
     private final UserService userService;
 
+    @Operation(summary = "Get current user's profile")
     @GetMapping("/me")
     public ResponseEntity<UserProfileSelfDto> getCurrentUserProfile(@AuthenticationPrincipal Jwt jwt) {
 
@@ -27,6 +29,7 @@ public class UserProfileController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Update current user's profile")
     @PostMapping("/me")
     public ResponseEntity<Void> updateUserProfile(@AuthenticationPrincipal Jwt jwt,
                                                   @Valid @RequestBody UserProfileUpdateDto dto) {
@@ -35,6 +38,7 @@ public class UserProfileController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @Operation(summary = "Upload user avatar")
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // todo PUT more correct?
     public ResponseEntity<Void> updateAvatar(@AuthenticationPrincipal Jwt jwt,
                                              @RequestParam("file") MultipartFile file) {
@@ -43,6 +47,7 @@ public class UserProfileController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); // todo OK?
     }
 
+    @Operation(summary = "Delete user avatar")
     @DeleteMapping("/me/avatar")
     public ResponseEntity<Void> deleteAvatar(@AuthenticationPrincipal Jwt jwt) {
 

@@ -1,6 +1,7 @@
 package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.booking_module.services.BusinessImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ public class BusinessImageController {
 
     private final BusinessImageService businessImageService;
 
+    @Operation(summary = "Upload a business image")
     @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<IdResponseDto> uploadBusinessImage(@AuthenticationPrincipal Jwt jwt,
                                                              @RequestParam("file") MultipartFile file) {
