@@ -32,6 +32,8 @@ public class BusinessService {
     private final BusinessImageRepository businessImageRepository;
     private final BusinessScheduleRepository businessScheduleRepository;
     private final BusinessUnavailableScheduleRepository businessUnavailableScheduleRepository;
+    private final ServiceRepository serviceRepository;
+    private final ResourceRepository resourceRepository;
 
     private final UserService userService;
     private final ImageService imageService;
@@ -149,5 +151,45 @@ public class BusinessService {
                 new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
                 b.getDescription()
         );
+    }
+
+    public void deleteBusiness(Long businessId) {
+        Business business = businessRepository.findById(businessId).orElseThrow(
+                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+        );
+
+        Address address = business.getAddress();
+        List<BusinessSchedule> businessSchedules = business.getBusinessSchedules();
+        List<BusinessUnavailableSchedule> businessUnavailableSchedules = business.getBusinessUnavailableSchedules();
+        List<BusinessImage> businessImages = business.getBusinessImages();
+        List<com.tskhra.modulith.booking_module.model.domain.Service> services = business.getServices();
+        List<Resource> resources = business.getResources();
+
+        if (address != null) {
+            addressRepository.delete(address);
+        }
+
+        if (businessSchedules != null) {
+            businessScheduleRepository.deleteAll(businessSchedules);
+        }
+
+        if (businessUnavailableSchedules != null) {
+            businessUnavailableScheduleRepository.deleteAll(businessUnavailableSchedules);
+        }
+
+        if (businessImages != null) {
+            businessImageRepository.deleteAll(businessImages);
+        }
+
+        if (services != null) {
+            serviceRepository.deleteAll(services);
+        }
+
+        if (resources != null) {
+            resourceRepository.deleteAll(resources);
+        }
+
+        businessRepository.delete(business);
+
     }
 }

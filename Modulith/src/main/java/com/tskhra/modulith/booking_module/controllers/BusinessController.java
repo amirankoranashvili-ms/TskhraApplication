@@ -54,6 +54,12 @@ public class BusinessController {
         return ResponseEntity.ok(dto);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBusiness(@PathVariable("id") Long businessId) {
+        businessService.deleteBusiness(businessId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 
 
 

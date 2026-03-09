@@ -19,8 +19,5 @@ public record BusinessDetailsDto(
         List<WeekTimeInterval> restTimes,
         Info info,
         String description
-        // info
-        // description
-
 ) {
 }
