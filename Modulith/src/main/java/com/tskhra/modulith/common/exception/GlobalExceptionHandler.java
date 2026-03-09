@@ -45,4 +45,10 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(HttpForbiddenError.class)
+    public ResponseEntity<ErrorResponse> handleForbiddenFound(HttpForbiddenError ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
 }
