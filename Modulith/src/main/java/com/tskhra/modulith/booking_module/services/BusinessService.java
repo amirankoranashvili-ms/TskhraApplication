@@ -6,9 +6,11 @@ import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BusinessType;
 import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
+import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
 import com.tskhra.modulith.booking_module.model.requests.Info;
 import com.tskhra.modulith.booking_module.repositories.*;
 import com.tskhra.modulith.common.exception.HttpBadRequestException;
+import com.tskhra.modulith.common.exception.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
@@ -173,6 +175,29 @@ public class BusinessService {
                 new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
                 b.getDescription()
         );
+    }
+
+    @Transactional
+    public BusinessDetailsDto updateBusiness(Long businessId, BusinessUpdateDto dto, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        Business business = businessRepository.findById(businessId).orElseThrow(
+                () -> new HttpNotFoundException("Business not found with id: " + businessId)
+        );
+
+        if (!business.getUserId().equals(userId)) {
+            throw new HttpForbiddenError("You are not authorized to update this business");
+        }
+
+        business.setName(dto.businessName());
+        business.setCallType(dto.callType());
+        business.setDescription(dto.description());
+        business.setPhoneNumber(dto.info().phoneNumber());
+        business.setInstagramUrl(dto.info().instagramUrl());
+        business.setFacebookUrl(dto.info().facebookUrl());
+        business.getModificationDetails().setUpdatedBy(userId);
+
+        Business saved = businessRepository.save(business);
+        return mapToDto(saved);
     }
 
     public void deleteBusiness(Long businessId) {

@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
+import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -54,6 +55,14 @@ public class BusinessController {
 
         BusinessDetailsDto dto = businessService.getSpecificBusiness(businessId);
         return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BusinessDetailsDto> updateBusiness(@AuthenticationPrincipal Jwt jwt,
+                                                             @PathVariable("id") Long businessId,
+                                                             @Valid @RequestBody BusinessUpdateDto dto) {
+        BusinessDetailsDto updated = businessService.updateBusiness(businessId, dto, jwt);
+        return ResponseEntity.ok(updated);
     }
 
     @Hidden

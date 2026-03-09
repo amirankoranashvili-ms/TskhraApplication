@@ -39,5 +39,27 @@ public class ServiceRegistrationController {
         return ResponseEntity.ok(services);
     }
 
+    @GetMapping("/{businessId}/services/{serviceId}")
+    public ResponseEntity<ServiceFullDto> getService(@PathVariable Long businessId,
+                                                     @PathVariable Long serviceId) {
+        ServiceFullDto service = serviceService.getService(businessId, serviceId);
+        return ResponseEntity.ok(service);
+    }
 
+    @PutMapping("/{businessId}/services/{serviceId}")
+    public ResponseEntity<ServiceFullDto> updateService(@AuthenticationPrincipal Jwt jwt,
+                                                        @PathVariable Long businessId,
+                                                        @PathVariable Long serviceId,
+                                                        @Valid @RequestBody ServiceRegistrationDto dto) {
+        ServiceFullDto updated = serviceService.updateService(businessId, serviceId, dto, jwt);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{businessId}/services/{serviceId}")
+    public ResponseEntity<Void> deleteService(@AuthenticationPrincipal Jwt jwt,
+                                              @PathVariable Long businessId,
+                                              @PathVariable Long serviceId) {
+        serviceService.deleteService(businessId, serviceId, jwt);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
