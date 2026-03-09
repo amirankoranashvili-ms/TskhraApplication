@@ -52,7 +52,10 @@ public class BusinessService {
         LocalDateTime now = LocalDateTime.now();
         Long userId = userService.getCurrentUser(jwt).getId();
 
-        if (businessRepository.countByUserId(userId) >= MAX_BUSINESSES_PER_USER) {
+        // TODO write one query to simplify
+        if (businessRepository.countByUserIdAndActivityStatus(userId, ActivityStatus.ACTIVE) +
+                businessRepository.countByUserIdAndActivityStatus(userId, ActivityStatus.INACTIVE)
+                >= MAX_BUSINESSES_PER_USER) {
             throw new HttpBadRequestException("A user can have at most " + MAX_BUSINESSES_PER_USER + " businesses");
         }
 
@@ -124,10 +127,16 @@ public class BusinessService {
                     .forEach(businessUnavailableScheduleRepository::save);
         }
 
+//        Single resource for individual business
+        Resource resource = new Resource();
+        resource.setBusiness(savedBusiness);
+        resource.setName("self");
+        resource.setActivityStatus(ActivityStatus.ACTIVE);
+        resourceRepository.save(resource);
+
         return savedBusiness.getId();
     }
 
-    @Transactional(readOnly = true)
     public List<BusinessDetailsDto> getCurrentUserBusinesses(Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
 
@@ -138,13 +147,11 @@ public class BusinessService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public Page<BusinessDetailsDto> getAllBusinessPage(Pageable pageable) {
         Page<Business> businesses = businessRepository.findAllByActivityStatus(ActivityStatus.ACTIVE, pageable);
         return businesses.map(this::mapToDto);
     }
 
-    @Transactional(readOnly = true)
     public BusinessDetailsDto getSpecificBusiness(Long businessId) {
         Business b = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)
