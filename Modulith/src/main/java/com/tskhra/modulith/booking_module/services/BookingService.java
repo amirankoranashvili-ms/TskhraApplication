@@ -160,4 +160,43 @@ public class BookingService {
         booking.setBookingStatus(BookingStatus.REJECTED);
         bookingRepository.save(booking);
     }
+
+    public void cancelByBusiness(Long bookingId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+                () -> new HttpNotFoundException("Booking not found")
+        );
+
+        Service service = booking.getService();
+        Business business = service.getBusiness();
+        if (!Objects.equals(business.getUserId(), userId)) {
+            throw new HttpForbiddenError("You are not authorized to cancel this request");
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.SCHEDULED) {
+            throw new HttpConflictException("Booking is not Scheduled");
+        }
+
+        booking.setBookingStatus(BookingStatus.CANCELLED_BY_BUSINESS);
+        bookingRepository.save(booking);
+    }
+
+    public void cancelByUser(Long bookingId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+                () -> new HttpNotFoundException("Booking not found")
+        );
+
+        if (!Objects.equals(booking.getUserId(), userId)) {
+            throw new HttpForbiddenError("You are not authorized to cancel this request");
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.SCHEDULED
+                && booking.getBookingStatus() != BookingStatus.AWAITING) {
+            throw new HttpConflictException("Booking is not Scheduled");
+        }
+
+        booking.setBookingStatus(BookingStatus.CANCELLED_BY_USER);
+        bookingRepository.save(booking);
+    }
 }

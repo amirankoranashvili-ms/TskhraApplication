@@ -42,5 +42,23 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(summary = "Business Owner Cancels a booking request")
+    @PostMapping("/{id}/cancel-by-business")
+    public ResponseEntity<Void> cancelRequestBusiness(@PathVariable Long id,
+                                              @AuthenticationPrincipal Jwt jwt) {
+        bookingService.cancelByBusiness(id, jwt);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(summary = "Client Cancels a booking request")
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelRequest(@PathVariable Long id,
+                                              @AuthenticationPrincipal Jwt jwt) {
+        bookingService.cancelByUser(id, jwt);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+
 
 }
