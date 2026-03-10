@@ -121,7 +121,7 @@ public class ServiceService {
 
         verifyOwnership(business, userId);
 
-        Service service = serviceRepository.findByIdAndActivityStatus(serviceId, ActivityStatus.ACTIVE).orElseThrow(
+        Service service = serviceRepository.findById(serviceId).orElseThrow(
                 () -> new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId)
         );
 
