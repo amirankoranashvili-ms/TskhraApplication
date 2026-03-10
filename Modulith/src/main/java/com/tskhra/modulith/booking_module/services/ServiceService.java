@@ -94,9 +94,14 @@ public class ServiceService {
 
         verifyOwnership(business, userId);
 
-        Service service = serviceRepository.findByIdAndActivityStatus(serviceId, ActivityStatus.ACTIVE).orElseThrow(
+        Service service = serviceRepository.findById(serviceId).orElseThrow(
                 () -> new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId)
         );
+
+        if (service.getActivityStatus() == ActivityStatus.DELETED) {
+            throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId);
+        }
+
 
         if (!Objects.equals(service.getBusiness().getId(), businessId)) {
             throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId + " for business: " + businessId);
