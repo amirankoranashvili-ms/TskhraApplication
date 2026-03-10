@@ -142,7 +142,8 @@ public class ServiceService {
                 s.getName(),
                 s.getDescription(),
                 s.getSessionPrice(),
-                s.getSessionDuration()
+                s.getSessionDuration(),
+                s.getActivityStatus()
         );
     }
 
