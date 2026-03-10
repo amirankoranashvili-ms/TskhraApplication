@@ -63,7 +63,8 @@ public class ServiceService {
                 () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
-        return serviceRepository.findByBusinessIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).stream()
+        return serviceRepository.findByBusinessId(businessId).stream()
+                .filter(s -> s.getActivityStatus() != ActivityStatus.DELETED)
                 .map(this::mapToDto)
                 .toList();
     }
