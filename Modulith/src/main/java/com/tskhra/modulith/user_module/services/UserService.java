@@ -215,6 +215,10 @@ public class UserService {
     }
 
     public String getUserNameById(Long userId) {
-        return userRepository.findById(userId).map(User::getUsername).orElse(null);
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new HttpNotFoundException("User not found")
+        );
+
+        return user.getFirstName() == null ? user.getUsername() : user.getFirstName();
     }
 }
