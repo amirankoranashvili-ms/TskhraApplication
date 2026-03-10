@@ -148,6 +148,7 @@ public class BusinessService {
 
         List<Business> businesses = businessRepository.findByUserId(userId);
         return businesses.stream()
+                .filter(b -> b.getActivityStatus() != ActivityStatus.DELETED)
                 .map(this::mapToDto)
                 .toList();
     }
