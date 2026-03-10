@@ -11,6 +11,12 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(HttpException.class)
+    public ResponseEntity<ErrorResponse> handleHttpException(HttpException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response, ex.getStatus());
+    }
+
     @ExceptionHandler(HttpConflictException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(HttpConflictException ex) {
         ErrorResponse response = new ErrorResponse(ex.getMessage());

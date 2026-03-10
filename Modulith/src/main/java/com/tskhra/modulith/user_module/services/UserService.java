@@ -1,6 +1,8 @@
 package com.tskhra.modulith.user_module.services;
 
+import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpConflictException;
+import com.tskhra.modulith.common.exception.HttpException;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.model.domain.User;
@@ -19,8 +21,10 @@ import org.jspecify.annotations.NonNull;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.ErrorRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.modulith.NamedInterface;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -73,13 +77,17 @@ public class UserService {
                 userRepository.save(createdUser);
 
             } else if (response.getStatus() == 409) {
-                throw new HttpConflictException(response.readEntity(String.class)); // todo figure how to extract message
+                ErrorRepresentation error = response.readEntity(ErrorRepresentation.class);
+                String errorMessage = error.getErrorMessage();
+                throw new HttpConflictException(errorMessage);
             } else if (response.getStatus() == 400) {
-                // todo handle
-                throw new RuntimeException("Bad Request. Failed to register user.");
+                ErrorRepresentation error = response.readEntity(ErrorRepresentation.class);
+                String errorMessage = error.getErrorMessage();
+                throw new HttpBadRequestException(errorMessage);
             } else {
-                // todo handle
-                throw new RuntimeException("Failed to register user. Status: " + response.getStatus());
+                ErrorRepresentation error = response.readEntity(ErrorRepresentation.class);
+                String errorMessage = error.getErrorMessage();
+                throw new HttpException(errorMessage, HttpStatus.valueOf(response.getStatus()));
             }
         }
 
