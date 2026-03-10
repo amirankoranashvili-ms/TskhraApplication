@@ -6,6 +6,7 @@ import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 import com.tskhra.modulith.booking_module.model.enums.BusinessType;
 import com.tskhra.modulith.booking_module.model.enums.WeekDay;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
+import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.repositories.*;
 import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpConflictException;
@@ -198,5 +199,23 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_USER);
         bookingRepository.save(booking);
+    }
+
+    public List<BookingDto> getAwaitingBookings(Long businessId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
+                () -> new HttpNotFoundException("Business not found")
+        );
+
+        if (!Objects.equals(business.getUserId(), userId)) {
+            throw new HttpForbiddenError("You are not authorized to view this business");
+        }
+
+        List<Service> services = business.getServices();
+        services.stream()
+                .map(Service::getId); // todo
+
+
+        return null;
     }
 }

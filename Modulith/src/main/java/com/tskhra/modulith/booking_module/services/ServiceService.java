@@ -171,9 +171,13 @@ public class ServiceService {
             throw new HttpConflictException("Cannot delete from here.");
         }
 
-        Service service = serviceRepository.findByIdAndActivityStatus(serviceId, ActivityStatus.ACTIVE).orElseThrow(
+        Service service = serviceRepository.findById(serviceId).orElseThrow(
                 () -> new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId)
         );
+
+        if (service.getActivityStatus() == ActivityStatus.DELETED) {
+            throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId);
+        }
 
         if (status == ActivityStatus.ACTIVE) {
             if (service.getActivityStatus() != ActivityStatus.INACTIVE) {
