@@ -16,6 +16,7 @@ import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -28,6 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BusinessService {
 
     private final BusinessRepository businessRepository;
@@ -52,10 +54,13 @@ public class BusinessService {
         LocalDateTime now = LocalDateTime.now();
         Long userId = userService.getCurrentUser(jwt).getId();
 
+        long activeBusinessCount = businessRepository.countByUserIdAndActivityStatus(userId, ActivityStatus.ACTIVE);
+        long inactiveBusinessCount = businessRepository.countByUserIdAndActivityStatus(userId, ActivityStatus.INACTIVE);
+
+        log.info("Active business count: {}, Inactive business count: {}", activeBusinessCount, inactiveBusinessCount);
+
         // TODO write one query to simplify
-        if (businessRepository.countByUserIdAndActivityStatus(userId, ActivityStatus.ACTIVE) +
-                businessRepository.countByUserIdAndActivityStatus(userId, ActivityStatus.INACTIVE)
-                >= MAX_BUSINESSES_PER_USER) {
+        if (activeBusinessCount + inactiveBusinessCount >= MAX_BUSINESSES_PER_USER) {
             throw new HttpBadRequestException("A user can have at most " + MAX_BUSINESSES_PER_USER + " businesses");
         }
 
