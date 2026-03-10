@@ -1,5 +1,6 @@
 package com.tskhra.modulith.booking_module.controllers;
 
+import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
@@ -20,7 +21,7 @@ import java.util.List;
 @RequestMapping("/business")
 @RequiredArgsConstructor
 @Slf4j
-public class ServiceRegistrationController {
+public class ServiceController {
 
     private final ServiceService serviceService;
 
@@ -51,13 +52,24 @@ public class ServiceRegistrationController {
     }
 
     @Operation(summary = "Update a business service")
-    @PutMapping("/{businessId}/services/{serviceId}")
+    @PutMapping("/{businessId}/services/{serviceId}") // todo handle bookings
     public ResponseEntity<ServiceFullDto> updateService(@AuthenticationPrincipal Jwt jwt,
                                                         @PathVariable Long businessId,
                                                         @PathVariable Long serviceId,
                                                         @Valid @RequestBody ServiceRegistrationDto dto) {
         ServiceFullDto updated = serviceService.updateService(businessId, serviceId, dto, jwt);
         return ResponseEntity.ok(updated);
+    }
+
+    @Operation(summary = "Deactivate a business service")
+    @PutMapping("/{businessId}/services/{serviceId}/status") // todo handle bookings
+    public ResponseEntity<Void> changeServiceStatus(@AuthenticationPrincipal Jwt jwt,
+                                                  @PathVariable Long businessId,
+                                                  @PathVariable Long serviceId,
+                                                  @RequestBody ActivityStatus status) {
+
+        serviceService.changeServiceStatus(businessId, serviceId, status, jwt);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Delete a business service")
@@ -68,4 +80,7 @@ public class ServiceRegistrationController {
         serviceService.deleteService(businessId, serviceId, jwt);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
+
 }
