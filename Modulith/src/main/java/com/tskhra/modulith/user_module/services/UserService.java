@@ -213,4 +213,8 @@ public class UserService {
         user.setCredentials(Collections.singletonList(credential));
         return user;
     }
+
+    public String getUserNameById(Long userId) {
+        return userRepository.findById(userId).map(User::getUsername).orElse(null);
+    }
 }

@@ -212,10 +212,48 @@ public class BookingService {
         }
 
         List<Service> services = business.getServices();
-        services.stream()
-                .map(Service::getId); // todo
+
+        return services.stream()
+                .map(Service::getId)
+                .map(bookingRepository::findAllByServiceId)
+                .flatMap(List::stream)
+                .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING)
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    public List<BookingDto> getScheduledBookings(Long businessId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
+                () -> new HttpNotFoundException("Business not found")
+        );
+
+        if (!Objects.equals(business.getUserId(), userId)) {
+            throw new HttpForbiddenError("You are not authorized to view this business");
+        }
+
+        List<Service> services = business.getServices();
+
+        return services.stream()
+                .map(Service::getId)
+                .map(bookingRepository::findAllByServiceId)
+                .flatMap(List::stream)
+                .filter(b -> b.getBookingStatus() == BookingStatus.SCHEDULED)
+                .map(this::mapToDto)
+                .toList();
+    }
 
 
-        return null;
+
+    // mapToDto
+    private BookingDto mapToDto(Booking b) {
+        return new BookingDto(
+                b.getId().toString(),
+                b.getService().getName(),
+                userService.getUserNameById(b.getUserId()),
+                b.getStartTime(),
+                b.getDuration(),
+                b.getBookingStatus()
+        );
     }
 }

@@ -22,4 +22,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBusinessIdAndDateAndStatuses(@Param("businessId") Long businessId, @Param("date") LocalDate date, @Param("statuses") List<BookingStatus> statuses);
 
     List<Booking> findAllByService_IdAndBookingStatus(Long serviceId, BookingStatus bookingStatus);
+
+    List<Booking> findAllByServiceId(Long id);
 }

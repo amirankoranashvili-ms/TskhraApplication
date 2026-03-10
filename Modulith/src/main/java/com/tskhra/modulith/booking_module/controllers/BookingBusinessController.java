@@ -21,9 +21,16 @@ public class BookingBusinessController {
     private final BookingService bookingService;
 
     @GetMapping("/{id}/bookings/awaiting")
-    public ResponseEntity<List<BookingDto>> getBookingsForBusiness(@PathVariable("id") Long businessId,
+    public ResponseEntity<List<BookingDto>> getAwaitingBookingsForBusiness(@PathVariable("id") Long businessId,
                                                                    @AuthenticationPrincipal Jwt jwt) {
         List<BookingDto> awaitingBookings = bookingService.getAwaitingBookings(businessId, jwt);
+        return ResponseEntity.ok(awaitingBookings);
+    }
+
+    @GetMapping("/{id}/bookings/scheduled")
+    public ResponseEntity<List<BookingDto>> getScheduledBookingsForBusiness(@PathVariable("id") Long businessId,
+                                                                   @AuthenticationPrincipal Jwt jwt) {
+        List<BookingDto> awaitingBookings = bookingService.getScheduledBookings(businessId, jwt);
         return ResponseEntity.ok(awaitingBookings);
     }
 
