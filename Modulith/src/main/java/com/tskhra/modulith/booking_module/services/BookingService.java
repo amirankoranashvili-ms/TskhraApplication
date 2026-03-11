@@ -258,4 +258,12 @@ public class BookingService {
                 b.getService().getSessionPrice()
         );
     }
+
+    public List<BookingDto> getCurrentUserBookings(Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        return bookingRepository.findAllByUserId(userId).stream()
+                .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING || b.getBookingStatus() == BookingStatus.SCHEDULED)
+                .map(this::mapToDto)
+                .toList();
+    }
 }

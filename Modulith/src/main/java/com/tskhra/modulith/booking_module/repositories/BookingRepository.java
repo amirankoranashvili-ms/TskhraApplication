@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.repositories;
 
 import com.tskhra.modulith.booking_module.model.domain.Booking;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
+import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.services.BookingService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByService_IdAndBookingStatus(Long serviceId, BookingStatus bookingStatus);
 
     List<Booking> findAllByServiceId(Long id);
+
+    List<Booking> findAllByUserId(Long userId);
 }
