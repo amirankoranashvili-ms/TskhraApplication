@@ -81,9 +81,10 @@ public class BusinessController {
 
     @GetMapping("/{id}/timeslots")
     public ResponseEntity<List<Integer>> getBusinessAvailableTimeslots(@PathVariable("id") Long businessId,
-                                                                       @RequestBody TimeslotRequest request) {
+                                                                       @RequestParam("date") LocalDate date,
+                                                                       @RequestParam("duration") String serviceId) {
 
-        List<Integer> validStartTimes = businessService.getAvailableStartTimes(businessId, request);
+        List<Integer> validStartTimes = businessService.getAvailableStartTimes(businessId, new TimeslotRequest(date, serviceId));
         return ResponseEntity.ok(validStartTimes);
     }
 
