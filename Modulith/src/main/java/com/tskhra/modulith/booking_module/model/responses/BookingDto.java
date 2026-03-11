@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.model.responses;
 
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record BookingDto(
@@ -11,5 +12,6 @@ public record BookingDto(
         int startTime,
         int duration,
         BookingStatus status,
-        LocalDate date) {
+        LocalDate date,
+        BigDecimal price) {
 }

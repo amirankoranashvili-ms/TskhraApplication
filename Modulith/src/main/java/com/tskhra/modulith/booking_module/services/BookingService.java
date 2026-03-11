@@ -254,7 +254,8 @@ public class BookingService {
                 b.getStartTime(),
                 b.getDuration(),
                 b.getBookingStatus(),
-                b.getBookingDate()
+                b.getBookingDate(),
+                b.getService().getSessionPrice()
         );
     }
 }
