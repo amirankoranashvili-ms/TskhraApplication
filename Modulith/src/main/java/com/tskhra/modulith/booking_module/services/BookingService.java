@@ -253,7 +253,8 @@ public class BookingService {
                 userService.getUserNameById(b.getUserId()),
                 b.getStartTime(),
                 b.getDuration(),
-                b.getBookingStatus()
+                b.getBookingStatus(),
+                b.getBookingDate()
         );
     }
 }
