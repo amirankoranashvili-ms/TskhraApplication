@@ -61,7 +61,7 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<List<BookingDto>> getCurrentUserBookings(@AuthenticationPrincipal Jwt jwt) {
 
         List<BookingDto> bookings = bookingService.getCurrentUserBookings(jwt);
