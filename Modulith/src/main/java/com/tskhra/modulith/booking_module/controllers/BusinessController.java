@@ -3,6 +3,7 @@ package com.tskhra.modulith.booking_module.controllers;
 import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
+import com.tskhra.modulith.booking_module.model.requests.TimeslotRequest;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -76,6 +77,14 @@ public class BusinessController {
     public ResponseEntity<Void> deleteBusiness(@PathVariable("id") Long businessId, @AuthenticationPrincipal Jwt jwt) {
         businessService.deleteBusiness(businessId, jwt);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{id}/timeslots")
+    public ResponseEntity<List<Integer>> getBusinessAvailableTimeslots(@PathVariable("id") Long businessId,
+                                                                       @RequestParam TimeslotRequest request) {
+
+        List<Integer> validStartTimes = businessService.getAvailableStartTimes(businessId, request);
+        return ResponseEntity.ok(validStartTimes);
     }
 
 

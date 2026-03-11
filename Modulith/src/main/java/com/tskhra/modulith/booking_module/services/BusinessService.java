@@ -2,12 +2,12 @@ package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
+import com.tskhra.modulith.booking_module.model.embeddable.WeekTimeInterval;
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
+import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 import com.tskhra.modulith.booking_module.model.enums.BusinessType;
-import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
-import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
-import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
-import com.tskhra.modulith.booking_module.model.requests.Info;
+import com.tskhra.modulith.booking_module.model.enums.WeekDay;
+import com.tskhra.modulith.booking_module.model.requests.*;
 import com.tskhra.modulith.booking_module.repositories.*;
 import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpForbiddenError;
@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class BusinessService {
 
 
     private static final int MAX_BUSINESSES_PER_USER = 5;
+    public static final int SLOT_INTERVAL_MINUTES = 10;
 
     @Transactional
     public Long register(@Valid BusinessRegistrationDto dto, Jwt jwt) {
@@ -235,4 +238,85 @@ public class BusinessService {
         businessRepository.save(business);
     }
 
+    public List<Integer> getAvailableStartTimes(Long businessId, TimeslotRequest request) {
+        log.info("Fetching available timeslots for businessId: {}, serviceId: {}, date: {}",
+                businessId, request.serviceId(), request.date());
+
+        Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE)
+                .orElseThrow(() -> new HttpNotFoundException("Business not found"));
+
+        com.tskhra.modulith.booking_module.model.domain.Service service =
+                serviceRepository.findByIdAndActivityStatus(Long.valueOf(request.serviceId()), ActivityStatus.ACTIVE)
+                        .orElseThrow(() -> new HttpNotFoundException("Service not found"));
+
+        int duration = service.getSessionDuration();
+        log.info("Service duration: {} minutes", duration);
+
+        LocalDate date = request.date();
+        Optional<WeekTimeInterval> workingHoursOptional = business.getBusinessSchedules().stream()
+                .map(BusinessSchedule::getInterval)
+                .filter(interval -> interval.getWeekDay() == WeekDay.from(date.getDayOfWeek()))
+                .findFirst();
+
+        Optional<WeekTimeInterval> restHoursOptional = business.getBusinessUnavailableSchedules().stream()
+                .map(BusinessUnavailableSchedule::getInterval)
+                .filter(interval -> interval.getWeekDay() == WeekDay.from(date.getDayOfWeek()))
+                .findFirst();
+
+        log.info("Working hours: {}, Rest hours: {}",
+                workingHoursOptional.map(WeekTimeInterval::toString).orElse("None"),
+                restHoursOptional.map(WeekTimeInterval::toString).orElse("None"));
+
+        List<Booking> existingBookings = bookingRepository.findByBusinessIdAndDateAndStatuses(
+                businessId, date, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED)
+        );
+
+        log.info("Found {} existing bookings for date: {}", existingBookings.size(), date);
+
+        List<Integer> timeslots = workingHoursOptional.map(weekTimeInterval ->
+                        generateTimeslots(weekTimeInterval, restHoursOptional, existingBookings, duration))
+                .orElseGet(List::of);
+
+        log.info("Generated {} available timeslots", timeslots.size());
+        return timeslots;
+    }
+
+    private List<Integer> generateTimeslots(WeekTimeInterval weekTimeInterval, Optional<WeekTimeInterval> restHoursOptional, List<Booking> existingBookings, int duration) {
+        int start = weekTimeInterval.getStartTime();
+        int end = weekTimeInterval.getEndTime();
+
+        log.info("Generating timeslots from {} to {} with {} minute interval", start, end, SLOT_INTERVAL_MINUTES);
+
+        List<Integer> availableTimeslots = new ArrayList<>();
+        for (int startTime = start; startTime <= end; startTime += SLOT_INTERVAL_MINUTES) {
+            int endTime = startTime + duration;
+            int finalStartTime = startTime;
+
+            boolean withinSchedule = start <= startTime && endTime <= end;
+            if (!withinSchedule) {
+                log.debug("Timeslot {}:{} skipped - outside working hours", startTime, endTime);
+                continue;
+            }
+
+            boolean overlapsRest = restHoursOptional.map(restInterval ->
+                            finalStartTime < restInterval.getEndTime() && restInterval.getStartTime() < endTime)
+                    .orElse(false);
+            if (overlapsRest) {
+                log.debug("Timeslot {}:{} skipped - overlaps with rest hours", startTime, endTime);
+                continue;
+            }
+
+            boolean overlapsBookings = existingBookings.stream()
+                    .anyMatch(b -> finalStartTime < (b.getStartTime() + b.getDuration()) && b.getStartTime() < endTime);
+            if (overlapsBookings) {
+                log.debug("Timeslot {}:{} skipped - overlaps with existing booking", startTime, endTime);
+                continue;
+            }
+
+            availableTimeslots.add(startTime);
+        }
+
+        log.info("Total available timeslots generated: {}", availableTimeslots.size());
+        return availableTimeslots;
+    }
 }
