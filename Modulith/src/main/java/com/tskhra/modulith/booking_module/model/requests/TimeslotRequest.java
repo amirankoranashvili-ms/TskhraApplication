@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public record TimeslotRequest(
         LocalDate date,
-        String serviceId
+        String serviceId,
+        int slotInterval
 ) {
 }

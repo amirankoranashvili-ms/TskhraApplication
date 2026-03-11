@@ -274,21 +274,21 @@ public class BusinessService {
         log.info("Found {} existing bookings for date: {}", existingBookings.size(), date);
 
         List<Integer> timeslots = workingHoursOptional.map(weekTimeInterval ->
-                        generateTimeslots(weekTimeInterval, restHoursOptional, existingBookings, duration))
+                        generateTimeslots(weekTimeInterval, restHoursOptional, existingBookings, duration, SLOT_INTERVAL_MINUTES))
                 .orElseGet(List::of);
 
         log.info("Generated {} available timeslots", timeslots.size());
         return timeslots;
     }
 
-    private List<Integer> generateTimeslots(WeekTimeInterval weekTimeInterval, Optional<WeekTimeInterval> restHoursOptional, List<Booking> existingBookings, int duration) {
+    private List<Integer> generateTimeslots(WeekTimeInterval weekTimeInterval, Optional<WeekTimeInterval> restHoursOptional, List<Booking> existingBookings, int duration, int slotIntervalMinutes) {
         int start = weekTimeInterval.getStartTime();
         int end = weekTimeInterval.getEndTime();
 
-        log.info("Generating timeslots from {} to {} with {} minute interval", start, end, SLOT_INTERVAL_MINUTES);
+        log.info("Generating timeslots from {} to {} with {} minute interval", start, end, slotIntervalMinutes);
 
         List<Integer> availableTimeslots = new ArrayList<>();
-        for (int startTime = start; startTime <= end; startTime += SLOT_INTERVAL_MINUTES) {
+        for (int startTime = start; startTime <= end; startTime += slotIntervalMinutes) {
             int endTime = startTime + duration;
             int finalStartTime = startTime;
 
