@@ -320,9 +320,17 @@ public class BusinessService {
             availableTimeslots.add(startTime);
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        int currentTimeMinutes = now.getMinute() + now.getHour() * 60;
+
         log.info("Total available timeslots generated: {}", availableTimeslots.size());
-        return availableTimeslots.stream().filter(t -> t >= currentTimeMinutes).toList();
+        if (today) {
+
+            LocalDateTime now = LocalDateTime.now();
+            int currentTimeMinutes = now.getMinute() + now.getHour() * 60;
+            log.info("Current time: {} minutes", currentTimeMinutes);
+            return availableTimeslots.stream().filter(t -> t > currentTimeMinutes).toList();
+        } else {
+            return availableTimeslots;
+        }
+
     }
 }
