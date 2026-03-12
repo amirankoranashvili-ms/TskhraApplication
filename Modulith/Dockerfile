@@ -8,5 +8,5 @@ COPY ${JAR_FILE} app.jar
 
 EXPOSE 8081
 
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Duser.timezone=Asia/Tbilisi","-jar","/app/app.jar"]
 
