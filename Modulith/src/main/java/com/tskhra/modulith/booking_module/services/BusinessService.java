@@ -273,15 +273,19 @@ public class BusinessService {
 
         log.info("Found {} existing bookings for date: {}", existingBookings.size(), date);
 
+        boolean isToday = LocalDate.now().isEqual(date);
+
+        log.info("Is today: {}", isToday);
+
         List<Integer> timeslots = workingHoursOptional.map(weekTimeInterval ->
-                        generateTimeslots(weekTimeInterval, restHoursOptional, existingBookings, duration, SLOT_INTERVAL_MINUTES))
+                        generateTimeslots(weekTimeInterval, restHoursOptional, existingBookings, duration, SLOT_INTERVAL_MINUTES, isToday))
                 .orElseGet(List::of);
 
         log.info("Generated {} available timeslots", timeslots.size());
         return timeslots;
     }
 
-    private List<Integer> generateTimeslots(WeekTimeInterval weekTimeInterval, Optional<WeekTimeInterval> restHoursOptional, List<Booking> existingBookings, int duration, int slotIntervalMinutes) {
+    private List<Integer> generateTimeslots(WeekTimeInterval weekTimeInterval, Optional<WeekTimeInterval> restHoursOptional, List<Booking> existingBookings, int duration, int slotIntervalMinutes, boolean today) {
         int start = weekTimeInterval.getStartTime();
         int end = weekTimeInterval.getEndTime();
 
@@ -316,7 +320,9 @@ public class BusinessService {
             availableTimeslots.add(startTime);
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        int currentTimeMinutes = now.getMinute() + now.getHour() * 60;
         log.info("Total available timeslots generated: {}", availableTimeslots.size());
-        return availableTimeslots;
+        return availableTimeslots.stream().filter(t -> t >= currentTimeMinutes).toList();
     }
 }
