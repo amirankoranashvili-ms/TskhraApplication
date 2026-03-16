@@ -349,6 +349,12 @@ public class BusinessService {
             throw new HttpBadRequestException("Business can have at most 5 images");
         }
 
+        if (isMain) {
+            business.getBusinessImages().stream()
+                    .filter(BusinessImage::isMain)
+                    .forEach(bi -> bi.setMain(false));
+        }
+
         image.setBusiness(business);
         image.setMain(isMain);
         businessImageRepository.save(image);
