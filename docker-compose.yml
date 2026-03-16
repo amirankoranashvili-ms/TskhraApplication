@@ -6,6 +6,7 @@ volumes:
   postgres_data:
   minio_data:
   elastic_data:
+  redis_data:
 
 services:
 
@@ -67,6 +68,19 @@ services:
       - micro-network
 
 
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: redis-tskhra
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - micro-network
+
+
   # Modulith
   modulith:
     build: ./Modulith
@@ -77,12 +91,14 @@ services:
       - DB_NAME=tskhra_db
       - KEYCLOAK_HOST=keycloak
       - MINIO_HOST=minio
+      - REDIS_HOST=redis
     ports:
       - "8081:8081"
     depends_on:
       - postgres
       - keycloak
       - minio
+      - redis
     networks:
       - micro-network
 
@@ -103,6 +119,7 @@ services:
       - minio_data:/data
     networks:
       - micro-network
+
 
   # Elasticsearch
   elasticsearch:
