@@ -81,6 +81,17 @@ services:
       - micro-network
 
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight-tskhra
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+    networks:
+      - micro-network
+
+
   # Modulith
   modulith:
     build: ./Modulith
