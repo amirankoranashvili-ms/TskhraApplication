@@ -5,19 +5,25 @@ import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpUnauthorizedException;
 import com.tskhra.modulith.user_module.model.domain.UserBiometricDevices;
 import com.tskhra.modulith.user_module.model.requests.BiometricsDto;
+import com.tskhra.modulith.user_module.model.requests.ChallengeRequest;
 import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
+import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.repositories.UserBiometricDevicesRepository;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 @Service
@@ -25,10 +31,11 @@ public class AuthService {
 
     private final KeycloakProperties keycloakProperties;
     private final RestClient restClient;
+    private final StringRedisTemplate redisTemplate;
 
     private final UserBiometricDevicesRepository userBiometricDevicesRepository;
 
-    public AuthService(KeycloakProperties keycloakProperties, RestClient.Builder restClientBuilder, UserBiometricDevicesRepository userBiometricDevicesRepository) {
+    public AuthService(KeycloakProperties keycloakProperties, RestClient.Builder restClientBuilder, UserBiometricDevicesRepository userBiometricDevicesRepository, StringRedisTemplate redisTemplate) {
         this.keycloakProperties = keycloakProperties;
 
         String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token",
@@ -40,6 +47,7 @@ public class AuthService {
                 .build();
 
         this.userBiometricDevicesRepository = userBiometricDevicesRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     public TokensResponse login(LoginRequestDto dto) {
@@ -82,14 +90,27 @@ public class AuthService {
         throw new HttpUnauthorizedException("Invalid credentials.");
     };
 
-    public void registerBiometrics(BiometricsDto biometrics, Jwt jwt) {
-        String userId = jwt.getClaimAsString("sub");
-        UserBiometricDevices entity = UserBiometricDevices.builder()
-                .userId(userId)
-                .deviceId(biometrics.deviceId())
-                .publicKey(biometrics.publicKey())
-                .build();
+    @Transactional
+    public void registerDevice(BiometricsDto biometrics, Jwt jwt) {
+        String userKeycloakId = jwt.getClaimAsString("sub");
 
-        userBiometricDevicesRepository.save(entity);
+        UserBiometricDevices device = userBiometricDevicesRepository.findByDeviceId(biometrics.deviceId())
+                .orElse(new UserBiometricDevices());
+
+        device.setUserId(userKeycloakId);
+        device.setDeviceId(biometrics.deviceId());
+        device.setPublicKey(biometrics.publicKey());
+
+        userBiometricDevicesRepository.save(device);
+    }
+
+    public ChallengeResponse generateChallenge(ChallengeRequest request) {
+        String deviceId = request.deviceId();
+
+        String challenge = UUID.randomUUID().toString();
+        String redisKey = "biometric_nonce:" + deviceId;
+
+        redisTemplate.opsForValue().set(redisKey, challenge, Duration.ofSeconds(60));
+        return new ChallengeResponse(challenge);
     }
 }

@@ -1,7 +1,9 @@
 package com.tskhra.modulith.user_module.controllers;
 
 import com.tskhra.modulith.user_module.model.requests.BiometricsDto;
+import com.tskhra.modulith.user_module.model.requests.ChallengeRequest;
 import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
+import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
@@ -38,11 +40,18 @@ public class AuthController {
     }
 
     @PostMapping("/biometric/register")
-    public ResponseEntity<Void> registerBiometrics(@AuthenticationPrincipal Jwt jwt,
-                                                   @RequestBody BiometricsDto biometrics) {
+    public ResponseEntity<Void> registerDevice(@AuthenticationPrincipal Jwt jwt,
+                                               @RequestBody BiometricsDto biometrics) {
 
-        authService.registerBiometrics(biometrics, jwt);
+        authService.registerDevice(biometrics, jwt);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/biometric/challenge")
+    public ResponseEntity<ChallengeResponse> generateChallenge(@RequestBody ChallengeRequest request) {
+
+        ChallengeResponse response = authService.generateChallenge(request);
+        return ResponseEntity.ok(response);
     }
 
 
