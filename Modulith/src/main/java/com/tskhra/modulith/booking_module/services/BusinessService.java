@@ -99,29 +99,29 @@ public class BusinessService {
         savedBusiness.setCategory(category);
 
 //        Main Image
-        Long mainImageId = Long.valueOf(dto.mainPhotoId());
-        BusinessImage mainImage = businessImageRepository.findById(mainImageId)
-                .orElseThrow(() -> new HttpNotFoundException("No such image with id " + mainImageId));
-        if (mainImage.getBusiness() != null) {
-            throw new HttpBadRequestException("Image with id " + mainImageId + " is already assigned to a business");
-        }
-        mainImage.setBusiness(savedBusiness);
-        mainImage.setMain(true);
+//        Long mainImageId = Long.valueOf(dto.mainPhotoId());
+//        BusinessImage mainImage = businessImageRepository.findById(mainImageId)
+//                .orElseThrow(() -> new HttpNotFoundException("No such image with id " + mainImageId));
+//        if (mainImage.getBusiness() != null) {
+//            throw new HttpBadRequestException("Image with id " + mainImageId + " is already assigned to a business");
+//        }
+//        mainImage.setBusiness(savedBusiness);
+//        mainImage.setMain(true);
 
 //        Gallery Images
-        if (dto.galleryPhotoIds() != null) {
-            List<BusinessImage> galleryImages = dto.galleryPhotoIds().stream()
-                    .map(Long::valueOf)
-                    .map(id -> businessImageRepository.findById(id)
-                            .orElseThrow(() -> new HttpNotFoundException("No such image with id " + id)))
-                    .toList();
-            for (BusinessImage galleryImage : galleryImages) {
-                if (galleryImage.getBusiness() != null) {
-                    throw new HttpBadRequestException("Image with id " + galleryImage.getId() + " is already assigned to a business");
-                }
-                galleryImage.setBusiness(savedBusiness);
-            }
-        }
+//        if (dto.galleryPhotoIds() != null) {
+//            List<BusinessImage> galleryImages = dto.galleryPhotoIds().stream()
+//                    .map(Long::valueOf)
+//                    .map(id -> businessImageRepository.findById(id)
+//                            .orElseThrow(() -> new HttpNotFoundException("No such image with id " + id)))
+//                    .toList();
+//            for (BusinessImage galleryImage : galleryImages) {
+//                if (galleryImage.getBusiness() != null) {
+//                    throw new HttpBadRequestException("Image with id " + galleryImage.getId() + " is already assigned to a business");
+//                }
+//                galleryImage.setBusiness(savedBusiness);
+//            }
+//        }
 
 //        Work Times
         dto.workTimes().stream()

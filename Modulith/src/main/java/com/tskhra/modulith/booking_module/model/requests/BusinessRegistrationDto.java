@@ -13,9 +13,9 @@ public record BusinessRegistrationDto(
         @NotBlank String city,
         String addressDetails,
         @NotBlank String description,
-        String mainPhotoId,
-        @Size(max = 4, message = "Gallery can contain at most 4 images")
-        List<String> galleryPhotoIds,
+//        String mainPhotoId,
+//        @Size(max = 4, message = "Gallery can contain at most 4 images")
+//        List<String> galleryPhotoIds,
         @NotBlank String subCategory,
         @NotEmpty List<@Valid WeekTimeInterval> workTimes,
         List<@Valid WeekTimeInterval> restTimes,
