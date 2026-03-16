@@ -1,12 +1,16 @@
 package com.tskhra.modulith.user_module.controllers;
 
+import com.tskhra.modulith.user_module.model.requests.BiometricsDto;
 import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.services.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +35,14 @@ public class AuthController {
     public ResponseEntity<TokensResponse> refresh(@RequestBody RefreshTokenRequest dto) {
         TokensResponse token = authService.refreshToken(dto);
         return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/biometric/register")
+    public ResponseEntity<Void> registerBiometrics(@AuthenticationPrincipal Jwt jwt,
+                                                   @RequestBody BiometricsDto biometrics) {
+
+        authService.registerBiometrics(biometrics, jwt);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

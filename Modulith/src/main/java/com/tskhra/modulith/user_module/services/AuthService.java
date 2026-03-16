@@ -3,12 +3,16 @@ package com.tskhra.modulith.user_module.services;
 import com.tskhra.modulith.common.properties.KeycloakProperties;
 import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpUnauthorizedException;
+import com.tskhra.modulith.user_module.model.domain.UserBiometricDevices;
+import com.tskhra.modulith.user_module.model.requests.BiometricsDto;
 import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
 import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
+import com.tskhra.modulith.user_module.repositories.UserBiometricDevicesRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -22,7 +26,9 @@ public class AuthService {
     private final KeycloakProperties keycloakProperties;
     private final RestClient restClient;
 
-    public AuthService(KeycloakProperties keycloakProperties, RestClient.Builder restClientBuilder) {
+    private final UserBiometricDevicesRepository userBiometricDevicesRepository;
+
+    public AuthService(KeycloakProperties keycloakProperties, RestClient.Builder restClientBuilder, UserBiometricDevicesRepository userBiometricDevicesRepository) {
         this.keycloakProperties = keycloakProperties;
 
         String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token",
@@ -32,6 +38,8 @@ public class AuthService {
                 .baseUrl(tokenUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
+
+        this.userBiometricDevicesRepository = userBiometricDevicesRepository;
     }
 
     public TokensResponse login(LoginRequestDto dto) {
@@ -74,4 +82,14 @@ public class AuthService {
         throw new HttpUnauthorizedException("Invalid credentials.");
     };
 
+    public void registerBiometrics(BiometricsDto biometrics, Jwt jwt) {
+        String userId = jwt.getClaimAsString("sub");
+        UserBiometricDevices entity = UserBiometricDevices.builder()
+                .userId(userId)
+                .deviceId(biometrics.deviceId())
+                .publicKey(biometrics.publicKey())
+                .build();
+
+        userBiometricDevicesRepository.save(entity);
+    }
 }
