@@ -333,4 +333,24 @@ public class BusinessService {
         }
 
     }
+
+    public void addImageToBusiness(Long businessId, Long imageId, boolean isMain) {
+        Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE)
+                .orElseThrow(() -> new HttpNotFoundException("Business not found"));
+
+        BusinessImage image = businessImageRepository.findById(imageId)
+                .orElseThrow(() -> new HttpNotFoundException("Image not found"));
+
+        if (image.getBusiness() != null) {
+            throw new HttpBadRequestException("Image is already assigned to a business");
+        }
+
+        if (businessImageRepository.countBusinessImageByBusiness(business) >= 5) {
+            throw new HttpBadRequestException("Business can have at most 5 images");
+        }
+
+        image.setBusiness(business);
+        image.setMain(isMain);
+        businessImageRepository.save(image);
+    }
 }
