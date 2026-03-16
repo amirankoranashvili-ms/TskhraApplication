@@ -1,11 +1,8 @@
 package com.tskhra.modulith.user_module.controllers;
 
-import com.tskhra.modulith.user_module.model.requests.BiometricsDto;
-import com.tskhra.modulith.user_module.model.requests.ChallengeRequest;
-import com.tskhra.modulith.user_module.model.requests.LoginRequestDto;
+import com.tskhra.modulith.user_module.model.requests.*;
 import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import com.tskhra.modulith.user_module.model.requests.RefreshTokenRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.services.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +49,12 @@ public class AuthController {
 
         ChallengeResponse response = authService.generateChallenge(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/biometric/verify")
+    public ResponseEntity<TokensResponse> verifyBiometrics(@RequestBody VerifyRequest request) {
+        TokensResponse tokens = authService.verifyAndLogin(request);
+        return ResponseEntity.ok(tokens);
     }
 
 
