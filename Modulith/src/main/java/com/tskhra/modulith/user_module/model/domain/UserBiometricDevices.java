@@ -23,6 +23,7 @@ public class UserBiometricDevices {
 
     private String deviceId;
 
+    @Column(columnDefinition = "TEXT")
     private String publicKey;
 
     @CreationTimestamp

@@ -8,6 +8,7 @@ import com.tskhra.modulith.user_module.model.requests.*;
 import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.repositories.UserBiometricDevicesRepository;
+import java.nio.charset.StandardCharsets;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -150,7 +151,7 @@ public class AuthService {
 
             Signature publicSignature = Signature.getInstance("SHA256withRSA");
             publicSignature.initVerify(pubKey);
-            publicSignature.update(challenge.getBytes("UTF-8"));
+            publicSignature.update(challenge.getBytes(StandardCharsets.UTF_8));
 
             byte[] signatureBytes = Base64.getDecoder().decode(signature);
             return publicSignature.verify(signatureBytes);
