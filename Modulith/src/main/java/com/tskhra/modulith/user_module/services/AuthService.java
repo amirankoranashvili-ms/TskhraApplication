@@ -9,6 +9,8 @@ import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.repositories.UserBiometricDevicesRepository;
 import java.nio.charset.StandardCharsets;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -30,6 +32,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 @Service
+@Slf4j
 public class AuthService {
 
     private final KeycloakProperties keycloakProperties;
@@ -95,6 +98,7 @@ public class AuthService {
 
     @Transactional
     public void registerDevice(BiometricsDto biometrics, Jwt jwt) {
+        log.info("Registering device: {}", biometrics);
         String userKeycloakId = jwt.getClaimAsString("sub");
 
         UserBiometricDevices device = userBiometricDevicesRepository.findByDeviceId(biometrics.deviceId())
@@ -103,25 +107,30 @@ public class AuthService {
         device.setUserId(userKeycloakId);
         device.setDeviceId(biometrics.deviceId());
         device.setPublicKey(biometrics.publicKey());
-
-        userBiometricDevicesRepository.save(device);
+        UserBiometricDevices saved = userBiometricDevicesRepository.save(device);
+        log.info("Device registered with id: {}", saved.getId());
     }
 
     public ChallengeResponse generateChallenge(ChallengeRequest request) {
+        log.info("Generating challenge for device: {}", request.deviceId());
         String deviceId = request.deviceId();
 
         String challenge = UUID.randomUUID().toString();
         String redisKey = "biometric_nonce:" + deviceId;
 
-        redisTemplate.opsForValue().set(redisKey, challenge, Duration.ofSeconds(60));
+        redisTemplate.opsForValue().set(redisKey, challenge, Duration.ofSeconds(600)); // todo CHANGE to 60sec!
+        log.info("Challenge generated for device: {}", deviceId);
         return new ChallengeResponse(challenge);
     }
 
     public TokensResponse verifyAndLogin(VerifyRequest request) {
+        log.info("Verifying device: {}", request.deviceId());
         String redisKey = "biometric_nonce:" + request.deviceId();
         String challenge = redisTemplate.opsForValue().getAndDelete(redisKey);
+        log.info("Challenge retrieved for device: {}", request.deviceId());
 
         if (challenge == null) {
+            log.error("Challenge expired or invalid for device: {}", request.deviceId());
             throw new HttpUnauthorizedException("Challenge expired or invalid.");
         }
 
@@ -130,6 +139,7 @@ public class AuthService {
 
         boolean isValidSignature = verifySignature(device.getPublicKey(), challenge, request.signature());
         if (!isValidSignature) {
+            log.error("Invalid signature for device: {}", request.deviceId());
             throw new HttpUnauthorizedException("Invalid signature.");
         }
 
@@ -140,22 +150,34 @@ public class AuthService {
         // signature is challenge signed with private key and then encoded base 64
         // publicKey is also base64 encoded
         try {
+            log.info("Verifying signature for device.");
+            log.info("Challenge: {}", challenge);
+            log.info("Signature: {}", signature);
+            log.info("Public Key: {}", publicKey);
             String cleanKey = publicKey
                     .replace("-----BEGIN PUBLIC KEY-----", "")
                     .replace("-----END PUBLIC KEY-----", "")
                     .replaceAll("\\s+", "");
 
-            byte[] keyBytes = Base64.getDecoder().decode(cleanKey);
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            log.info("Cleaned Public Key: {}", cleanKey);
+
+            byte[] pubKeyBytes = Base64.getDecoder().decode(cleanKey);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(pubKeyBytes);
             PublicKey pubKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+
+            byte[] signatureBytes = Base64.getDecoder().decode(signature);
 
             Signature publicSignature = Signature.getInstance("SHA256withRSA");
             publicSignature.initVerify(pubKey);
-            publicSignature.update(challenge.getBytes(StandardCharsets.UTF_8));
+            publicSignature.update(challenge.getBytes());
 
-            byte[] signatureBytes = Base64.getDecoder().decode(signature);
-            return publicSignature.verify(signatureBytes);
+
+            boolean verify = publicSignature.verify(signatureBytes);
+            log.info("Signature verification result: {}", verify);
+            return verify;
+
         } catch (Exception e) {
+            log.error("Error verifying signature: {}", e.getMessage());
             return false;
         }
     }
