@@ -14,6 +14,8 @@ import com.tskhra.modulith.common.exception.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
@@ -259,11 +261,13 @@ public class BookingService {
         );
     }
 
-    public List<BookingDto> getCurrentUserBookings(Jwt jwt) {
+    public Page<BookingDto> getCurrentUserBookings(Jwt jwt, Pageable pageable) {
         Long userId = userService.getCurrentUser(jwt).getId();
-        return bookingRepository.findAllByUserId(userId).stream()
-                .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING || b.getBookingStatus() == BookingStatus.SCHEDULED)
-                .map(this::mapToDto)
-                .toList();
+        Page<Booking> page = bookingRepository.findAllActiveByUserId(userId, pageable, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED));
+        return page.map(this::mapToDto);
+//        return bookingRepository.findAllByUserId(userId).stream()
+//                .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING || b.getBookingStatus() == BookingStatus.SCHEDULED)
+//                .map(this::mapToDto)
+//                .toList();
     }
 }

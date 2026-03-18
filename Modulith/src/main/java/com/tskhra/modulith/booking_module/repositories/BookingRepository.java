@@ -4,6 +4,8 @@ import com.tskhra.modulith.booking_module.model.domain.Booking;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.services.BookingService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +29,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByServiceId(Long id);
 
     List<Booking> findAllByUserId(Long userId);
+
+    @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.bookingStatus IN :statuses")
+    Page<Booking> findAllActiveByUserId(Long userId, Pageable pageable, List<BookingStatus> statuses);
+
 }

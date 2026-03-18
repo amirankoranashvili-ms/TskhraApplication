@@ -6,6 +6,9 @@ import com.tskhra.modulith.booking_module.services.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,9 +65,12 @@ public class BookingController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<BookingDto>> getCurrentUserBookings(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Page<BookingDto>> getCurrentUserBookings(@AuthenticationPrincipal Jwt jwt,
+                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "12") int size) {
 
-        List<BookingDto> bookings = bookingService.getCurrentUserBookings(jwt);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookingDto> bookings = bookingService.getCurrentUserBookings(jwt, pageable);
         return ResponseEntity.ok(bookings);
     }
 
