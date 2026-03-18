@@ -1,6 +1,6 @@
 package com.tskhra.modulith.user_module.validation.validators;
 
-import com.tskhra.modulith.booking_module.validation.ImageFile;
+import com.tskhra.modulith.user_module.validation.ImageFile;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
