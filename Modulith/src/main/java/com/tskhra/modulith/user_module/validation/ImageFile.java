@@ -1,4 +1,4 @@
-package com.tskhra.modulith.booking_module.validation;
+package com.tskhra.modulith.user_module.validation;
 
 
 import com.tskhra.modulith.booking_module.validation.validators.ImageFileValidator;
@@ -12,6 +12,7 @@ import java.lang.annotation.*;
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ImageFileValidator.class)
+@NamedInterface
 public @interface ImageFile {
     String message() default "Invalid image file. Allowed: JPG, JPEG, PNG, WEBP.";
     Class<?>[] groups() default {};

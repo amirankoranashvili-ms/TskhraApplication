@@ -1,6 +1,6 @@
 package com.tskhra.modulith.user_module.controllers;
 
-import com.tskhra.modulith.booking_module.validation.ImageFile;
+import com.tskhra.modulith.user_module.validation.ImageFile;
 import com.tskhra.modulith.user_module.model.requests.UserProfileUpdateDto;
 import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.responses.UserProfileSelfDto;
@@ -44,7 +44,7 @@ public class UserProfileController {
     @Operation(summary = "Upload user avatar")
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // todo PUT more correct?
     public ResponseEntity<Void> updateAvatar(@AuthenticationPrincipal Jwt jwt,
-                                             @RequestParam("file") MultipartFile file) {
+                                             @ImageFile @RequestParam("file") MultipartFile file) {
 
         userService.uploadAvatar(file, jwt);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); // todo OK?
