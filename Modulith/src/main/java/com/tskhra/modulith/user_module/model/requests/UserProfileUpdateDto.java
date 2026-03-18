@@ -1,5 +1,6 @@
 package com.tskhra.modulith.user_module.model.requests;
 
+import com.tskhra.modulith.user_module.validation.MaxAge;
 import com.tskhra.modulith.user_module.validation.MinAge;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public record UserProfileUpdateDto (
 
         @NotNull(message = "Birth date is required")
         @MinAge(value = 16, message = "User must be at least 16 years old")
+        @MaxAge(value = 100, message = "User is too old!")
         LocalDate birthDate,
 
         @NotBlank(message = "Country code cannot be blank")
