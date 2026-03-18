@@ -3,10 +3,12 @@ package com.tskhra.modulith.user_module.validation.validators;
 import com.tskhra.modulith.user_module.validation.ImageFile;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 public class ImageFileValidator implements ConstraintValidator<ImageFile, MultipartFile> {
 
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of("image/jpeg", "image/png", "image/webp");
@@ -16,20 +18,24 @@ public class ImageFileValidator implements ConstraintValidator<ImageFile, Multip
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext constraintValidatorContext) {
         if (file == null || file.isEmpty()) {
+            log.info("file is null or empty");
             return false;
         }
 
         String contentType = file.getContentType();
+        log.info("contentType: {}", contentType);
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
             return false;
         }
 
         String originalFilename = file.getOriginalFilename();
+        log.info("originalFilename: {}", originalFilename);
         if (originalFilename == null || !originalFilename.contains(".")) {
             return false;
         }
 
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        log.info("extension: {}", extension);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
             return false;
         }

@@ -4,8 +4,6 @@ package com.tskhra.modulith.booking_module.validation;
 import com.tskhra.modulith.booking_module.validation.validators.ImageFileValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import org.springframework.modulith.NamedInterface;
-
 import java.lang.annotation.*;
 
 @Documented
