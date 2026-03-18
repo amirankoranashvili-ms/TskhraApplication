@@ -3,10 +3,7 @@ package com.tskhra.modulith.booking_module.services;
 import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
 import com.tskhra.modulith.booking_module.model.embeddable.WeekTimeInterval;
-import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
-import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
-import com.tskhra.modulith.booking_module.model.enums.BusinessType;
-import com.tskhra.modulith.booking_module.model.enums.WeekDay;
+import com.tskhra.modulith.booking_module.model.enums.*;
 import com.tskhra.modulith.booking_module.model.requests.*;
 import com.tskhra.modulith.booking_module.repositories.*;
 import com.tskhra.modulith.common.exception.HttpBadRequestException;
@@ -65,6 +62,10 @@ public class BusinessService {
         // TODO write one query to simplify
         if (activeBusinessCount + inactiveBusinessCount >= MAX_BUSINESSES_PER_USER) {
             throw new HttpBadRequestException("A user can have at most " + MAX_BUSINESSES_PER_USER + " businesses");
+        }
+
+        if (dto.callType() != CallType.OUTCALL && dto.addressDetails().isBlank()) {
+            throw new HttpBadRequestException("Address details must be present.");
         }
 
         Business business = Business.builder()
