@@ -24,7 +24,7 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 echo 'Rebuilding and starting Docker container...'
-                sh 'docker compose up -d --build modulith'
+                sh 'docker compose -p tskhraapplication up -d --build modulith'
             }
         }
     }
