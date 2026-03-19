@@ -107,7 +107,7 @@ services:
       - REDIS_HOST=redis
       - KAFKA_HOST=kafka
     env_file:
-      - .env
+      - ./Modulith/.env
     ports:
       - "8081:8081"
     depends_on:
