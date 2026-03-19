@@ -16,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -37,7 +38,8 @@ public class KycService {
 
 
     public KycTokenResponse getAccessToken(Jwt jwt) {
-        String userId = userService.getCurrentUser(jwt).getId().toString();
+//        String userId = userService.getCurrentUser(jwt).getId().toString();
+        String userId = UUID.randomUUID().toString();
         log.info("User idd: {}", userId);
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         log.info("Timestamp: {}", timestamp);
