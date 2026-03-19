@@ -9,6 +9,7 @@ import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.Gender;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
+import com.tskhra.modulith.user_module.model.events.UserRegisteredEvent;
 import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
 import com.tskhra.modulith.user_module.model.requests.UserProfileUpdateDto;
 import com.tskhra.modulith.user_module.model.requests.UserRegistrationRequestDto;
@@ -24,6 +25,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.ErrorRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.modulith.NamedInterface;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -45,6 +47,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final ImageService imageService;
     private final Keycloak keycloak;
+
+    private final ApplicationEventPublisher events;
 
 
     public void registerUser(UserRegistrationRequestDto dto) {
@@ -74,7 +78,15 @@ public class UserService {
                         .updatedAt(now)
                         .build();
 
-                userRepository.save(createdUser);
+                User saved = userRepository.save(createdUser);
+                UserRegisteredEvent event = new UserRegisteredEvent(
+                        saved.getId().toString(),
+                        saved.getUsername(),
+                        saved.getEmail(),
+                        saved.getCreatedAt()
+                );
+
+                events.publishEvent(event);
 
             } else if (response.getStatus() == 409) {
                 ErrorRepresentation error = response.readEntity(ErrorRepresentation.class);

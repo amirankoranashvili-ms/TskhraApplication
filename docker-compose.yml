@@ -105,6 +105,7 @@ services:
       - KEYCLOAK_HOST=keycloak
       - MINIO_HOST=minio
       - REDIS_HOST=redis
+      - KAFKA_HOST=kafka
     ports:
       - "8081:8081"
     depends_on:
