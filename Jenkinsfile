@@ -16,7 +16,7 @@ pipeline {
             steps {
                 dir('Modulith') {
                     echo 'Building Maven project...'
-                    sh 'mvn clean package -Dmaven.test.skip=true'
+                    sh 'mvn clean package'
                 }
             }
         }
