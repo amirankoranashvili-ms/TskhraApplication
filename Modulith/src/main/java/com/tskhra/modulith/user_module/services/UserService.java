@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.modulith.NamedInterface;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -51,6 +52,7 @@ public class UserService {
     private final ApplicationEventPublisher events;
 
 
+    @Transactional
     public void registerUser(UserRegistrationRequestDto dto) {
         if (userRepository.existsByUsername(dto.username())) {
             throw new HttpConflictException("Username Already Exists");
