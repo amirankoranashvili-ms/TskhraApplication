@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tskhra.modulith.common.properties.SumsubProperties;
 import com.tskhra.modulith.user_module.model.responses.KycTokenResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class KycService {
 
     private final SumsubProperties sumsubProperties;
@@ -36,7 +38,9 @@ public class KycService {
 
     public KycTokenResponse getAccessToken(Jwt jwt) {
         String userId = userService.getCurrentUser(jwt).getId().toString();
+        log.info("User idd: {}", userId);
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
+        log.info("Timestamp: {}", timestamp);
         String levelName = sumsubProperties.levelName();
         String appToken = sumsubProperties.token();
 
@@ -48,7 +52,10 @@ public class KycService {
                 }
                 """.formatted(userId, levelName).trim();
 
+        log.info("Json body: {}", jsonBody);
+
         String signature = createSignature(timestamp, jsonBody);
+        log.info("Signature: {}", signature);
 
         Map response = restClient.post()
                 .uri(URI_PATH)
@@ -65,6 +72,7 @@ public class KycService {
         }
 
         String token = (String) response.get("token");
+        log.info("Token: {}", token);
         return new KycTokenResponse(token, userId);
     }
 
