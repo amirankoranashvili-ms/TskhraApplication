@@ -49,3 +49,9 @@ minio:
   bucket-name: tskhra-images
   avatar-folder: user-avatars/
   business-folder: business-pictures/
+
+sumsub:
+  base-url: ${SUMSUB_BASE_URL:https://api.sumsub.com}
+  secret-key: ${SUMSUB_SECRET_KEY}
+  token: ${SUMSUB_TOKEN}
+  level-name: ${SUMSUB_LEVEL_NAME}

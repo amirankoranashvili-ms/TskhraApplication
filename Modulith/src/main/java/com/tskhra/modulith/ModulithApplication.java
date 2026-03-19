@@ -2,6 +2,7 @@ package com.tskhra.modulith;
 
 import com.tskhra.modulith.common.properties.KeycloakProperties;
 import com.tskhra.modulith.common.properties.MinioProperties;
+import com.tskhra.modulith.common.properties.SumsubProperties;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,7 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableConfigurationProperties({KeycloakProperties.class, MinioProperties.class})
+@EnableConfigurationProperties({KeycloakProperties.class, MinioProperties.class, SumsubProperties.class})
 public class ModulithApplication {
 
     @PostConstruct
