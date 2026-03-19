@@ -39,7 +39,8 @@ public class KycService {
 
     public KycTokenResponse getAccessToken(Jwt jwt) {
 //        String userId = userService.getCurrentUser(jwt).getId().toString();
-        String userId = UUID.randomUUID().toString();
+//        String userId = UUID.randomUUID().toString();
+        String  userId = jwt.getClaimAsString("sub");
         log.info("User idd: {}", userId);
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         log.info("Timestamp: {}", timestamp);
