@@ -23,7 +23,7 @@ public class MaxAgeValidator implements ConstraintValidator<MaxAge, LocalDate> {
         }
 
         int age = Period.between(birthDate, LocalDate.now()).getYears();
-        return age >= maxAge;
+        return age < maxAge;
     }
 
 }

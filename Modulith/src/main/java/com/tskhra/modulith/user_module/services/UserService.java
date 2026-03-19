@@ -180,7 +180,7 @@ public class UserService {
     }
 
 
-//    Helper methods
+    //    Helper methods
     private void setKycStatus(KycStatus status, Jwt jwt) {
         User user = getCurrentUser(jwt);
 
