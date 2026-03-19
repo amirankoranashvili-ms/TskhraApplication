@@ -106,6 +106,8 @@ services:
       - MINIO_HOST=minio
       - REDIS_HOST=redis
       - KAFKA_HOST=kafka
+    env_file:
+      - .env
     ports:
       - "8081:8081"
     depends_on:
