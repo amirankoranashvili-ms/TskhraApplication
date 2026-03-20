@@ -106,7 +106,8 @@ public class KycService {
 
     }
 
-    public void handleWebhook() {
+    public void handleWebhook(String body) {
         log.info("Handling webhook");
+        log.info("Body: {}", body);
     }
 }
