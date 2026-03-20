@@ -119,7 +119,7 @@ public class KycService {
 
         String signature = createSignature(timestamp, "GET", path, "");
         Map response = restClient.get()
-                .uri(TOKEN_PATH)
+                .uri(path)
                 .header("X-App-Token", appToken)
                 .header("X-App-Access-Ts", timestamp)
                 .header("X-App-Access-Sig", signature)
