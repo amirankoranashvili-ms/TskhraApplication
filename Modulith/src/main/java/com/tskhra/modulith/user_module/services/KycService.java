@@ -105,4 +105,8 @@ public class KycService {
         }
 
     }
+
+    public void handleWebhook() {
+        log.info("Handling webhook");
+    }
 }

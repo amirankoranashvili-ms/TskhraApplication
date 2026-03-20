@@ -30,7 +30,8 @@ public class SecurityConfiguration {
                                 "/users/sanity-check",
                                 "/categories/**",
                                 "/cities",
-                                "/business/**"
+                                "/business/**",
+                                "/kyc/webhook"
                         ).permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
                         .anyRequest().authenticated()
