@@ -28,4 +28,5 @@ public class KycController {
         kycService.handleWebhook(body);
         return ResponseEntity.ok().build();
     }
+
 }
