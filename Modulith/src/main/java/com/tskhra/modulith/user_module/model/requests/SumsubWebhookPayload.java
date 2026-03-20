@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.OffsetDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record SubsubWebhookPayload(
+public record SumsubWebhookPayload(
         String applicantId,
         String inspectionId,
         ApplicantType applicantType,

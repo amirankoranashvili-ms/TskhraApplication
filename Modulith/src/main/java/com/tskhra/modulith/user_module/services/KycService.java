@@ -1,23 +1,19 @@
 package com.tskhra.modulith.user_module.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tskhra.modulith.common.properties.SumsubProperties;
-import com.tskhra.modulith.user_module.model.requests.SubsubWebhookPayload;
+import com.tskhra.modulith.user_module.model.requests.SumsubWebhookPayload;
 import com.tskhra.modulith.user_module.model.responses.KycTokenResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -27,7 +23,8 @@ public class KycService {
     private final RestClient restClient;
     private final UserService userService;
 
-    private static final String URI_PATH = "/resources/accessTokens/sdk";
+    private static final String TOKEN_PATH = "/resources/accessTokens/sdk";
+    public static final String APPLICANT_INFO_PATH = "/resources/applicants/{applicantId}/one";
 
 
     public KycService(SumsubProperties sumsubProperties, RestClient.Builder restClientBuilder, UserService userService) {
@@ -39,14 +36,13 @@ public class KycService {
 
 
     public KycTokenResponse getAccessToken(Jwt jwt) {
-//        String userId = userService.getCurrentUser(jwt).getId().toString();
-//        String userId = UUID.randomUUID().toString();
-        String  userId = jwt.getClaimAsString("sub");
-        log.info("User idd: {}", userId);
+        String userId = jwt.getClaimAsString("sub");
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
-        log.info("Timestamp: {}", timestamp);
         String levelName = sumsubProperties.levelName();
         String appToken = sumsubProperties.token();
+
+        log.info("Timestamp: {}", timestamp);
+        log.info("User idd: {}", userId);
 
         String jsonBody = """
                 {
@@ -58,11 +54,11 @@ public class KycService {
 
         log.info("Json body: {}", jsonBody);
 
-        String signature = createSignature(timestamp, jsonBody);
+        String signature = createSignature(timestamp, "POST", TOKEN_PATH, jsonBody);
         log.info("Signature: {}", signature);
 
         Map response = restClient.post()
-                .uri(URI_PATH)
+                .uri(TOKEN_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-App-Token", appToken)
                 .header("X-App-Access-Ts", timestamp)
@@ -80,14 +76,12 @@ public class KycService {
         return new KycTokenResponse(token, userId);
     }
 
-    private String createSignature(String ts, String body){
+    private String createSignature(String ts, String httpMethod, String path, String body) {
         try {
             String secret = sumsubProperties.secretKey();
-            String path = URI_PATH;
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             mac.init(secretKeySpec);
-            String httpMethod = "POST";
 
             String dataToSign = ts + httpMethod + path + body;
             byte[] signatureBytes = mac.doFinal(dataToSign.getBytes(StandardCharsets.UTF_8));
@@ -107,8 +101,35 @@ public class KycService {
 
     }
 
-    public void handleWebhook(SubsubWebhookPayload body) {
+    public void handleWebhook(SumsubWebhookPayload body) {
         log.info("Handling webhook");
         log.info("Body: {}", body);
+
+        String type = body.type();
+        SumsubWebhookPayload.ReviewAnswer answer = body.reviewResult().reviewAnswer();
+        if (!type.equals("applicantReviewed") || answer != SumsubWebhookPayload.ReviewAnswer.GREEN) {
+            log.info("Webhook ignored");
+            return;
+        }
+
+        String applicantId = body.applicantId();
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
+        String appToken = sumsubProperties.token();
+        String path = APPLICANT_INFO_PATH.replace("{applicantId}", applicantId);
+
+        String signature = createSignature(timestamp, "GET", path, "");
+        Map response = restClient.get()
+                .uri(TOKEN_PATH)
+                .header("X-App-Token", appToken)
+                .header("X-App-Access-Ts", timestamp)
+                .header("X-App-Access-Sig", signature)
+                .retrieve()
+                .body(Map.class);
+
+        if (response == null) {
+            throw new RuntimeException("Error getting applicant info from Sumsub.");
+        }
+
+        log.info("Applicant info: {}", response);
     }
 }
