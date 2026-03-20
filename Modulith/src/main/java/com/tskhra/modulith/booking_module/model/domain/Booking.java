@@ -1,8 +1,6 @@
 package com.tskhra.modulith.booking_module.model.domain;
 
-import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
-import com.tskhra.modulith.booking_module.repositories.BookingRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

@@ -146,7 +146,7 @@ public class AuthService {
         return refreshToken(new RefreshTokenRequest(request.refreshToken()));
     }
 
-    private boolean verifySignature(String publicKey, String challenge, String signature) { // todo ???
+    private boolean verifySignature(String publicKey, String challenge, String signature) {
         // signature is challenge signed with private key and then encoded base 64
         // publicKey is also base64 encoded
         try {

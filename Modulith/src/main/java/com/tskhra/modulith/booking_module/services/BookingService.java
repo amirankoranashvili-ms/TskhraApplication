@@ -265,9 +265,5 @@ public class BookingService {
         Long userId = userService.getCurrentUser(jwt).getId();
         Page<Booking> page = bookingRepository.findAllActiveByUserId(userId, pageable, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED));
         return page.map(this::mapToDto);
-//        return bookingRepository.findAllByUserId(userId).stream()
-//                .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING || b.getBookingStatus() == BookingStatus.SCHEDULED)
-//                .map(this::mapToDto)
-//                .toList();
     }
 }

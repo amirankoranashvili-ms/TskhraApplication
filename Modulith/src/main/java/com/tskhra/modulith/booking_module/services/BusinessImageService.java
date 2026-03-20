@@ -2,7 +2,6 @@ package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.BusinessImage;
 import com.tskhra.modulith.booking_module.repositories.BusinessImageRepository;
-import com.tskhra.modulith.common.exception.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;

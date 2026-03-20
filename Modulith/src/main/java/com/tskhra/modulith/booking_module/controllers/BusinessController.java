@@ -6,7 +6,6 @@ import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
 import com.tskhra.modulith.booking_module.model.requests.TimeslotRequest;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

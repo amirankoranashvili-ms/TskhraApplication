@@ -2,8 +2,6 @@ package com.tskhra.modulith.booking_module.repositories;
 
 import com.tskhra.modulith.booking_module.model.domain.Booking;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
-import com.tskhra.modulith.booking_module.model.responses.BookingDto;
-import com.tskhra.modulith.booking_module.services.BookingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
