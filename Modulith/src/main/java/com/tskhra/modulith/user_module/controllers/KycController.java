@@ -1,5 +1,6 @@
 package com.tskhra.modulith.user_module.controllers;
 
+import com.tskhra.modulith.user_module.model.requests.SubsubWebhookPayload;
 import com.tskhra.modulith.user_module.model.responses.KycTokenResponse;
 import com.tskhra.modulith.user_module.services.KycService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class KycController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<Void> verifyWebhook(@RequestBody String body) {
+    public ResponseEntity<Void> verifyWebhook(@RequestBody SubsubWebhookPayload body) {
         kycService.handleWebhook(body);
         return ResponseEntity.ok().build();
     }

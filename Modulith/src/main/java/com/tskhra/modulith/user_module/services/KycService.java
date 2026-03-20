@@ -2,6 +2,7 @@ package com.tskhra.modulith.user_module.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tskhra.modulith.common.properties.SumsubProperties;
+import com.tskhra.modulith.user_module.model.requests.SubsubWebhookPayload;
 import com.tskhra.modulith.user_module.model.responses.KycTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +107,7 @@ public class KycService {
 
     }
 
-    public void handleWebhook(String body) {
+    public void handleWebhook(SubsubWebhookPayload body) {
         log.info("Handling webhook");
         log.info("Body: {}", body);
     }
