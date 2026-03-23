@@ -2,6 +2,7 @@ package com.tskhra.modulith.user_module.controllers;
 
 import com.tskhra.modulith.user_module.model.requests.*;
 import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
+import com.tskhra.modulith.user_module.model.responses.MessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.services.AuthService;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,18 +40,29 @@ public class AuthController {
     }
 
     @PostMapping("/biometric/register")
-    public ResponseEntity<Void> registerDevice(@AuthenticationPrincipal Jwt jwt,
-                                               @RequestBody BiometricsDto biometrics) {
+    public ResponseEntity<MessageResponse> registerDevice(@AuthenticationPrincipal Jwt jwt,
+                                                          @RequestBody BiometricsDto biometrics) {
 
         authService.registerDevice(biometrics, jwt);
-        return new ResponseEntity<>(HttpStatus.OK);
+        MessageResponse body = new MessageResponse(
+                HttpStatus.OK.value(),
+                "Device registered successfully",
+                Instant.now().toString()
+        );
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("/biometric/challenge")
     public ResponseEntity<ChallengeResponse> generateChallenge(@RequestBody ChallengeRequest request) {
 
-        ChallengeResponse response = authService.generateChallenge(request);
-        return ResponseEntity.ok(response);
+        String challenge = authService.generateChallenge(request);
+        ChallengeResponse body = new ChallengeResponse(
+                HttpStatus.OK.value(),
+                "Challenge generated successfully",
+                Instant.now().toString(),
+                challenge
+        );
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("/biometric/verify")

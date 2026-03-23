@@ -5,7 +5,6 @@ import com.tskhra.modulith.common.exception.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.HttpUnauthorizedException;
 import com.tskhra.modulith.user_module.model.domain.UserBiometricDevices;
 import com.tskhra.modulith.user_module.model.requests.*;
-import com.tskhra.modulith.user_module.model.responses.ChallengeResponse;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.repositories.UserBiometricDevicesRepository;
 import java.nio.charset.StandardCharsets;
@@ -111,7 +110,7 @@ public class AuthService {
         log.info("Device registered with id: {}", saved.getId());
     }
 
-    public ChallengeResponse generateChallenge(ChallengeRequest request) {
+    public String generateChallenge(ChallengeRequest request) {
         log.info("Generating challenge for device: {}", request.deviceId());
         String deviceId = request.deviceId();
 
@@ -120,7 +119,7 @@ public class AuthService {
 
         redisTemplate.opsForValue().set(redisKey, challenge, Duration.ofSeconds(600)); // todo CHANGE to 60sec!
         log.info("Challenge generated for device: {}", deviceId);
-        return new ChallengeResponse(challenge);
+        return challenge;
     }
 
     public TokensResponse verifyAndLogin(VerifyRequest request) {

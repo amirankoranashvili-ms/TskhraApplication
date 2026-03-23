@@ -1,9 +1,8 @@
 package com.tskhra.modulith.user_module.model.responses;
 
-public record ChallengeResponse(
+public record MessageResponse(
         int statusCode,
         String message,
-        String timestamp,
-        String challenge
+        String timestamp
 ) {
 }
