@@ -1,9 +1,9 @@
 package com.tskhra.modulith.user_module.services;
 
-import com.tskhra.modulith.common.exception.HttpBadRequestException;
-import com.tskhra.modulith.common.exception.HttpConflictException;
-import com.tskhra.modulith.common.exception.HttpException;
-import com.tskhra.modulith.common.exception.HttpNotFoundException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpConflictException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.Gender;

@@ -1,6 +1,5 @@
-package com.tskhra.modulith.common.exception;
+package com.tskhra.modulith.common.exception.http_exceptions;
 
-import jdk.jfr.Name;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.modulith.NamedInterface;

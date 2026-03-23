@@ -1,0 +1,181 @@
+{
+  "id": "69bd2bd79fc3251e91b462cf",
+  "createdAt": "2026-03-20 11:13:27",
+  "key": "MMEPAMAYYSUVMJ",
+  "clientId": "makingscience.com",
+  "inspectionId": "69bd2bd79fc3251e91b462cf",
+  "externalUserId": "152fb215-962f-4215-9a44-de69117b2721",
+  "info": {
+    "firstName": "FREYA",
+    "firstNameEn": "FREYA",
+    "lastName": "KRAUSE",
+    "lastNameEn": "KRAUSE",
+    "dob": "1982-03-24",
+    "gender": "F",
+    "placeOfBirth": "Berlin",
+    "placeOfBirthEn": "BERLIN",
+    "country": "DEU",
+    "addresses": [
+      {
+        "street": "HEIDESTRASSE",
+        "streetEn": "HEIDESTRASSE",
+        "buildingNumber": 19,
+        "town": "KÖLN",
+        "townEn": "KOELN",
+        "postCode": 51247,
+        "country": "DEU",
+        "formattedAddress": "HEIDESTRASSE, 19, KÖLN, Germany, 51247",
+        "source": "proofOfIdentity"
+      }
+    ],
+    "idDocs": [
+      {
+        "idDocType": "ID_CARD",
+        "country": "DEU",
+        "firstName": "FREYA",
+        "firstNameEn": "FREYA",
+        "lastName": "KRAUSE",
+        "lastNameEn": "KRAUSE",
+        "issuedDate": "2021-06-19",
+        "validUntil": "2027-06-28",
+        "number": "L02M000CH8",
+        "dob": "1982-03-24",
+        "gender": "F",
+        "placeOfBirth": "Berlin",
+        "address": {
+          "street": "HEIDESTRASSE",
+          "streetEn": "HEIDESTRASSE",
+          "buildingNumber": 19,
+          "town": "KÖLN",
+          "townEn": "KOELN",
+          "postCode": 51247,
+          "country": "DEU",
+          "formattedAddress": "HEIDESTRASSE, 19, KÖLN, Germany, 51247",
+          "source": "proofOfIdentity"
+        },
+        "mrzLine1": "IDD<<L02M00CH6<<<<<<<<<<<<<<<<",
+        "mrzLine2": "8308126<3108011D<<2108<<<<<<<<",
+        "mrzLine3": "KRAUSE<<FREYA<<<<<<<<<<<<<<<<<",
+        "termless": false
+      }
+    ]
+  },
+  "fixedInfo": {
+    "firstName": "Amo",
+    "firstNameEn": "Amo",
+    "lastName": "Chamo",
+    "lastNameEn": "Chamo",
+    "dob": "2006-02-01",
+    "gender": "M"
+  },
+  "phone": "+995555555555",
+  "applicantPlatform": "Web",
+  "ipCountry": "GEO",
+  "agreement": {
+    "items": [
+      {
+        "id": "3aaa5840-d1b1-4e77-859b-9c31ed16f12a",
+        "acceptedAt": "2026-03-20 11:13:34",
+        "source": "WebSDK",
+        "type": "onboarding",
+        "recordIds": [
+          "6995a37b42f018039a840135",
+          "6995a34142f018039a840125"
+        ]
+      }
+    ],
+    "createdAt": "2026-03-20 11:13:34",
+    "acceptedAt": "2026-03-20 11:13:34",
+    "source": "WebSDK",
+    "recordIds": [
+      "6995a37b42f018039a840135",
+      "6995a34142f018039a840125"
+    ]
+  },
+  "requiredIdDocs": {
+    "docSets": [
+      {
+        "idDocSetType": "APPLICANT_DATA",
+        "fields": [
+          {
+            "name": "firstName",
+            "required": true,
+            "prefill": null,
+            "immutableIfPresent": false
+          },
+          {
+            "name": "lastName",
+            "required": true,
+            "prefill": null,
+            "immutableIfPresent": false
+          },
+          {
+            "name": "gender",
+            "required": true,
+            "prefill": null,
+            "immutableIfPresent": false
+          },
+          {
+            "name": "phone",
+            "required": true,
+            "prefill": null,
+            "immutableIfPresent": false
+          },
+          {
+            "name": "dob",
+            "required": true,
+            "prefill": null,
+            "immutableIfPresent": false
+          }
+        ],
+        "customFields": [
+          {
+            "name": "Personal ID",
+            "displayName": "Personal Id",
+            "required": true
+          }
+        ]
+      },
+      {
+        "idDocSetType": "IDENTITY",
+        "types": [
+          "DRIVERS",
+          "ID_CARD",
+          "RESIDENCE_PERMIT",
+          "PASSPORT"
+        ],
+        "videoRequired": "disabled",
+        "nfcVerificationSettings": {
+          "mode": "disabled"
+        }
+      }
+    ]
+  },
+  "review": {
+    "reviewId": "MaYMp",
+    "attemptId": "hfYuQ",
+    "attemptCnt": 1,
+    "elapsedSincePendingMs": 5436,
+    "elapsedSinceQueuedMs": 5436,
+    "reprocessing": true,
+    "levelName": "basic-kyc-test",
+    "levelAutoCheckMode": null,
+    "createDate": "2026-03-20 11:14:37+0000",
+    "reviewDate": "2026-03-20 11:14:43+0000",
+    "reviewResult": {
+      "reviewAnswer": "GREEN"
+    },
+    "reviewStatus": "completed",
+    "priority": 0,
+    "dataHash": null
+  },
+  "lang": "en",
+  "type": "individual",
+  "metadata": [
+    {
+      "key": "Personal ID",
+      "value": "111111111111"
+    }
+  ],
+  "notes": []
+}

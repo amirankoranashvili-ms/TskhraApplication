@@ -22,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Register a new user")
-    @PostMapping("/register")
+    @PostMapping("/register") // todo MARKED
     public ResponseEntity<Void> registerUser(@Valid @RequestBody UserRegistrationRequestDto dto) {
 
         userService.registerUser(dto);

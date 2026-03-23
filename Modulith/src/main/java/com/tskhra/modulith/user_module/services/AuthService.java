@@ -1,13 +1,12 @@
 package com.tskhra.modulith.user_module.services;
 
 import com.tskhra.modulith.common.properties.KeycloakProperties;
-import com.tskhra.modulith.common.exception.HttpBadRequestException;
-import com.tskhra.modulith.common.exception.HttpUnauthorizedException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpUnauthorizedException;
 import com.tskhra.modulith.user_module.model.domain.UserBiometricDevices;
 import com.tskhra.modulith.user_module.model.requests.*;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.repositories.UserBiometricDevicesRepository;
-import java.nio.charset.StandardCharsets;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
