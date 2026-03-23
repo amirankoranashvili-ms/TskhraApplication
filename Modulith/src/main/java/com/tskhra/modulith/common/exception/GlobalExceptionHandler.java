@@ -1,5 +1,7 @@
 package com.tskhra.modulith.common.exception;
 
+import com.tskhra.modulith.common.exception.custom_status_exceptions.CustomStatusException;
+import com.tskhra.modulith.common.exception.http_exceptions.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,5 +107,19 @@ public class GlobalExceptionHandler {
                 Instant.now().toString()
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CustomStatusException.class)
+    public ResponseEntity<ErrorResponse> handleCustomStatus(CustomStatusException ex) {
+        String message = ex.getMessage();
+        HttpStatus httpStatus = ex.getHttpStatus();
+        int customStatusCode = ex.getCustomStatusCode();
+
+        ErrorResponse response = new ErrorResponse(
+                customStatusCode,
+                message,
+                Instant.now().toString()
+        );
+        return new ResponseEntity<>(response, httpStatus);
     }
 }
