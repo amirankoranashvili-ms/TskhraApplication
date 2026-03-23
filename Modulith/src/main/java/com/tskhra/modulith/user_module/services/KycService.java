@@ -117,7 +117,6 @@ public class KycService {
     @Transactional
     public void handleWebhook(SumsubWebhookPayload body) {
         log.info("Handling webhook");
-        log.info("Body: {}", body);
         String kcId = body.externalUserId();
         User user = userRepository.findUserByKeycloakId(UUID.fromString(kcId)).get();
 
@@ -129,6 +128,7 @@ public class KycService {
         }
 
         if (answer == SumsubWebhookPayload.ReviewAnswer.RED) {
+            log.info("Applicant rejected");
             user.setKycStatus(KycStatus.REJECTED);
             userRepository.save(user);
             return;
@@ -167,6 +167,6 @@ public class KycService {
         user.setPhoneNumber(phone);
         userRepository.save(user);
 
-        log.info("Applicant info: {}", response);
+        log.info("Applicant approved");
     }
 }
