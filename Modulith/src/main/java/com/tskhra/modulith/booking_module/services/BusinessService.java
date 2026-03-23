@@ -63,8 +63,7 @@ public class BusinessService {
 
         // TODO write one query to simplify
         if (activeBusinessCount + inactiveBusinessCount >= MAX_BUSINESSES_PER_USER) {
-//            throw new HttpBadRequestException("A user can have at most " + MAX_BUSINESSES_PER_USER + " businesses");
-            throw new CustomStatusException(MyCustomStatus.BUSINESS_NUMBER_LIMIT_REACHED);
+            throw new CustomStatusException(MyCustomStatus.BUSINESS_NUMBER_LIMIT_REACHED, "A user can have at most " + MAX_BUSINESSES_PER_USER + " businesses");
         }
 
         if (dto.callType() != CallType.OUTCALL && dto.addressDetails().isBlank()) {

@@ -1,19 +1,27 @@
 package com.tskhra.modulith.user_module.services;
 
 import com.tskhra.modulith.common.properties.SumsubProperties;
+import com.tskhra.modulith.user_module.model.domain.User;
+import com.tskhra.modulith.user_module.model.enums.Gender;
+import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.requests.SumsubWebhookPayload;
 import com.tskhra.modulith.user_module.model.responses.KycTokenResponse;
+import com.tskhra.modulith.user_module.model.responses.SumsubApplicantResponse;
+import com.tskhra.modulith.user_module.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -21,22 +29,27 @@ public class KycService {
 
     private final SumsubProperties sumsubProperties;
     private final RestClient restClient;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     private static final String TOKEN_PATH = "/resources/accessTokens/sdk";
     public static final String APPLICANT_INFO_PATH = "/resources/applicants/{applicantId}/one";
 
 
-    public KycService(SumsubProperties sumsubProperties, RestClient.Builder restClientBuilder, UserService userService) {
+    public KycService(SumsubProperties sumsubProperties, RestClient.Builder restClientBuilder, UserRepository userRepository) {
         this.sumsubProperties = sumsubProperties;
         this.restClient = restClientBuilder.baseUrl(sumsubProperties.baseUrl())
                 .build();
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
 
+    @Transactional
     public KycTokenResponse getAccessToken(Jwt jwt) {
         String userId = jwt.getClaimAsString("sub");
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(userId)).get();
+        user.setKycStatus(KycStatus.PENDING);
+        userRepository.save(user);
+
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String levelName = sumsubProperties.levelName();
         String appToken = sumsubProperties.token();
@@ -101,14 +114,23 @@ public class KycService {
 
     }
 
+    @Transactional
     public void handleWebhook(SumsubWebhookPayload body) {
         log.info("Handling webhook");
         log.info("Body: {}", body);
+        String kcId = body.externalUserId();
+        User user = userRepository.findUserByKeycloakId(UUID.fromString(kcId)).get();
 
         String type = body.type();
         SumsubWebhookPayload.ReviewAnswer answer = body.reviewResult().reviewAnswer();
-        if (!type.equals("applicantReviewed") || answer != SumsubWebhookPayload.ReviewAnswer.GREEN) {
+        if (!type.equals("applicantReviewed")) {
             log.info("Webhook ignored");
+            return;
+        }
+
+        if (answer == SumsubWebhookPayload.ReviewAnswer.RED) {
+            user.setKycStatus(KycStatus.REJECTED);
+            userRepository.save(user);
             return;
         }
 
@@ -118,17 +140,32 @@ public class KycService {
         String path = APPLICANT_INFO_PATH.replace("{applicantId}", applicantId);
 
         String signature = createSignature(timestamp, "GET", path, "");
-        Map response = restClient.get()
+        SumsubApplicantResponse response = restClient.get()
                 .uri(path)
                 .header("X-App-Token", appToken)
                 .header("X-App-Access-Ts", timestamp)
                 .header("X-App-Access-Sig", signature)
                 .retrieve()
-                .body(Map.class);
+                .body(SumsubApplicantResponse.class);
 
         if (response == null) {
             throw new RuntimeException("Error getting applicant info from Sumsub.");
         }
+
+        String firstName = response.fixedInfo().firstName();
+        String lastName = response.fixedInfo().lastName();
+        LocalDate dob = LocalDate.parse(response.fixedInfo().dob());
+        String genderLetter = response.fixedInfo().gender();
+        Gender gender = genderLetter.equals("M") ? Gender.MALE : Gender.FEMALE;
+        String phone = response.phone();
+//        String pid = response.metadata().getFirst().value();
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setBirthDate(dob);
+        user.setGender(gender);
+        user.setPhoneNumber(phone);
+        userRepository.save(user);
 
         log.info("Applicant info: {}", response);
     }

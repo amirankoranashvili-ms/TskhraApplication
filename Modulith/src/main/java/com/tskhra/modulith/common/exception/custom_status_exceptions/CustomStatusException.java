@@ -18,4 +18,10 @@ public class CustomStatusException extends RuntimeException {
         this.httpStatus = myCustomStatus.httpStatus();
     }
 
+    public CustomStatusException(MyCustomStatus myCustomStatus, String message) {
+        super(message);
+        this.customStatusCode = myCustomStatus.value();
+        this.httpStatus = myCustomStatus.httpStatus();
+    }
+
 }
