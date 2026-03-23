@@ -165,6 +165,7 @@ public class KycService {
         user.setBirthDate(dob);
         user.setGender(gender);
         user.setPhoneNumber(phone);
+        user.setKycStatus(KycStatus.APPROVED);
         userRepository.save(user);
 
         log.info("Applicant approved");
