@@ -23,8 +23,10 @@ pipeline {
 
         stage('Deploy with Docker Compose') {
             steps {
+                sh 'cp /opt/secrets/modulith.env ./.env'
                 echo 'Rebuilding and starting Docker container...'
                 sh 'docker compose -p tskhraapplication up -d --build modulith'
+                sh 'rm .env'
             }
         }
     }
