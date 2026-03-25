@@ -1,7 +1,9 @@
 package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.Category;
+import com.tskhra.modulith.booking_module.model.responses.MainCategoryDto;
 import com.tskhra.modulith.booking_module.repositories.CategoryRepository;
+import com.tskhra.modulith.common.properties.MinioProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final MinioProperties minioProperties;
 
     public Map<String, List<String>> getCategoryTree() { // todo maybe refactor to not call db many times
         return categoryRepository.findAll().stream()
@@ -26,10 +29,10 @@ public class CategoryService {
                 ));
     }
 
-    public List<String> getMainCategories() {
+    public List<MainCategoryDto> getMainCategories() {
         return categoryRepository.findAll().stream()
                 .filter(c -> c.getParent() == null)
-                .map(Category::getName)
+                .map(c -> new MainCategoryDto(c.getName(), minioProperties.externalUrl() + c.getIconUri()))
                 .toList();
     }
 }

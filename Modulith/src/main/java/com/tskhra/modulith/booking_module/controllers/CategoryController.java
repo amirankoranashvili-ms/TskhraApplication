@@ -1,5 +1,6 @@
 package com.tskhra.modulith.booking_module.controllers;
 
+import com.tskhra.modulith.booking_module.model.responses.MainCategoryDto;
 import com.tskhra.modulith.booking_module.services.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,8 @@ public class CategoryController {
 
     @Operation(summary = "List top-level categories")
     @GetMapping("/main")
-    public ResponseEntity<List<String>> getMainCategories() {
-        List<String> mainCategories = categoryService.getMainCategories();
+    public ResponseEntity<List<MainCategoryDto>> getMainCategories() {
+        List<MainCategoryDto> mainCategories = categoryService.getMainCategories();
         return ResponseEntity.status(HttpStatus.OK).body(mainCategories);
     }
 

@@ -30,4 +30,6 @@ public class Category { // todo fix infinite recursionn!!!
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Category> children;
 
+    private String iconUri;
+
 }
