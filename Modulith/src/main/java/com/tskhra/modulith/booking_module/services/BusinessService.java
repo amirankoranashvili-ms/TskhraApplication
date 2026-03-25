@@ -145,8 +145,14 @@ public class BusinessService {
                 .toList();
     }
 
-    public Page<BusinessDetailsDto> getAllBusinessPage(Lang lang, Pageable pageable) {
-        Page<Business> businesses = businessRepository.findAllByActivityStatus(ActivityStatus.ACTIVE, pageable);
+    // todo This works only with sub categories (not main categories)
+    public Page<BusinessDetailsDto> getAllBusinessPage(Lang lang, Long categoryId, Pageable pageable) {
+        if (categoryId == null) {
+            Page<Business> businesses = businessRepository.findAllByActivityStatus(ActivityStatus.ACTIVE, pageable);
+            return businesses.map(b -> mapToDto(b, lang));
+        }
+
+        Page<Business> businesses = businessRepository.findAllByActivityStatusAndCategoryId(ActivityStatus.ACTIVE, categoryId, pageable);
         return businesses.map(b -> mapToDto(b, lang));
     }
 
@@ -195,7 +201,8 @@ public class BusinessService {
             case EN -> b.getDescription();
         };
         String addressDetails = b.getAddress() == null ? null : switch (lang) {
-            case KA -> b.getAddress().getDetailsKa() == null ? b.getAddress().getDetails() : b.getAddress().getDetailsKa();
+            case KA ->
+                    b.getAddress().getDetailsKa() == null ? b.getAddress().getDetails() : b.getAddress().getDetailsKa();
             case EN -> b.getAddress().getDetails();
         };
         return new BusinessDetailsDto(

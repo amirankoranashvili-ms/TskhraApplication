@@ -46,14 +46,15 @@ public class BusinessController {
         return ResponseEntity.ok(businesses);
     }
 
-    @Operation(summary = "List all businesses (paginated)")
+    @Operation(summary = "List all businesses (paginated). NOTE: filtering by category currently works ONLY with SUBCATEGORIES.: ")
     @GetMapping
     public ResponseEntity<Page<BusinessDetailsDto>> getAllBusinesses(@RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "12") int size,
-                                                                     @RequestParam(defaultValue = "EN") Lang lang) {
+                                                                     @RequestParam(defaultValue = "EN") Lang lang,
+                                                                     @RequestParam(required = false) Long categoryId) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<BusinessDetailsDto> businessPage = businessService.getAllBusinessPage(lang, pageable);
+        Page<BusinessDetailsDto> businessPage = businessService.getAllBusinessPage(lang, categoryId, pageable);
         return ResponseEntity.ok(businessPage);
     }
 

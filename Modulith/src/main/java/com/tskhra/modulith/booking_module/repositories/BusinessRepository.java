@@ -19,4 +19,6 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     long countByUserIdAndActivityStatus(Long userId, ActivityStatus activityStatus);
     Page<Business> findAllByActivityStatus(ActivityStatus activityStatus, Pageable pageable);
     Optional<Business> findByIdAndActivityStatus(Long id, ActivityStatus activityStatus);
+
+    Page<Business> findAllByActivityStatusAndCategoryId(ActivityStatus activityStatus, Long categoryId, Pageable pageable);
 }
