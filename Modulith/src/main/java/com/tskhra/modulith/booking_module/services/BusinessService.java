@@ -137,16 +137,16 @@ public class BusinessService {
                 .toList();
     }
 
-    public Page<BusinessDetailsDto> getAllBusinessPage(Pageable pageable) {
+    public Page<BusinessDetailsDto> getAllBusinessPage(Lang lang, Pageable pageable) {
         Page<Business> businesses = businessRepository.findAllByActivityStatus(ActivityStatus.ACTIVE, pageable);
-        return businesses.map(this::mapToDto);
+        return businesses.map(b -> mapToDto(b, lang));
     }
 
-    public BusinessDetailsDto getSpecificBusiness(Long businessId) {
+    public BusinessDetailsDto getSpecificBusiness(Long businessId, Lang lang) {
         Business b = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found with id: " + businessId)
         );
-        return mapToDto(b);
+        return mapToDto(b, lang);
     }
 
     private BusinessDetailsDto mapToDto(Business b) {

@@ -49,18 +49,20 @@ public class BusinessController {
     @Operation(summary = "List all businesses (paginated)")
     @GetMapping
     public ResponseEntity<Page<BusinessDetailsDto>> getAllBusinesses(@RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "12") int size) {
+                                                                     @RequestParam(defaultValue = "12") int size,
+                                                                     @RequestParam(defaultValue = "EN") Lang lang) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<BusinessDetailsDto> businessPage = businessService.getAllBusinessPage(pageable);
+        Page<BusinessDetailsDto> businessPage = businessService.getAllBusinessPage(lang, pageable);
         return ResponseEntity.ok(businessPage);
     }
 
     @Operation(summary = "Get business by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<BusinessDetailsDto> getBusiness(@PathVariable("id") Long businessId) {
+    public ResponseEntity<BusinessDetailsDto> getBusiness(@PathVariable("id") Long businessId,
+                                                          @RequestParam(defaultValue = "EN") Lang lang) {
 
-        BusinessDetailsDto dto = businessService.getSpecificBusiness(businessId);
+        BusinessDetailsDto dto = businessService.getSpecificBusiness(businessId, lang);
         return ResponseEntity.ok(dto);
     }
 
