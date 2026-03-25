@@ -86,9 +86,9 @@ public class BusinessService {
         Business savedBusiness = businessRepository.save(business);
 
 //        Address
-        String cityName = dto.city();
-        City city = cityRepository.findByName(cityName)
-                .orElseThrow(() -> new HttpNotFoundException("No such city: " + cityName));
+        Long cityId = dto.cityId();
+        City city = cityRepository.findById(cityId)
+                .orElseThrow(() -> new HttpNotFoundException("No such city"));
         Address address = new Address();
         address.setCity(city);
         address.setDetails(dto.addressDetails());
@@ -100,31 +100,6 @@ public class BusinessService {
         Category category = categoryRepository.findByName(categoryName)
                 .orElseThrow(() -> new HttpNotFoundException("No such category: " + categoryName));
         savedBusiness.setCategory(category);
-
-//        Main Image
-//        Long mainImageId = Long.valueOf(dto.mainPhotoId());
-//        BusinessImage mainImage = businessImageRepository.findById(mainImageId)
-//                .orElseThrow(() -> new HttpNotFoundException("No such image with id " + mainImageId));
-//        if (mainImage.getBusiness() != null) {
-//            throw new HttpBadRequestException("Image with id " + mainImageId + " is already assigned to a business");
-//        }
-//        mainImage.setBusiness(savedBusiness);
-//        mainImage.setMain(true);
-
-//        Gallery Images
-//        if (dto.galleryPhotoIds() != null) {
-//            List<BusinessImage> galleryImages = dto.galleryPhotoIds().stream()
-//                    .map(Long::valueOf)
-//                    .map(id -> businessImageRepository.findById(id)
-//                            .orElseThrow(() -> new HttpNotFoundException("No such image with id " + id)))
-//                    .toList();
-//            for (BusinessImage galleryImage : galleryImages) {
-//                if (galleryImage.getBusiness() != null) {
-//                    throw new HttpBadRequestException("Image with id " + galleryImage.getId() + " is already assigned to a business");
-//                }
-//                galleryImage.setBusiness(savedBusiness);
-//            }
-//        }
 
 //        Work Times
         dto.workTimes().stream()

@@ -1,6 +1,7 @@
 package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.enums.Lang;
+import com.tskhra.modulith.booking_module.model.responses.CityDto;
 import com.tskhra.modulith.booking_module.services.CityService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class CityController {
 
     @Operation(summary = "List all available cities")
     @GetMapping
-    public ResponseEntity<List<String>> getAll(@RequestParam(defaultValue = "EN") Lang lang) {
-        List<String> cities = cityService.getAllCityNames(lang);
+    public ResponseEntity<List<CityDto>> getAll(@RequestParam(defaultValue = "EN") Lang lang) {
+        List<CityDto> cities = cityService.getAllCities(lang);
         return ResponseEntity.status(HttpStatus.OK).body(cities);
     }
 
