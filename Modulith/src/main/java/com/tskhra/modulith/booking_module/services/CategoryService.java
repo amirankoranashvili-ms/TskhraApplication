@@ -29,10 +29,17 @@ public class CategoryService {
                 ));
     }
 
-    public List<MainCategoryDto> getMainCategories() {
+//    public List<MainCategoryDto> getMainCategories() {
+//        return categoryRepository.findAll().stream()
+//                .filter(c -> c.getParent() == null)
+//                .map(c -> new MainCategoryDto(c.getName(), minioProperties.externalUrl() + c.getIconUri()))
+//                .toList();
+//    }
+
+    public List<String> getMainCategories() {
         return categoryRepository.findAll().stream()
                 .filter(c -> c.getParent() == null)
-                .map(c -> new MainCategoryDto(c.getName(), minioProperties.externalUrl() + c.getIconUri()))
+                .map(Category::getName)
                 .toList();
     }
 }

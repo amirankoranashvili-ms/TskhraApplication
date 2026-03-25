@@ -27,10 +27,17 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK).body(categoryTree);
     }
 
+//    @Operation(summary = "List top-level categories")
+//    @GetMapping("/main")
+//    public ResponseEntity<List<MainCategoryDto>> getMainCategories() {
+//        List<MainCategoryDto> mainCategories = categoryService.getMainCategories();
+//        return ResponseEntity.status(HttpStatus.OK).body(mainCategories);
+//    }
+
     @Operation(summary = "List top-level categories")
     @GetMapping("/main")
-    public ResponseEntity<List<MainCategoryDto>> getMainCategories() {
-        List<MainCategoryDto> mainCategories = categoryService.getMainCategories();
+    public ResponseEntity<List<String>> getMainCategories() {
+        List<String> mainCategories = categoryService.getMainCategories();
         return ResponseEntity.status(HttpStatus.OK).body(mainCategories);
     }
 
