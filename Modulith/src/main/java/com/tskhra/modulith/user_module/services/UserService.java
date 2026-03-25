@@ -135,7 +135,8 @@ public class UserService {
                 user.getKycStatus() == KycStatus.APPROVED,
                 user.getProfilePictureUri() == null ?
                         null :
-                        imageService.getAvatarUrl(user.getProfilePictureUri())
+                        imageService.getAvatarUrl(user.getProfilePictureUri()),
+                user.getFavoriteBusinessIds()
         );
     }
 
@@ -234,5 +235,17 @@ public class UserService {
         );
 
         return user.getFirstName() == null ? user.getUsername() : user.getFirstName();
+    }
+
+    public void favoriteBusiness(Long businessId, Jwt jwt) {
+        User user = getCurrentUser(jwt);
+        user.addFavoriteBusiness(businessId);
+        userRepository.save(user);
+    }
+
+    public void unfavoriteBusiness(Long businessId, Jwt jwt) {
+        User user = getCurrentUser(jwt);
+        user.removeFavoriteBusiness(businessId);
+        userRepository.save(user);
     }
 }

@@ -12,6 +12,8 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -58,10 +60,27 @@ public class User {
     @Column(name = "kyc_status", columnDefinition = "kyc_status")
     private KycStatus kycStatus;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "user_favorite_businesses",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "business_id")
+    @Builder.Default
+    private Set<Long> favoriteBusinessIds = new HashSet<>();
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public void addFavoriteBusiness(Long businessId) {
+        this.favoriteBusinessIds.add(businessId);
+    }
+
+    public void removeFavoriteBusiness(Long businessId) {
+        this.favoriteBusinessIds.remove(businessId);
+    }
 
 }
