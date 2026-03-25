@@ -13,7 +13,7 @@ public record BusinessRegistrationDto(
         @NotBlank String businessName,
         @NotBlank String businessNameKa,
         @NotNull CallType callType,
-        @NotBlank String city,
+//        @NotBlank String city,
         @NotNull Long cityId,
         String addressDetails,
         String addressDetailsKa,
