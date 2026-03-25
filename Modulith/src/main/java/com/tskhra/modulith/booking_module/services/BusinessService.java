@@ -70,6 +70,10 @@ public class BusinessService {
             throw new HttpBadRequestException("Address details must be present.");
         }
 
+        if (dto.addressDetails().isBlank() ^ dto.addressDetailsKa().isBlank()) {
+            throw new HttpBadRequestException("Address details must be present in both Ka and En languages Or none of them.");
+        }
+
         Business business = Business.builder()
                 .name(dto.businessName())
                 .nameKa(dto.businessNameKa())
