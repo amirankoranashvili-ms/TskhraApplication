@@ -21,4 +21,7 @@ public class City {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = false)
+    private String nameKa;
+
 }

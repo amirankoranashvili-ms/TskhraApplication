@@ -9,26 +9,26 @@ CREATE TYPE call_type AS ENUM ('OUTCALL', 'ONSITE', 'BOTH');
 CREATE TYPE booking_status AS ENUM ('AWAITING', 'SCHEDULED', 'REJECTED', 'CANCELLED_BY_BUSINESS', 'CANCELLED_BY_USER', 'COMPLETED');
 
 -- cities
-INSERT INTO cities (name)
-VALUES ('Tbilisi'),
-       ('Batumi'),
-       ('Kutaisi'),
-       ('Rustavi'),
-       ('Gori'),
-       ('Zugdidi'),
-       ('Poti'),
-       ('Khashuri'),
-       ('Samtredia'),
-       ('Senaki'),
-       ('Zestafoni'),
-       ('Marneuli'),
-       ('Telavi'),
-       ('Akhaltsikhe'),
-       ('Kobuleti'),
-       ('Ozurgeti'),
-       ('Chiatura'),
-       ('Mtskheta'),
-       ('Borjomi');
+INSERT INTO cities (name, nameKa)
+VALUES ('Tbilisi', 'თბილისი'),
+       ('Batumi', 'ბათუმი'),
+       ('Kutaisi', 'ქუთაისი'),
+       ('Rustavi', 'რუსთავი'),
+       ('Gori', 'გორი'),
+       ('Zugdidi', 'ზუგდიდი'),
+       ('Poti', 'ფოთი'),
+       ('Khashuri', 'ხაშური'),
+       ('Samtredia', 'სამტრედია'),
+       ('Senaki', 'სენაკი'),
+       ('Zestafoni', 'ზესტაფონი'),
+       ('Marneuli', 'მარნეული'),
+       ('Telavi', 'თელავი'),
+       ('Akhaltsikhe', 'ახალციხე'),
+       ('Kobuleti', 'ქობულეთი'),
+       ('Ozurgeti', 'ოზურგეთი'),
+       ('Chiatura', 'ჭიათურა'),
+       ('Mtskheta', 'მცხეთა'),
+       ('Borjomi', 'ბორჯომი');
 
 -- categories
 -- ნაბიჯი 1: ვამატებთ მხოლოდ მთავარ (მშობელ) კატეგორიებს. 
