@@ -31,7 +31,7 @@ public class BusinessImageController {
                                                              @RequestParam(defaultValue = "false") boolean isMain,
                                                              @ImageFile @RequestParam("file") MultipartFile file) {
 
-        Long id = businessImageService.uploadImage(file, jwt);
+        Long id = businessImageService.uploadImage(file, businessId, jwt);
         businessService.addImageToBusiness(businessId, id, isMain);
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(id.toString()));
     }

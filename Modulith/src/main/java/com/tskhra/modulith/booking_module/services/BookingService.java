@@ -1,10 +1,7 @@
 package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.*;
-import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
-import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
-import com.tskhra.modulith.booking_module.model.enums.BusinessType;
-import com.tskhra.modulith.booking_module.model.enums.WeekDay;
+import com.tskhra.modulith.booking_module.model.enums.*;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.repositories.*;
@@ -203,7 +200,7 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public List<BookingDto> getAwaitingBookings(Long businessId, Jwt jwt) {
+    public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found")
@@ -220,11 +217,11 @@ public class BookingService {
                 .map(bookingRepository::findAllByServiceId)
                 .flatMap(List::stream)
                 .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING)
-                .map(this::mapToDto)
+                .map(b -> mapToDto(b, lang))
                 .toList();
     }
 
-    public List<BookingDto> getScheduledBookings(Long businessId, Jwt jwt) {
+    public List<BookingDto> getScheduledBookings(Long businessId, Lang lang, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found")
@@ -241,10 +238,9 @@ public class BookingService {
                 .map(bookingRepository::findAllByServiceId)
                 .flatMap(List::stream)
                 .filter(b -> b.getBookingStatus() == BookingStatus.SCHEDULED)
-                .map(this::mapToDto)
+                .map(b -> mapToDto(b, lang))
                 .toList();
     }
-
 
 
     // mapToDto
@@ -261,9 +257,26 @@ public class BookingService {
         );
     }
 
-    public Page<BookingDto> getCurrentUserBookings(Jwt jwt, Pageable pageable) {
+    private BookingDto mapToDto(Booking b, Lang lang) {
+        String serviceName = switch (lang) {
+            case KA -> b.getService().getNameKa() == null ? b.getService().getName() : b.getService().getNameKa();
+            case EN -> b.getService().getName();
+        };
+        return new BookingDto(
+                b.getId().toString(),
+                serviceName,
+                userService.getUserNameById(b.getUserId()),
+                b.getStartTime(),
+                b.getDuration(),
+                b.getBookingStatus(),
+                b.getBookingDate(),
+                b.getService().getSessionPrice()
+        );
+    }
+
+    public Page<BookingDto> getCurrentUserBookings(Jwt jwt, Lang lang, Pageable pageable) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Page<Booking> page = bookingRepository.findAllActiveByUserId(userId, pageable, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED));
-        return page.map(this::mapToDto);
+        return page.map(b -> mapToDto(b, lang));
     }
 }

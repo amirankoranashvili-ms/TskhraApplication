@@ -1,5 +1,6 @@
 package com.tskhra.modulith.booking_module.controllers;
 
+import com.tskhra.modulith.booking_module.model.enums.Lang;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.services.BookingService;
@@ -66,10 +67,11 @@ public class BookingController {
     @GetMapping("/me")
     public ResponseEntity<Page<BookingDto>> getCurrentUserBookings(@AuthenticationPrincipal Jwt jwt,
                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                   @RequestParam(defaultValue = "12") int size) {
+                                                                   @RequestParam(defaultValue = "12") int size,
+                                                                   @RequestParam(defaultValue = "EN") Lang lang) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<BookingDto> bookings = bookingService.getCurrentUserBookings(jwt, pageable);
+        Page<BookingDto> bookings = bookingService.getCurrentUserBookings(jwt, lang, pageable);
         return ResponseEntity.ok(bookings);
     }
 
