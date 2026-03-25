@@ -31,7 +31,13 @@ public class Business {
     @Column(nullable = false)
     private String name;
 
+//    @Column(nullable = false) todo uncomment on DB reset
+    private String nameKa;
+
     private String description;
+
+//    @Column(nullable = false) todo uncomment on DB reset
+    private String descriptionKa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

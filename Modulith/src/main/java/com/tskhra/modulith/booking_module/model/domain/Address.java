@@ -25,4 +25,7 @@ public class Address {
     @Column(nullable = false)
     private String details;
 
+//    @Column(nullable = false) todo uncomment on DB reset
+    private String detailsKa;
+
 }

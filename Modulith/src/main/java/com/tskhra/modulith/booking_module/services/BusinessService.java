@@ -72,8 +72,10 @@ public class BusinessService {
 
         Business business = Business.builder()
                 .name(dto.businessName())
+                .nameKa(dto.businessNameKa())
                 .userId(userId)
                 .description(dto.description())
+                .descriptionKa(dto.descriptionKa())
                 .phoneNumber(dto.info().phoneNumber())
                 .instagramUrl(dto.info().instagramUrl())
                 .facebookUrl(dto.info().facebookUrl())
@@ -92,6 +94,7 @@ public class BusinessService {
         Address address = new Address();
         address.setCity(city);
         address.setDetails(dto.addressDetails());
+        address.setDetailsKa(dto.addressDetailsKa());
         Address savedAddress = addressRepository.save(address);
         savedBusiness.setAddress(savedAddress);
 
@@ -123,14 +126,14 @@ public class BusinessService {
         return savedBusiness.getId();
     }
 
-    public List<BusinessDetailsDto> getCurrentUserBusinesses(Jwt jwt) {
+    public List<BusinessDetailsDto> getCurrentUserBusinesses(Lang lang, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
 
 
         List<Business> businesses = businessRepository.findByUserId(userId);
         return businesses.stream()
                 .filter(b -> b.getActivityStatus() != ActivityStatus.DELETED)
-                .map(this::mapToDto)
+                .map(b -> mapToDto(b, lang))
                 .toList();
     }
 
@@ -171,6 +174,46 @@ public class BusinessService {
                 b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList(),
                 new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
                 b.getDescription()
+        );
+    }
+
+    private BusinessDetailsDto mapToDto(Business b, Lang lang) {
+        String name = switch (lang) {
+            case KA -> b.getNameKa() == null ? b.getName() : b.getNameKa();
+            case EN -> b.getName();
+        };
+        String description = switch (lang) {
+            case KA -> b.getDescriptionKa() == null ? b.getDescription() : b.getDescriptionKa();
+            case EN -> b.getDescription();
+        };
+        String addressDetails = b.getAddress() == null ? null : switch (lang) {
+            case KA -> b.getAddress().getDetailsKa() == null ? b.getAddress().getDetails() : b.getAddress().getDetailsKa();
+            case EN -> b.getAddress().getDetails();
+        };
+        return new BusinessDetailsDto(
+                b.getId().toString(),
+                name,
+                b.getCategory() == null || b.getCategory().getParent() == null ? null : b.getCategory().getParent().getName(),
+                b.getCategory() == null ? null : b.getCategory().getName(),
+                imageService.getBusinessImageUrl(
+                        b.getBusinessImages().stream()
+                                .filter(BusinessImage::isMain)
+                                .findFirst()
+                                .map(BusinessImage::getFilename)
+                                .orElse(null)
+                ),
+                b.getBusinessImages().stream()
+                        .filter(bi -> !bi.isMain())
+                        .map(BusinessImage::getFilename)
+                        .map(imageService::getBusinessImageUrl)
+                        .toList(),
+                b.getAddress() == null ? null : b.getAddress().getCity().getName(),
+                addressDetails,
+                b.getCallType(),
+                b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
+                b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList(),
+                new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
+                description
         );
     }
 

@@ -11,14 +11,14 @@ import java.util.List;
 //@JsonIgnoreProperties(ignoreUnknown = true)
 public record BusinessRegistrationDto(
         @NotBlank String businessName,
-//        @NotBlank String businessNameKa,
+        @NotBlank String businessNameKa,
         @NotNull CallType callType,
-//        @NotBlank String city,
+        @NotBlank String city,
         @NotNull Long cityId,
         String addressDetails,
-//        String addressDetailsKa,
+        String addressDetailsKa,
         @NotBlank String description,
-//        @NotBlank String descriptionKa,
+        @NotBlank String descriptionKa,
         @NotBlank String subCategory,
         @NotEmpty List<@Valid WeekTimeInterval> workTimes,
         List<@Valid WeekTimeInterval> restTimes,
