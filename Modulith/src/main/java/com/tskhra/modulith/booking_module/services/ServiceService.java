@@ -5,11 +5,13 @@ import com.tskhra.modulith.booking_module.model.domain.Business;
 import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
+import com.tskhra.modulith.booking_module.model.enums.Lang;
 import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.repositories.BookingRepository;
 import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
 import com.tskhra.modulith.booking_module.repositories.ServiceRepository;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpConflictException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
@@ -43,11 +45,21 @@ public class ServiceService {
 
         verifyOwnership(business, userId);
 
+        if (dto.description() == null ^ dto.descriptionKa() == null) {
+            throw new HttpBadRequestException("Both description and description_ka must be provided or not provided");
+        }
+
+        if (dto.description().isBlank() ^ dto.descriptionKa().isBlank()) {
+            throw new HttpBadRequestException("Both description and description_ka must be provided or not provided");
+        }
+
         Service service = Service.builder()
                 .business(business)
                 .activityStatus(ActivityStatus.ACTIVE)
                 .name(dto.name())
+                .nameKa(dto.nameKa())
                 .description(dto.description())
+                .descriptionKa(dto.descriptionKa())
                 .capacity(1)
                 .sessionPrice(dto.price())
                 .sessionDuration(dto.duration())
@@ -58,18 +70,18 @@ public class ServiceService {
         return savedService.getId();
     }
 
-    public List<ServiceFullDto> getBusinessServices(Long businessId) {
+    public List<ServiceFullDto> getBusinessServices(Long businessId, Lang lang) {
         businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
 
         return serviceRepository.findByBusinessId(businessId).stream()
                 .filter(s -> s.getActivityStatus() != ActivityStatus.DELETED)
-                .map(this::mapToDto)
+                .map(s -> mapToDto(s, lang))
                 .toList();
     }
 
-    public ServiceFullDto getService(Long businessId, Long serviceId) {
+    public ServiceFullDto getService(Long businessId, Long serviceId, Lang lang) {
         businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
         );
@@ -82,7 +94,7 @@ public class ServiceService {
             throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId + " for business: " + businessId);
         }
 
-        return mapToDto(service);
+        return mapToDto(service, lang);
     }
 
     @Transactional
@@ -147,6 +159,25 @@ public class ServiceService {
                 s.getId().toString(),
                 s.getName(),
                 s.getDescription(),
+                s.getSessionPrice(),
+                s.getSessionDuration(),
+                s.getActivityStatus()
+        );
+    }
+
+    private ServiceFullDto mapToDto(Service s, Lang lang) {
+        String name = switch (lang) {
+            case KA -> s.getNameKa() == null ? s.getName() : s.getNameKa();
+            case EN -> s.getName();
+        };
+        String description = switch (lang) {
+            case KA -> s.getDescriptionKa() == null ? s.getDescription() : s.getDescriptionKa();
+            case EN -> s.getDescription();
+        };
+        return new ServiceFullDto(
+                s.getId().toString(),
+                name,
+                description,
                 s.getSessionPrice(),
                 s.getSessionDuration(),
                 s.getActivityStatus()

@@ -8,9 +8,14 @@ public record ServiceRegistrationDto(
         @NotBlank
         @Size(max = 50, message = "Name must be at most 50 characters")
         String name,
+        @NotBlank
+        @Size(max = 50, message = "Name must be at most 50 characters")
+        String nameKa,
 
         @Size(max = 100, message = "Description must be at most 100 characters")
         String description,
+        @Size(max = 100, message = "Description must be at most 100 characters")
+        String descriptionKa,
 
         @NotNull
         @Positive

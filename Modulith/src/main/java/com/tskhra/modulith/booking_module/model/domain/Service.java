@@ -35,9 +35,14 @@ public class Service {
     @Column(nullable = false)
     private String name;
 
+//    @Column(nullable = false) todo uncomment on DB reset
+    private String nameKa;
+
     private int capacity;
 
     private String description;
+
+    private String descriptionKa;
 
     @Column(nullable = false)
     private BigDecimal sessionPrice;
