@@ -19,7 +19,7 @@ public record BusinessRegistrationDto(
         String addressDetailsKa,
         @NotBlank String description,
         @NotBlank String descriptionKa,
-        @NotBlank String subCategory,
+        @NotNull Long subcategoryId,
         @NotEmpty List<@Valid WeekTimeInterval> workTimes,
         List<@Valid WeekTimeInterval> restTimes,
         @Valid Info info

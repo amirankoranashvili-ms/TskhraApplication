@@ -107,9 +107,8 @@ public class BusinessService {
         savedBusiness.setAddress(savedAddress);
 
 //        Category
-        String categoryName = dto.subCategory();
-        Category category = categoryRepository.findByName(categoryName)
-                .orElseThrow(() -> new HttpNotFoundException("No such category: " + categoryName));
+        Category category = categoryRepository.findById(dto.subcategoryId())
+                .orElseThrow(() -> new HttpNotFoundException("No such category with id: " + dto.subcategoryId()));
         savedBusiness.setCategory(category);
 
 //        Work Times
