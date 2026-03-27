@@ -1,15 +1,14 @@
 package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.Category;
-import com.tskhra.modulith.booking_module.model.responses.MainCategoryDto;
+import com.tskhra.modulith.booking_module.model.enums.Lang;
+import com.tskhra.modulith.booking_module.model.responses.CategoryDto;
 import com.tskhra.modulith.booking_module.repositories.CategoryRepository;
 import com.tskhra.modulith.common.properties.MinioProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,28 +17,22 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final MinioProperties minioProperties;
 
-    public Map<String, List<String>> getCategoryTree() { // todo maybe refactor to not call db many times
-        return categoryRepository.findAll().stream()
-                .filter(category -> category.getParent() == null)
-                .collect(Collectors.toMap(
-                        Category::getName,
-                        category -> category.getChildren().stream()
-                                .map(Category::getName)
-                                .toList()
-                ));
+    public List<CategoryDto> getCategoryTree(Lang lang) {
+        return categoryRepository.findAllParentsWithChildren().stream()
+                .map(c -> mapToDto(c, lang))
+                .toList();
     }
 
-//    public List<MainCategoryDto> getMainCategories() {
-//        return categoryRepository.findAll().stream()
-//                .filter(c -> c.getParent() == null)
-//                .map(c -> new MainCategoryDto(c.getName(), minioProperties.externalUrl() + c.getIconUri()))
-//                .toList();
-//    }
-
-    public List<String> getMainCategories() {
-        return categoryRepository.findAll().stream()
-                .filter(c -> c.getParent() == null)
-                .map(Category::getName)
-                .toList();
+    private CategoryDto mapToDto(Category c, Lang lang) {
+        String name = switch (lang) {
+            case KA -> c.getNameKa() == null ? c.getName() : c.getNameKa();
+            case EN -> c.getName();
+        };
+        String iconUrl = c.getIconUri() == null ? null : minioProperties.externalUrl() + c.getIconUri();
+        List<CategoryDto> subcategories = c.getChildren() == null ? List.of() :
+                c.getChildren().stream()
+                        .map(child -> mapToDto(child, lang))
+                        .toList();
+        return new CategoryDto(c.getId(), name, iconUrl, subcategories);
     }
 }

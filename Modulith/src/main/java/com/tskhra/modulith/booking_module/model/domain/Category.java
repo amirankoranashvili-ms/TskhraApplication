@@ -23,6 +23,8 @@ public class Category { // todo fix infinite recursionn!!!
     @Column(unique = true, nullable = false)
     private String name;
 
+    private String nameKa;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
