@@ -204,27 +204,20 @@ public class BookingService {
     }
 
     public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {
-        Long userId = userService.getCurrentUser(jwt).getId();
-        Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
-                () -> new HttpNotFoundException("Business not found")
-        );
 
-        if (!Objects.equals(business.getUserId(), userId)) {
-            throw new HttpForbiddenError("You are not authorized to view this business");
-        }
-
-        List<Service> services = business.getServices();
+        List<Service> services = getBusinessServices(businessId, jwt);
 
         return services.stream()
                 .map(Service::getId)
                 .map(bookingRepository::findAllByServiceId)
                 .flatMap(List::stream)
                 .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING)
+                .filter(b -> !b.getBookingDate().isBefore(LocalDate.now()))
                 .map(b -> mapToDto(b, lang))
                 .toList();
     }
 
-    public List<BookingDto> getScheduledBookings(Long businessId, Lang lang, Jwt jwt) {
+    private List<Service> getBusinessServices(Long businessId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException("Business not found")
@@ -234,13 +227,18 @@ public class BookingService {
             throw new HttpForbiddenError("You are not authorized to view this business");
         }
 
-        List<Service> services = business.getServices();
+        return business.getServices();
+    }
+
+    public List<BookingDto> getScheduledBookings(Long businessId, Lang lang, Jwt jwt) {
+        List<Service> services = getBusinessServices(businessId, jwt);
 
         return services.stream()
                 .map(Service::getId)
                 .map(bookingRepository::findAllByServiceId)
                 .flatMap(List::stream)
                 .filter(b -> b.getBookingStatus() == BookingStatus.SCHEDULED)
+                .filter(b -> !b.getBookingDate().isBefore(LocalDate.now()))
                 .map(b -> mapToDto(b, lang))
                 .toList();
     }
