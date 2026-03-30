@@ -120,7 +120,9 @@ public class ServiceService {
         }
 
         service.setName(dto.name());
+        service.setNameKa(dto.nameKa());
         service.setDescription(dto.description());
+        service.setDescriptionKa(dto.descriptionKa());
         service.setSessionPrice(dto.price());
         service.setSessionDuration(dto.duration());
         service.getModificationDetails().setUpdatedBy(userId);
