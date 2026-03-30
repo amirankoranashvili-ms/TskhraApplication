@@ -38,10 +38,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getFieldErrors()
+        List<String> fieldErrors = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .toList();
+
+        List<String> globalErrors = ex.getBindingResult().getGlobalErrors()
+                .stream()
+                .map(error -> error.getObjectName() + ": " + error.getDefaultMessage())
+                .toList();
+
+        List<String> errors = new java.util.ArrayList<>(fieldErrors);
+        errors.addAll(globalErrors);
 
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),

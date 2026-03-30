@@ -6,6 +6,7 @@ import com.tskhra.modulith.booking_module.model.enums.CallType;
 import com.tskhra.modulith.booking_module.validation.ValidRestTimes;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
@@ -17,7 +18,9 @@ public record BusinessRegistrationDto(
         @NotNull CallType callType,
 //        @NotBlank String city,
         @NotNull Long cityId,
+        @Length(min = 10)
         String addressDetails,
+        @Length(min = 10)
         String addressDetailsKa,
         @NotBlank String description,
         @NotBlank String descriptionKa,
