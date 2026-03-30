@@ -54,22 +54,16 @@ public class BookingService {
             throw new HttpBadRequestException("Booking date cannot be in the past");
         }
 
+        // Serialize concurrent bookings for this business+date via PostgreSQL advisory lock.
+        // Blocks until any competing transaction for the same business+date commits/rolls back.
+        bookingRepository.lockBusinessDate(business.getId(), request.date());
+
         int endTime = request.startTime() + service.getSessionDuration();
         if (!isTimeAvailable(business.getId(), request.date(), request.startTime(), endTime)) {
             throw new HttpConflictException("Time slot not available");
         }
 
-        List<Resource> activeResources = resourceRepository.findByBusinessIdAndActivityStatus(business.getId(), ActivityStatus.ACTIVE);
-        Resource res;
-        if (activeResources.isEmpty()) {
-            Resource resource = new Resource();
-            resource.setBusiness(business);
-            resource.setName("self");
-            resource.setActivityStatus(ActivityStatus.ACTIVE);
-            res = resourceRepository.save(resource);
-        } else {
-            res = activeResources.getFirst();
-        }
+        Resource res = getOrCreateIndividualResource(business);
 
         Booking booking = Booking.builder()
                 .userId(userId)
@@ -112,13 +106,22 @@ public class BookingService {
             return false;
         }
 
-        List<Booking> existingBookings = bookingRepository.findByBusinessIdAndDateAndStatuses(
-                businessId, date, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED)
-        );
-        boolean overlapsBooking = existingBookings.stream().anyMatch(b ->
-                startTime < (b.getStartTime() + b.getDuration()) && b.getStartTime() < endTime
+        boolean overlapsBooking = bookingRepository.existsOverlappingBooking(
+                businessId, date, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED), startTime, endTime
         );
         return !overlapsBooking;
+    }
+
+    private Resource getOrCreateIndividualResource(Business business) {
+        List<Resource> activeResources = resourceRepository.findByBusinessIdAndActivityStatus(business.getId(), ActivityStatus.ACTIVE);
+        if (activeResources.isEmpty()) {
+            Resource resource = new Resource();
+            resource.setBusiness(business);
+            resource.setName("self");
+            resource.setActivityStatus(ActivityStatus.ACTIVE);
+            return resourceRepository.save(resource);
+        }
+        return activeResources.getFirst();
     }
 
     public void approveRequest(Long bookingId, Jwt jwt) {

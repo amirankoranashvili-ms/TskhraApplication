@@ -31,4 +31,17 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.bookingStatus IN :statuses")
     Page<Booking> findAllActiveByUserId(Long userId, Pageable pageable, List<BookingStatus> statuses);
 
+    @Query(value = "SELECT pg_advisory_xact_lock(:businessId, CAST(EXTRACT(EPOCH FROM CAST(:date AS date)) / 86400 AS integer))", nativeQuery = true)
+    void lockBusinessDate(@Param("businessId") Long businessId, @Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b JOIN b.service s " +
+           "WHERE s.business.id = :businessId AND b.bookingDate = :date " +
+           "AND b.bookingStatus IN :statuses " +
+           "AND b.startTime < :endTime AND (b.startTime + b.duration) > :startTime")
+    boolean existsOverlappingBooking(@Param("businessId") Long businessId,
+                                     @Param("date") LocalDate date,
+                                     @Param("statuses") List<BookingStatus> statuses,
+                                     @Param("startTime") int startTime,
+                                     @Param("endTime") int endTime);
+
 }
