@@ -18,9 +18,7 @@ public record BusinessRegistrationDto(
         @NotNull CallType callType,
 //        @NotBlank String city,
         @NotNull Long cityId,
-        @Length(min = 10)
         String addressDetails,
-        @Length(min = 10)
         String addressDetailsKa,
         @NotBlank String description,
         @NotBlank String descriptionKa,
