@@ -8,7 +8,6 @@ volumes:
   elastic_data:
   redis_data:
   kafka_data:
-  rabbitmq_data:
 
 services:
 
@@ -111,24 +110,6 @@ services:
       - "host.docker.internal:host-gateway"
 
 
-  # RabbitMQ (STOMP broker for WebSocket notifications)
-  rabbitmq:
-    image: rabbitmq:4-management-alpine
-    container_name: rabbitmq-tskhra
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: password
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-      - "61613:61613"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-      - ./rabbitmq-enabled-plugins:/etc/rabbitmq/enabled_plugins:ro
-    networks:
-      - micro-network
-
-
   # Modulith
   modulith:
     build: ./Modulith
@@ -141,7 +122,6 @@ services:
       - MINIO_HOST=minio
       - REDIS_HOST=redis
       - KAFKA_HOST=kafka
-      - RABBITMQ_HOST=rabbitmq
     env_file:
       - ./.env
     ports:
@@ -151,7 +131,6 @@ services:
       - keycloak
       - minio
       - redis
-      - rabbitmq
     networks:
       - micro-network
 
