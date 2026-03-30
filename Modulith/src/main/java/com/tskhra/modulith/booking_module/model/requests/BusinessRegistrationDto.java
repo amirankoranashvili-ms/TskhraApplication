@@ -3,12 +3,14 @@ package com.tskhra.modulith.booking_module.model.requests;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tskhra.modulith.booking_module.model.embeddable.WeekTimeInterval;
 import com.tskhra.modulith.booking_module.model.enums.CallType;
+import com.tskhra.modulith.booking_module.validation.ValidRestTimes;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.util.List;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
+@ValidRestTimes
 public record BusinessRegistrationDto(
         @NotBlank String businessName,
         @NotBlank String businessNameKa,
