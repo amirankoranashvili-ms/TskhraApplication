@@ -50,6 +50,13 @@ minio:
   avatar-folder: user-avatars/
   business-folder: business-pictures/
 
+rabbitmq:
+  stomp:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 61613
+    login: admin
+    passcode: password
+
 sumsub:
   base-url: ${SUMSUB_BASE_URL:https://api.sumsub.com}
   secret-key: ${SUMSUB_SECRET_KEY}

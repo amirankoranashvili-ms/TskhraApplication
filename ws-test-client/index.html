@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Notification Tester</title>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; color: #38bdf8; }
+        h2 { font-size: 1rem; margin-bottom: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .panel { background: #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px; }
+        input, textarea { width: 100%; padding: 8px 12px; border: 1px solid #334155; border-radius: 6px; background: #0f172a; color: #e2e8f0; font-family: monospace; font-size: 0.9rem; margin-bottom: 12px; }
+        input:focus, textarea:focus { outline: none; border-color: #38bdf8; }
+        textarea { resize: vertical; }
+        .row { display: flex; gap: 12px; }
+        .row > * { flex: 1; }
+        button { padding: 8px 20px; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
+        button:hover { opacity: 0.85; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-connect { background: #22c55e; color: #0f172a; }
+        .btn-disconnect { background: #ef4444; color: white; }
+        .btn-send { background: #38bdf8; color: #0f172a; }
+        .btn-clear { background: #475569; color: #e2e8f0; }
+        .buttons { display: flex; gap: 8px; margin-bottom: 12px; }
+        .status { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px; }
+        .status-disconnected { background: #7f1d1d; color: #fca5a5; }
+        .status-connecting { background: #78350f; color: #fcd34d; }
+        .status-connected { background: #14532d; color: #86efac; }
+        #log { background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; height: 350px; overflow-y: auto; font-family: monospace; font-size: 0.82rem; line-height: 1.6; }
+        .log-info { color: #38bdf8; }
+        .log-msg { color: #22c55e; }
+        .log-error { color: #ef4444; }
+        .log-warn { color: #fbbf24; }
+        .log-time { color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WebSocket Notification Tester</h1>
+
+        <!-- Connection Panel -->
+        <div class="panel">
+            <h2>Connection</h2>
+            <div class="row">
+                <div>
+                    <label for="wsUrl">WebSocket URL</label>
+                    <input type="text" id="wsUrl" value="ws://localhost:8081/ws">
+                </div>
+            </div>
+            <label for="jwt">JWT Token</label>
+            <textarea id="jwt" rows="3" placeholder="Paste your Keycloak JWT token here..."></textarea>
+            <div class="buttons">
+                <button id="btnConnect" class="btn-connect" onclick="connect()">Connect</button>
+                <button id="btnDisconnect" class="btn-disconnect" onclick="disconnect()" disabled>Disconnect</button>
+                <span id="status" class="status status-disconnected">Disconnected</span>
+            </div>
+        </div>
+
+        <!-- Subscribe Panel -->
+        <div class="panel">
+            <h2>Subscriptions</h2>
+            <div class="row">
+                <div>
+                    <label for="subDest">Destination</label>
+                    <input type="text" id="subDest" value="/user/queue/notifications">
+                </div>
+                <div style="flex: 0 0 auto; display: flex; align-items: flex-end; padding-bottom: 12px;">
+                    <button class="btn-send" onclick="subscribe()" id="btnSubscribe" disabled>Subscribe</button>
+                </div>
+            </div>
+            <div id="subscriptions" style="font-size: 0.85rem; color: #94a3b8;"></div>
+        </div>
+
+        <!-- Send Test Notification Panel -->
+        <div class="panel">
+            <h2>Send Test Notification (via REST API)</h2>
+            <div class="row">
+                <div>
+                    <label for="apiBase">API Base URL</label>
+                    <input type="text" id="apiBase" value="http://localhost:8081">
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="targetUserId">Target User ID</label>
+                    <input type="text" id="targetUserId" placeholder="Keycloak user UUID (sub claim)">
+                </div>
+                <div style="flex: 0 0 auto; display: flex; align-items: flex-end; padding-bottom: 12px;">
+                    <button class="btn-send" onclick="sendUserNotification()">Send to User</button>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="targetTopic">Topic Name</label>
+                    <input type="text" id="targetTopic" value="announcements">
+                </div>
+                <div style="flex: 0 0 auto; display: flex; align-items: flex-end; padding-bottom: 12px;">
+                    <button class="btn-send" onclick="sendBroadcast()">Broadcast</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Panel -->
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin-bottom: 0;">Event Log</h2>
+                <button class="btn-clear" onclick="clearLog()">Clear</button>
+            </div>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let subscriptionCount = 0;
+        const subscriptions = {};
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const line = document.createElement('div');
+            line.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${type}">${escapeHtml(message)}</span>`;
+            logEl.appendChild(line);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function setStatus(state) {
+            const el = document.getElementById('status');
+            el.className = `status status-${state}`;
+            el.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+        }
+
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            const jwt = document.getElementById('jwt').value.trim();
+
+            if (!jwt) {
+                log('JWT token is required', 'error');
+                return;
+            }
+
+            setStatus('connecting');
+            log(`Connecting to ${url}...`);
+
+            stompClient = new StompJs.Client({
+                brokerURL: url,
+                connectHeaders: {
+                    Authorization: 'Bearer ' + jwt
+                },
+                reconnectDelay: 5000,
+                heartbeatIncoming: 10000,
+                heartbeatOutgoing: 10000,
+                debug: function (str) {
+                    if (str.startsWith('>>>') || str.startsWith('<<<')) {
+                        log(str, 'info');
+                    }
+                },
+                onConnect: function () {
+                    setStatus('connected');
+                    log('Connected successfully!', 'msg');
+                    document.getElementById('btnConnect').disabled = true;
+                    document.getElementById('btnDisconnect').disabled = false;
+                    document.getElementById('btnSubscribe').disabled = false;
+                },
+                onStompError: function (frame) {
+                    log(`STOMP error: ${frame.headers['message']}`, 'error');
+                    if (frame.body) {
+                        log(`Details: ${frame.body}`, 'error');
+                    }
+                },
+                onDisconnect: function () {
+                    setStatus('disconnected');
+                    log('Disconnected', 'warn');
+                    document.getElementById('btnConnect').disabled = false;
+                    document.getElementById('btnDisconnect').disabled = true;
+                    document.getElementById('btnSubscribe').disabled = true;
+                },
+                onWebSocketClose: function () {
+                    setStatus('disconnected');
+                    document.getElementById('btnConnect').disabled = false;
+                    document.getElementById('btnDisconnect').disabled = true;
+                    document.getElementById('btnSubscribe').disabled = true;
+                },
+                onWebSocketError: function (event) {
+                    log('WebSocket error occurred', 'error');
+                }
+            });
+
+            stompClient.activate();
+        }
+
+        function disconnect() {
+            if (stompClient) {
+                stompClient.deactivate();
+                stompClient = null;
+                Object.keys(subscriptions).forEach(key => delete subscriptions[key]);
+                document.getElementById('subscriptions').innerHTML = '';
+                subscriptionCount = 0;
+                log('Disconnected by user', 'warn');
+            }
+        }
+
+        function subscribe() {
+            if (!stompClient || !stompClient.connected) {
+                log('Not connected', 'error');
+                return;
+            }
+
+            const dest = document.getElementById('subDest').value.trim();
+            if (!dest) {
+                log('Destination is required', 'error');
+                return;
+            }
+
+            if (subscriptions[dest]) {
+                log(`Already subscribed to ${dest}`, 'warn');
+                return;
+            }
+
+            const sub = stompClient.subscribe(dest, function (message) {
+                let body = message.body;
+                try {
+                    body = JSON.stringify(JSON.parse(body), null, 2);
+                } catch (e) { /* not JSON, keep as-is */ }
+                log(`[${dest}] ${body}`, 'msg');
+            });
+
+            subscriptions[dest] = sub;
+            subscriptionCount++;
+
+            const subsEl = document.getElementById('subscriptions');
+            const tag = document.createElement('span');
+            tag.id = `sub-${subscriptionCount}`;
+            tag.style.cssText = 'display:inline-block;background:#334155;padding:4px 10px;border-radius:4px;margin:4px 4px 4px 0;font-size:0.82rem;';
+            const tagId = tag.id;
+            tag.innerHTML = `${escapeHtml(dest)} <a href="#" style="color:#ef4444;margin-left:6px;text-decoration:none;" onclick="unsubscribe('${dest}','${tagId}');return false;">x</a>`;
+            subsEl.appendChild(tag);
+
+            log(`Subscribed to ${dest}`, 'msg');
+        }
+
+        function unsubscribe(dest, tagId) {
+            if (subscriptions[dest]) {
+                subscriptions[dest].unsubscribe();
+                delete subscriptions[dest];
+                const tag = document.getElementById(tagId);
+                if (tag) tag.remove();
+                log(`Unsubscribed from ${dest}`, 'warn');
+            }
+        }
+
+        async function sendUserNotification() {
+            const baseUrl = document.getElementById('apiBase').value.trim();
+            const userId = document.getElementById('targetUserId').value.trim();
+            const jwt = document.getElementById('jwt').value.trim();
+
+            if (!userId) { log('User ID is required', 'error'); return; }
+            if (!jwt) { log('JWT is required', 'error'); return; }
+
+            try {
+                const res = await fetch(`${baseUrl}/test/notify/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + jwt }
+                });
+                if (res.ok) {
+                    log(`Test notification sent to user ${userId}`, 'info');
+                } else {
+                    log(`HTTP ${res.status}: ${res.statusText}`, 'error');
+                }
+            } catch (e) {
+                log(`Request failed: ${e.message}`, 'error');
+            }
+        }
+
+        async function sendBroadcast() {
+            const baseUrl = document.getElementById('apiBase').value.trim();
+            const topic = document.getElementById('targetTopic').value.trim();
+            const jwt = document.getElementById('jwt').value.trim();
+
+            if (!topic) { log('Topic is required', 'error'); return; }
+            if (!jwt) { log('JWT is required', 'error'); return; }
+
+            try {
+                const res = await fetch(`${baseUrl}/test/broadcast/${topic}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + jwt }
+                });
+                if (res.ok) {
+                    log(`Broadcast sent to topic ${topic}`, 'info');
+                } else {
+                    log(`HTTP ${res.status}: ${res.statusText}`, 'error');
+                }
+            } catch (e) {
+                log(`Request failed: ${e.message}`, 'error');
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        log('Ready. Paste a JWT token and click Connect to begin.', 'info');
+    </script>
+</body>
+</html>

@@ -31,7 +31,8 @@ public class SecurityConfiguration {
                                 "/categories/**",
                                 "/cities",
                                 "/business/**",
-                                "/kyc/webhook"
+                                "/kyc/webhook",
+                                "/ws"
                         ).permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
                         .anyRequest().authenticated()
