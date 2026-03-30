@@ -31,7 +31,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.bookingStatus IN :statuses")
     Page<Booking> findAllActiveByUserId(Long userId, Pageable pageable, List<BookingStatus> statuses);
 
-    @Query(value = "SELECT pg_advisory_xact_lock(:businessId, CAST(EXTRACT(EPOCH FROM CAST(:date AS date)) / 86400 AS integer))", nativeQuery = true)
+    @Query(value = "SELECT pg_advisory_xact_lock(CAST(:businessId AS integer), CAST(EXTRACT(EPOCH FROM CAST(:date AS date)) / 86400 AS integer))", nativeQuery = true)
     void lockBusinessDate(@Param("businessId") Long businessId, @Param("date") LocalDate date);
 
     @Query("SELECT COUNT(b) > 0 FROM Booking b JOIN b.service s " +
