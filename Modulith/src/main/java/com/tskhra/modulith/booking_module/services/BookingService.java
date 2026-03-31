@@ -10,7 +10,9 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpConflictExceptio
 import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.user_module.services.UserService;
+import com.tskhra.modulith.booking_module.model.events.BookingStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -34,6 +36,7 @@ public class BookingService {
     private final BusinessUnavailableOnetimeRepository businessUnavailableOnetimeRepository;
 
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @Transactional
@@ -77,6 +80,11 @@ public class BookingService {
                 .build();
 
         bookingRepository.save(booking);
+
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+                booking.getId(), business.getUserId(), BookingStatus.AWAITING,
+                service.getName(), business.getName()
+        ));
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
@@ -142,6 +150,11 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.SCHEDULED);
         bookingRepository.save(booking);
+
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+                booking.getId(), booking.getUserId(), BookingStatus.SCHEDULED,
+                service.getName(), business.getName()
+        ));
     }
 
     public void rejectRequest(Long bookingId, Jwt jwt) {
@@ -162,6 +175,11 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.REJECTED);
         bookingRepository.save(booking);
+
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+                booking.getId(), booking.getUserId(), BookingStatus.REJECTED,
+                service.getName(), business.getName()
+        ));
     }
 
     public void cancelByBusiness(Long bookingId, Jwt jwt) {
@@ -182,6 +200,11 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_BUSINESS);
         bookingRepository.save(booking);
+
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+                booking.getId(), booking.getUserId(), BookingStatus.CANCELLED_BY_BUSINESS,
+                service.getName(), business.getName()
+        ));
     }
 
     public void cancelByUser(Long bookingId, Jwt jwt) {
@@ -201,6 +224,13 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_USER);
         bookingRepository.save(booking);
+
+        Service service = booking.getService();
+        Business business = service.getBusiness();
+        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+                booking.getId(), business.getUserId(), BookingStatus.CANCELLED_BY_USER,
+                service.getName(), business.getName()
+        ));
     }
 
     public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {
