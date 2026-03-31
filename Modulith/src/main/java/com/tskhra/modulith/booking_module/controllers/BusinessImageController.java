@@ -36,4 +36,13 @@ public class BusinessImageController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponseDto(id.toString()));
     }
 
+    @DeleteMapping("/{businessId}/images/{imageId}")
+    public ResponseEntity<Void> deleteBusinessImage(@PathVariable Long businessId,
+                                                    @PathVariable Long imageId,
+                                                    @AuthenticationPrincipal Jwt jwt) {
+
+        businessImageService.deleteImage(businessId, imageId, jwt);
+        return ResponseEntity.noContent().build();
+    }
+
 }

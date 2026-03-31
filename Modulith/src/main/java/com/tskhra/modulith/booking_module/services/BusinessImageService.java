@@ -7,7 +7,9 @@ import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
+import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.services.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -42,5 +44,21 @@ public class BusinessImageService {
         if (!business.getUserId().equals(userId)) {
             throw new HttpForbiddenError("You are not authorized to perform this action");
         }
+    }
+
+    @Transactional
+    public void deleteImage(Long businessId, Long imageId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+
+        BusinessImage image = businessImageRepository.findById(imageId)
+                .orElseThrow(() -> new HttpNotFoundException("Image not found"));
+
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new HttpNotFoundException("Business not found"));
+
+        verifyOwnership(businessId, userId);
+
+        business.removeBusinessImage(image);
+        imageService.deleteBusinessImage(image.getFilename());
     }
 }

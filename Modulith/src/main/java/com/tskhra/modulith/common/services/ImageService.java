@@ -115,6 +115,20 @@ public class ImageService {
         }
     }
 
+    public void deleteBusinessImage(String fileName) {
+        String objectKey = minioProperties.businessFolder() + fileName;
+        try {
+            minioInternalClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(minioProperties.bucketName())
+                            .object(objectKey)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete file: " + fileName, e);
+        }
+    }
+
     public String getBusinessImageUrl(String fileName) {
         if (fileName == null || fileName.isEmpty()) return null;
 
@@ -133,6 +147,8 @@ public class ImageService {
             return null;
         }
     }
+
+
 
 
 }
