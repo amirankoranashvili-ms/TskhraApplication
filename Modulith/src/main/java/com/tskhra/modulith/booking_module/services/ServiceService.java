@@ -8,6 +8,7 @@ import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 import com.tskhra.modulith.booking_module.model.enums.Lang;
 import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
+import com.tskhra.modulith.booking_module.model.requests.ServiceUpdateDto;
 import com.tskhra.modulith.booking_module.repositories.BookingRepository;
 import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
 import com.tskhra.modulith.booking_module.repositories.ServiceRepository;
@@ -32,7 +33,7 @@ public class ServiceService {
     private final BusinessRepository businessRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
-    
+
     private static final String BUSINESS_NOT_FOUND_MESSAGE = "Business not found with id: ";
     private static final String SERVICE_NOT_FOUND_MESSAGE = "Service not found with id: ";
 
@@ -98,7 +99,7 @@ public class ServiceService {
     }
 
     @Transactional
-    public ServiceFullDto updateService(Long businessId, Long serviceId, ServiceRegistrationDto dto, Jwt jwt) {
+    public ServiceFullDto updateService(Long businessId, Long serviceId, ServiceUpdateDto dto, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(
                 () -> new HttpNotFoundException(BUSINESS_NOT_FOUND_MESSAGE + businessId)
@@ -119,12 +120,28 @@ public class ServiceService {
             throw new HttpNotFoundException(SERVICE_NOT_FOUND_MESSAGE + serviceId + " for business: " + businessId);
         }
 
-        service.setName(dto.name());
-        service.setNameKa(dto.nameKa());
-        service.setDescription(dto.description());
-        service.setDescriptionKa(dto.descriptionKa());
-        service.setSessionPrice(dto.price());
-        service.setSessionDuration(dto.duration());
+        String name = dto.name();
+        String nameKa = dto.nameKa();
+        String description = dto.description();
+        String descriptionKa = dto.descriptionKa();
+
+        if (!(name == null || name.isBlank())) {
+            service.setName(dto.name());
+        }
+
+        if (!(nameKa == null || nameKa.isBlank())) {
+            service.setNameKa(dto.nameKa());
+        }
+
+        if (!(description == null || description.isBlank())) {
+            service.setDescription(dto.description());
+        }
+
+        if (!(descriptionKa == null || descriptionKa.isBlank())) {
+            service.setDescriptionKa(dto.descriptionKa());
+        }
+
+
         service.getModificationDetails().setUpdatedBy(userId);
 
         Service saved = serviceRepository.save(service);

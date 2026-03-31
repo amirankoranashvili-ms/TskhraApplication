@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.Lang;
 import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
+import com.tskhra.modulith.booking_module.model.requests.ServiceUpdateDto;
 import com.tskhra.modulith.booking_module.model.responses.IdResponseDto;
 import com.tskhra.modulith.booking_module.services.ServiceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,7 +60,7 @@ public class ServiceController {
     public ResponseEntity<ServiceFullDto> updateService(@AuthenticationPrincipal Jwt jwt,
                                                         @PathVariable Long businessId,
                                                         @PathVariable Long serviceId,
-                                                        @Valid @RequestBody ServiceRegistrationDto dto) {
+                                                        @Valid @RequestBody ServiceUpdateDto dto) {
         ServiceFullDto updated = serviceService.updateService(businessId, serviceId, dto, jwt);
         return ResponseEntity.ok(updated);
     }

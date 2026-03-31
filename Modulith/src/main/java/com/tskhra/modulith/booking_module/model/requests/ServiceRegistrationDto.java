@@ -1,5 +1,6 @@
 package com.tskhra.modulith.booking_module.model.requests;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
