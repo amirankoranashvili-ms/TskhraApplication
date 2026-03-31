@@ -47,7 +47,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.1
     container_name: keycloak-tskhra
-    command: [ "-c", "/opt/keycloak/bin/kc.sh build --features=token-exchange && /opt/keycloak/bin/kc.sh start-dev --features=token-exchange" ]
+    command: [ "-c", "/opt/keycloak/bin/kc.sh build --features=token-exchange,admin-fine-grained-authz && /opt/keycloak/bin/kc.sh start-dev --features=token-exchange,admin-fine-grained-authz" ]
     entrypoint: /bin/sh
     environment:
       - KC_DB=postgres
