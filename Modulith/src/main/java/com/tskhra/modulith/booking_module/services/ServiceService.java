@@ -183,12 +183,12 @@ public class ServiceService {
 
     private ServiceFullDto mapToDto(Service s, Lang lang) {
         String name = switch (lang) {
-            case KA -> s.getNameKa() == null ? s.getName() : s.getNameKa();
-            case EN -> s.getName();
+            case KA -> s.getNameKa() == null || s.getNameKa().isBlank() ? s.getName() : s.getNameKa();
+            case EN -> s.getName() == null || s.getName().isBlank() ? null : s.getName();
         };
         String description = switch (lang) {
-            case KA -> s.getDescriptionKa() == null ? s.getDescription() : s.getDescriptionKa();
-            case EN -> s.getDescription();
+            case KA -> s.getDescriptionKa() == null || s.getDescriptionKa().isBlank() ? s.getDescription() : s.getDescriptionKa();
+            case EN -> s.getDescription() ==null || s.getDescription().isBlank() ? null : s.getDescription();
         };
         return new ServiceFullDto(
                 s.getId().toString(),
