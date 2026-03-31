@@ -125,19 +125,16 @@ public class ServiceService {
         String description = dto.description();
         String descriptionKa = dto.descriptionKa();
 
-        if (!(name == null || name.isBlank())) {
+        if (name != null) {
             service.setName(dto.name());
         }
-
-        if (!(nameKa == null || nameKa.isBlank())) {
+        if (nameKa != null) {
             service.setNameKa(dto.nameKa());
         }
-
-        if (!(description == null || description.isBlank())) {
+        if (description != null) {
             service.setDescription(dto.description());
         }
-
-        if (!(descriptionKa == null || descriptionKa.isBlank())) {
+        if (descriptionKa != null) {
             service.setDescriptionKa(dto.descriptionKa());
         }
 
