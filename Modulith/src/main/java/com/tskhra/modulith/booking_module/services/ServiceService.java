@@ -187,8 +187,10 @@ public class ServiceService {
             case EN -> s.getName() == null || s.getName().isBlank() ? s.getNameKa() : s.getName();
         };
         String description = switch (lang) {
-            case KA -> s.getDescriptionKa() == null || s.getDescriptionKa().isBlank() ? s.getDescription() : s.getDescriptionKa();
-            case EN -> s.getDescription() ==null || s.getDescription().isBlank() ? s.getDescriptionKa() : s.getDescription();
+            case KA ->
+                    s.getDescriptionKa() == null || s.getDescriptionKa().isBlank() ? s.getDescription() : s.getDescriptionKa();
+            case EN ->
+                    s.getDescription() == null || s.getDescription().isBlank() ? s.getDescriptionKa() : s.getDescription();
         };
         return new ServiceFullDto(
                 s.getId().toString(),

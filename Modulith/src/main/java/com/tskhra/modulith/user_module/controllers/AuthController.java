@@ -6,6 +6,7 @@ import com.tskhra.modulith.user_module.model.responses.MessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class AuthController {
 
     @PostMapping("/biometric/register")
     public ResponseEntity<MessageResponse> registerDevice(@AuthenticationPrincipal Jwt jwt,
-                                                          @RequestBody BiometricsDto biometrics) {
+                                                          @Valid @RequestBody BiometricsDto biometrics) {
 
         authService.registerDevice(biometrics, jwt);
         MessageResponse body = new MessageResponse(
@@ -71,5 +72,29 @@ public class AuthController {
         return ResponseEntity.ok(tokens);
     }
 
+    @Operation(summary = "Logout and invalidate tokens")
+    @PostMapping("/logout")
+    public ResponseEntity<MessageResponse> logout(@RequestBody RefreshTokenRequest dto) {
+        authService.logout(dto);
+        MessageResponse body = new MessageResponse(
+                HttpStatus.OK.value(),
+                "Logged out successfully",
+                Instant.now().toString()
+        );
+        return ResponseEntity.ok(body);
+    }
+
+    @Operation(summary = "Unregister biometric device")
+    @PostMapping("/biometric/unregister")
+    public ResponseEntity<MessageResponse> unregisterDevice(@AuthenticationPrincipal Jwt jwt,
+                                                             @RequestBody ChallengeRequest request) {
+        authService.unregisterDevice(request.deviceId(), jwt);
+        MessageResponse body = new MessageResponse(
+                HttpStatus.OK.value(),
+                "Device unregistered successfully",
+                Instant.now().toString()
+        );
+        return ResponseEntity.ok(body);
+    }
 
 }

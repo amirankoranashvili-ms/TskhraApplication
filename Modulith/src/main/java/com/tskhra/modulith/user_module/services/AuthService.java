@@ -1,5 +1,6 @@
 package com.tskhra.modulith.user_module.services;
 
+import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.properties.KeycloakProperties;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpUnauthorizedException;
@@ -113,6 +114,12 @@ public class AuthService {
         log.info("Generating challenge for device: {}", request.deviceId());
         String deviceId = request.deviceId();
 
+        boolean deviceExists = userBiometricDevicesRepository.findByDeviceId(deviceId).isPresent();
+        if (!deviceExists) {
+            log.error("Device not registered: {}", deviceId);
+            throw new HttpNotFoundException("Device not registered.");
+        }
+
         String challenge = UUID.randomUUID().toString();
         String redisKey = "biometric_nonce:" + deviceId;
 
@@ -141,7 +148,77 @@ public class AuthService {
             throw new HttpUnauthorizedException("Invalid signature.");
         }
 
-        return refreshToken(new RefreshTokenRequest(request.refreshToken()));
+        return exchangeTokenForUser(device.getUserId());
+    }
+
+
+    private TokensResponse exchangeTokenForUser(String userId) {
+
+        MultiValueMap<String, String> serviceAccountForm = new LinkedMultiValueMap<>();
+        serviceAccountForm.add("client_id", keycloakProperties.clientId());
+        serviceAccountForm.add("client_secret", keycloakProperties.clientSecret());
+        serviceAccountForm.add("grant_type", "client_credentials");
+
+        TokensResponse serviceToken = restClient.post()
+                .body(serviceAccountForm)
+                .retrieve()
+                .onStatus(_401, throw401)
+                .body(TokensResponse.class);
+
+        // Step 2: Exchange service account token for user token
+        MultiValueMap<String, String> exchangeForm = new LinkedMultiValueMap<>();
+        exchangeForm.add("client_id", keycloakProperties.clientId());
+        exchangeForm.add("client_secret", keycloakProperties.clientSecret());
+        exchangeForm.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+        exchangeForm.add("subject_token", serviceToken.accessToken());
+        exchangeForm.add("requested_token_type", "urn:ietf:params:oauth:token-type:refresh_token");
+        exchangeForm.add("requested_subject", userId);
+
+        return restClient.post()
+                .body(exchangeForm)
+                .retrieve()
+                .onStatus(_400, (req, resp) -> {
+                    throw new HttpBadRequestException("Token exchange failed.");
+                })
+                .onStatus(_401, throw401)
+                .body(TokensResponse.class);
+    }
+
+    public void logout(RefreshTokenRequest dto) {
+        String logoutUrl = String.format("%s/realms/%s/protocol/openid-connect/logout",
+                keycloakProperties.serverUrl(), keycloakProperties.realm());
+
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("client_id", keycloakProperties.clientId());
+        formData.add("client_secret", keycloakProperties.clientSecret());
+        formData.add("refresh_token", dto.refreshToken());
+
+        RestClient.create().post()
+                .uri(logoutUrl)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(formData)
+                .retrieve()
+                .onStatus(_400, (req, resp) -> {
+                    throw new HttpBadRequestException("Logout failed: invalid token.");
+                })
+                .toBodilessEntity();
+
+        log.info("User session invalidated successfully.");
+    }
+
+    @Transactional
+    public void unregisterDevice(String deviceId, Jwt jwt) {
+        String userId = jwt.getClaimAsString("sub");
+
+        UserBiometricDevices device = userBiometricDevicesRepository.findByDeviceId(deviceId)
+                .orElseThrow(() -> new HttpNotFoundException("Device not found."));
+
+        if (!device.getUserId().equals(userId)) {
+            throw new HttpUnauthorizedException("Device does not belong to this user.");
+        }
+
+        userBiometricDevicesRepository.delete(device);
+        log.info("Device {} unregistered for user {}", deviceId, userId);
     }
 
     private boolean verifySignature(String publicKey, String challenge, String signature) {
