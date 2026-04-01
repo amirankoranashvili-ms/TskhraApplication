@@ -1,5 +1,6 @@
 package com.tskhra.modulith.messaging_module.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -8,13 +9,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
+
+    private final TokenAuthInterceptor tokenAuthInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // /ws is the HTTP URL for the endpoint to which a WebSocket (or SockJS)
         // client needs to connect for the WebSocket handshake.
         registry.addEndpoint("/ws")
+                // Adds an interceptor to authenticate WebSocket connections
+                .addInterceptors(tokenAuthInterceptor)
                 // Permits cross-origin requests
                 .setAllowedOrigins("*")
                 // Adds fallback support for browsers that don’t support native WebSockets
