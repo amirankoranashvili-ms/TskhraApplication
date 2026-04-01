@@ -82,10 +82,15 @@ public class UserService {
 
                 User saved = userRepository.save(createdUser);
                 UserRegisteredEvent event = new UserRegisteredEvent(
-                        saved.getId().toString(),
-                        saved.getUsername(),
-                        saved.getEmail(),
-                        saved.getCreatedAt()
+                        UUID.randomUUID().toString(),
+                        now,
+                        "user_registered",
+                        userId,
+                        new UserRegisteredEvent.Payload(
+                                userId,
+                                user.getUsername(),
+                                user.getEmail()
+                        )
                 );
 
                 events.publishEvent(event);

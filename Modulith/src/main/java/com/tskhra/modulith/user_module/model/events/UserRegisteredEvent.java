@@ -6,9 +6,16 @@ import java.time.LocalDateTime;
 
 @Externalized("users")
 public record UserRegisteredEvent(
-        String userId,
-        String username,
-        String email,
-        LocalDateTime registeredAt
+        String eventId,
+        LocalDateTime eventTimestamp,
+        String eventType,
+        String entityId,
+        Payload payload
 ) {
+    public record Payload(
+            String userId,
+            String username,
+            String email
+    ) {
+    }
 }
