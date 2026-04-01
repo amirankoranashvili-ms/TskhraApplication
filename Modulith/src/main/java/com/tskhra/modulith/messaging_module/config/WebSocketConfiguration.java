@@ -19,7 +19,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 .setAllowedOrigins("*")
                 // Adds fallback support for browsers that don’t support native WebSockets
                 // by emulating the behavior over HTTP.
-                .withSockJS();
+//                .withSockJS()
+        ;
     }
 
     @Override
