@@ -25,7 +25,7 @@ public class FcmTokenController {
     private final FcmTokenRepository fcmTokenRepository;
     private final UserService userService;
 
-    @PostMapping("/fcm-token")
+    @PostMapping("/fcm-token") //
     public ResponseEntity<StatusDto> registerToken(@Valid @RequestBody FcmTokenDto dto,
                                                    @AuthenticationPrincipal Jwt jwt) {
 
