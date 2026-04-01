@@ -24,9 +24,11 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh 'cp /opt/secrets/modulith.env ./.env'
+                sh 'cp /opt/secrets/firebase-service-account.json ./firebase-service-account.json'
                 echo 'Rebuilding and starting Docker container...'
                 sh 'docker compose -p tskhraapplication up -d --build modulith'
                 sh 'rm .env'
+                sh 'rm firebase-service-account.json'
             }
         }
     }
