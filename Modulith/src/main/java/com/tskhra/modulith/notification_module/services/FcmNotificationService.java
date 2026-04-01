@@ -20,10 +20,12 @@ public class FcmNotificationService {
     private final FcmTokenRepository fcmTokenRepository;
 
     public void sendToUser(Long userId, String title, String body, Map<String, String> data) {
+        log.info("Looking up FCM tokens for userId={}", userId);
         List<FcmToken> tokens = fcmTokenRepository.findAllByUserId(userId);
+        log.info("Found {} FCM token(s) for userId={}", tokens.size(), userId);
 
         if (tokens.isEmpty()) {
-            log.debug("No FCM tokens found for user {}, skipping notification", userId);
+            log.warn("No FCM tokens found for userId={}, skipping notification", userId);
             return;
         }
 
@@ -33,6 +35,8 @@ public class FcmNotificationService {
     }
 
     private void sendToToken(FcmToken fcmToken, String title, String body, Map<String, String> data) {
+        log.info("Sending FCM to userId={}, token={}...", fcmToken.getUserId(), fcmToken.getToken().substring(0, Math.min(20, fcmToken.getToken().length())));
+
         Message message = Message.builder()
                 .setToken(fcmToken.getToken())
                 .setNotification(Notification.builder()
@@ -44,8 +48,9 @@ public class FcmNotificationService {
 
         try {
             String messageId = firebaseMessaging.send(message);
-            log.info("FCM sent to user {} (messageId: {})", fcmToken.getUserId(), messageId);
+            log.info("FCM SUCCESS: userId={}, messageId={}", fcmToken.getUserId(), messageId);
         } catch (FirebaseMessagingException e) {
+            log.error("FCM FAILED: userId={}, errorCode={}, message={}", fcmToken.getUserId(), e.getMessagingErrorCode(), e.getMessage());
             handleSendError(fcmToken, e);
         }
     }

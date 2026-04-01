@@ -21,16 +21,18 @@ public class BookingNotificationListener {
     @Async
     @EventListener
     public void onBookingStatusChanged(BookingStatusChangedEvent event) {
+        log.info("Received BookingStatusChangedEvent: bookingId={}, recipientUserId={}, status={}, service={}, business={}",
+                event.bookingId(), event.recipientUserId(), event.newStatus(), event.serviceName(), event.businessName());
+
         String title = buildTitle(event.newStatus());
         String body = buildBody(event.newStatus(), event.serviceName(), event.businessName());
 
-        // Structured data for the mobile app to handle programmatically
-        // (e.g. navigate to the booking detail screen)
         Map<String, String> data = Map.of(
                 "bookingId", event.bookingId().toString(),
                 "status", event.newStatus().name()
         );
 
+        log.info("Sending FCM notification: title='{}', body='{}', data={}", title, body, data);
         fcmNotificationService.sendToUser(event.recipientUserId(), title, body, data);
     }
 
