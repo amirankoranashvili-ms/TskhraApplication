@@ -1,13 +1,19 @@
 package com.tskhra.modulith.notification_module.controllers;
 
 import com.tskhra.modulith.notification_module.model.domain.FcmToken;
+import com.tskhra.modulith.notification_module.model.dto.FcmTokenDto;
+import com.tskhra.modulith.notification_module.model.dto.StatusDto;
 import com.tskhra.modulith.notification_module.repositories.FcmTokenRepository;
 import com.tskhra.modulith.user_module.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,16 +26,12 @@ public class FcmTokenController {
     private final UserService userService;
 
     @PostMapping("/fcm-token")
-    public Map<String, String> registerToken(@RequestBody Map<String, String> body,
-                                             JwtAuthenticationToken auth) {
-        String token = body.get("token");
-        Jwt jwt = auth.getToken();
+    public ResponseEntity<StatusDto> registerToken(@Valid @RequestBody FcmTokenDto dto,
+                                                   @AuthenticationPrincipal Jwt jwt) {
+
         Long userId = userService.getCurrentUser(jwt).getId();
 
-        // If this token already exists (same device re-registering), update the userId.
-        // If it's new, create it. This handles the case where a user logs out
-        // and another user logs in on the same device.
-        Optional<FcmToken> existing = fcmTokenRepository.findByToken(token);
+        Optional<FcmToken> existing = fcmTokenRepository.findByToken(dto.token());
         if (existing.isPresent()) {
             FcmToken fcmToken = existing.get();
             fcmToken.setUserId(userId);
@@ -37,17 +39,17 @@ public class FcmTokenController {
         } else {
             fcmTokenRepository.save(FcmToken.builder()
                     .userId(userId)
-                    .token(token)
+                    .token(dto.token())
                     .build());
         }
 
-        return Map.of("status", "registered");
+        return ResponseEntity.ok(new StatusDto("Registered Succesfully", LocalDateTime.now()));
     }
 
     @DeleteMapping("/fcm-token")
-    public Map<String, String> unregisterToken(@RequestBody Map<String, String> body) {
-        String token = body.get("token");
-        fcmTokenRepository.findByToken(token).ifPresent(fcmTokenRepository::delete);
-        return Map.of("status", "unregistered");
+    public ResponseEntity<StatusDto> unregisterToken(@Valid @RequestBody FcmTokenDto dto) {
+
+        fcmTokenRepository.findByToken(dto.token()).ifPresent(fcmTokenRepository::delete);
+        return ResponseEntity.ok(new StatusDto("Unregistered Succesfully", LocalDateTime.now()));
     }
 }
