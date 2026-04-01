@@ -32,7 +32,12 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
         // Use the built-in message broker for subscriptions and broadcasting and
         // route messages whose destination header begins with /topic or /queue to the broker
-        registry.enableSimpleBroker("/topic", "/queue");
+        registry.enableSimpleBroker("/topic", "/queue")
+                // This sends a heartbeat from the server every 10 seconds and expects
+                // a response from the client every 20 seconds. If a client fails to
+                // respond within the expected time frame, Spring Boot closes the
+                // connection to free up resources.
+                .setHeartbeatValue(new long[] { 10000, 20000 });
     }
 
 }
