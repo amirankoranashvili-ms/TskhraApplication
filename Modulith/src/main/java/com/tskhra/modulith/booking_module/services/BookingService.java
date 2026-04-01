@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
@@ -37,6 +38,7 @@ public class BookingService {
 
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
     @Transactional
@@ -85,6 +87,7 @@ public class BookingService {
                 booking.getId(), business.getUserId(), BookingStatus.AWAITING,
                 service.getName(), business.getName()
         ));
+        simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
