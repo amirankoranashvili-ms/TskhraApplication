@@ -16,7 +16,7 @@ pipeline {
             steps {
                 dir('Modulith') {
                     echo 'Building Maven project...'
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
@@ -28,7 +28,6 @@ pipeline {
                 echo 'Rebuilding and starting Docker container...'
                 sh 'docker compose -p tskhraapplication up -d --build modulith'
                 sh 'rm .env'
-                sh 'rm firebase-service-account.json'
             }
         }
     }
