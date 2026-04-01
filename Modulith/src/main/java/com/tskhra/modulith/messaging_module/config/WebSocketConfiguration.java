@@ -37,7 +37,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 // a response from the client every 20 seconds. If a client fails to
                 // respond within the expected time frame, Spring Boot closes the
                 // connection to free up resources.
-                .setHeartbeatValue(new long[] { 10000, 20000 });
+//                .setHeartbeatValue(new long[] { 10000, 20000 })
+        // Caused by: java.lang.IllegalArgumentException: Heartbeat values configured but no TaskScheduler provided
+        ;
     }
 
 }
