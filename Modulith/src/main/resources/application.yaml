@@ -50,6 +50,9 @@ minio:
   avatar-folder: user-avatars/
   business-folder: business-pictures/
 
+firebase:
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:firebase-service-account.json}
+
 sumsub:
   base-url: ${SUMSUB_BASE_URL:https://api.sumsub.com}
   secret-key: ${SUMSUB_SECRET_KEY}
