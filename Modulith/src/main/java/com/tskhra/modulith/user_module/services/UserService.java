@@ -27,6 +27,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.modulith.NamedInterface;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ public class UserService {
     private final Keycloak keycloak;
 
     private final ApplicationEventPublisher events;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
     @Transactional
@@ -89,6 +91,7 @@ public class UserService {
                 );
 
                 events.publishEvent(event);
+                simpMessagingTemplate.convertAndSend("/topic/users", "User " + saved.getUsername() + " has registered");
 
             } else if (response.getStatus() == 409) {
                 ErrorRepresentation error = response.readEntity(ErrorRepresentation.class);
