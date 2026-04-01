@@ -33,6 +33,7 @@ public class SecurityConfiguration {
                                 "/business/**",
                                 "/kyc/webhook"
                         ).permitAll()
+                        .requestMatchers("/ws").permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
