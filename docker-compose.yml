@@ -124,6 +124,8 @@ services:
       - KAFKA_HOST=kafka
     env_file:
       - ./.env
+    volumes:
+      - /opt/secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
     ports:
       - "8081:8081"
     depends_on:
