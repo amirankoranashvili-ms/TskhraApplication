@@ -3,6 +3,7 @@ package com.tskhra.modulith.booking_module.services;
 import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.enums.*;
 import com.tskhra.modulith.booking_module.model.events.BookingEvent;
+import com.tskhra.modulith.booking_module.model.events.BookingStatusChangeEvent;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.repositories.*;
@@ -167,6 +168,14 @@ public class BookingService {
                 booking.getId(), booking.getUserId(), BookingStatus.SCHEDULED,
                 service.getName(), business.getName()
         ));
+
+        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.SCHEDULED, booking.getBookingDate(), booking.getStartTime()
+        );
+        String bookedBy = userService.getUserNameById(booking.getUserId());
+
+        simpMessagingTemplate.convertAndSendToUser(
+                bookedBy, "/queue/messages", objectMapper.writeValueAsString(event));
     }
 
     public void rejectRequest(Long bookingId, Jwt jwt) {
@@ -192,6 +201,14 @@ public class BookingService {
                 booking.getId(), booking.getUserId(), BookingStatus.REJECTED,
                 service.getName(), business.getName()
         ));
+
+        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
+        );
+        String bookedBy = userService.getUserNameById(booking.getUserId());
+
+        simpMessagingTemplate.convertAndSendToUser(
+                bookedBy, "/queue/messages", objectMapper.writeValueAsString(event));
     }
 
     public void cancelByBusiness(Long bookingId, Jwt jwt) {
@@ -217,6 +234,14 @@ public class BookingService {
                 booking.getId(), booking.getUserId(), BookingStatus.CANCELLED_BY_BUSINESS,
                 service.getName(), business.getName()
         ));
+
+        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.CANCELLED_BY_BUSINESS, booking.getBookingDate(), booking.getStartTime()
+        );
+        String bookedBy = userService.getUserNameById(booking.getUserId());
+
+        simpMessagingTemplate.convertAndSendToUser(
+                bookedBy, "/queue/messages", objectMapper.writeValueAsString(event));
     }
 
     public void cancelByUser(Long bookingId, Jwt jwt) {
@@ -243,6 +268,14 @@ public class BookingService {
                 booking.getId(), business.getUserId(), BookingStatus.CANCELLED_BY_USER,
                 service.getName(), business.getName()
         ));
+
+        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
+        );
+        String businessOwner = userService.getUserNameById(business.getUserId());
+
+        simpMessagingTemplate.convertAndSendToUser(
+                businessOwner, "/queue/messages", objectMapper.writeValueAsString(event));
     }
 
     public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {
