@@ -68,6 +68,8 @@ public class BookingService {
             throw new HttpConflictException("Time slot not available");
         }
 
+        String businessOwnerId = userService.getUserKeycloakIdById(business.getUserId());
+
         Resource res = getOrCreateIndividualResource(business);
 
         Booking booking = Booking.builder()
@@ -88,6 +90,7 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
         simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
+        simpMessagingTemplate.convertAndSendToUser();
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {

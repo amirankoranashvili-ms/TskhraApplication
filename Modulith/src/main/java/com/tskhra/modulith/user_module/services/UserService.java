@@ -256,4 +256,11 @@ public class UserService {
         user.removeFavoriteBusiness(businessId);
         userRepository.save(user);
     }
+
+    public String getUserKeycloakIdById(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new HttpNotFoundException("User not found")
+        );
+        return user.getKeycloakId().toString();
+    }
 }
