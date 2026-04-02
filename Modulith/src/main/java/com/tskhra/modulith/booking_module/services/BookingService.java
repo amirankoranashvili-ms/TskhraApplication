@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.enums.*;
+import com.tskhra.modulith.booking_module.model.events.BookingEvent;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.repositories.*;
@@ -19,6 +20,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,7 +41,7 @@ public class BookingService {
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
     private final SimpMessagingTemplate simpMessagingTemplate;
-
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public void createBooking(IndividualBookingRequest request, Jwt jwt) {
@@ -90,8 +92,11 @@ public class BookingService {
                 booking.getId(), business.getUserId(), BookingStatus.AWAITING,
                 service.getName(), business.getName()
         ));
+
+        BookingEvent event = new BookingEvent(business.getId(), bookedBy, service.getId(), booking.getBookingDate(), booking.getStartTime());
+
         simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
-        simpMessagingTemplate.convertAndSendToUser(businessOwnerId, "/queue/messages", "User " + bookedBy + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime() + " for you");
+        simpMessagingTemplate.convertAndSendToUser(businessOwnerId, "/queue/messages", objectMapper.writeValueAsString(event));
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
