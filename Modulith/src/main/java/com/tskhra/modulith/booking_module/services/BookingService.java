@@ -269,7 +269,7 @@ public class BookingService {
         ));
 
         BookingStatusChangeEvent event = new BookingStatusChangeEvent(
-                service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
+                service.getId(), business.getId(), BookingStatus.CANCELLED_BY_USER, booking.getBookingDate(), booking.getStartTime()
         );
         String businessOwner = userService.getUserKeycloakIdById(business.getUserId());
 
