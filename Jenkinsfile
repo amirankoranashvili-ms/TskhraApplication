@@ -30,6 +30,12 @@ pipeline {
                 sh 'rm .env'
             }
         }
+
+        stage('Restart nginx') {
+            steps {
+                sh 'docker compose -p tskhraapplication up -d --build nginx'
+            }
+        }
     }
 
     post {
