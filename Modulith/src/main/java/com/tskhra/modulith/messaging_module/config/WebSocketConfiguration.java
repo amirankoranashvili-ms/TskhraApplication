@@ -13,6 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
     private final TokenAuthInterceptor tokenAuthInterceptor;
+    private final UserHandshakeHandler userHandshakeHandler;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -21,6 +22,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         registry.addEndpoint("/ws")
                 // Adds an interceptor to authenticate WebSocket connections
                 .addInterceptors(tokenAuthInterceptor)
+                // Sets the handler for WebSocket handshake requests.
+                // Used for sending private messages.
+                .setHandshakeHandler(userHandshakeHandler)
                 // Permits cross-origin requests
                 .setAllowedOrigins("*")
                 // Adds fallback support for browsers that don’t support native WebSockets
