@@ -175,7 +175,7 @@ public class BookingService {
         String bookedBy = userService.getUserNameById(booking.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
-                bookedBy, "/queue/messages", objectMapper.writeValueAsString(event));
+                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
     }
 
     public void rejectRequest(Long bookingId, Jwt jwt) {
@@ -208,7 +208,7 @@ public class BookingService {
         String bookedBy = userService.getUserNameById(booking.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
-                bookedBy, "/queue/messages", objectMapper.writeValueAsString(event));
+                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
     }
 
     public void cancelByBusiness(Long bookingId, Jwt jwt) {
@@ -241,7 +241,7 @@ public class BookingService {
         String bookedBy = userService.getUserNameById(booking.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
-                bookedBy, "/queue/messages", objectMapper.writeValueAsString(event));
+                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
     }
 
     public void cancelByUser(Long bookingId, Jwt jwt) {
@@ -275,7 +275,7 @@ public class BookingService {
         String businessOwner = userService.getUserNameById(business.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
-                businessOwner, "/queue/messages", objectMapper.writeValueAsString(event));
+                businessOwner, "/queue/statuschange", objectMapper.writeValueAsString(event));
     }
 
     public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {
