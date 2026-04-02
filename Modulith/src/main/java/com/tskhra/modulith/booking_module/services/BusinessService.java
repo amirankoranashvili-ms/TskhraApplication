@@ -226,7 +226,7 @@ public class BusinessService {
                         .map(BusinessImage::getFilename)
                         .map(imageService::getBusinessImageUrl)
                         .toList(),
-                b.getAddress() == null ? null : b.getAddress().getCity().getName(),
+                city,
                 addressDetails,
                 b.getCallType(),
                 b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
