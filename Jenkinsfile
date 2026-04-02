@@ -27,15 +27,11 @@ pipeline {
                 sh 'cp /opt/secrets/firebase-service-account.json ./firebase-service-account.json'
                 echo 'Rebuilding and starting Docker container...'
                 sh 'docker compose -p tskhraapplication up -d --build modulith'
+                sh 'docker compose -p tskhraapplication up -d --build nginx'
                 sh 'rm .env'
             }
         }
 
-        stage('Restart nginx') {
-            steps {
-                sh 'docker compose -p tskhraapplication up -d --build nginx'
-            }
-        }
     }
 
     post {
