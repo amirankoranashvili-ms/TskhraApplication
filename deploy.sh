@@ -18,7 +18,7 @@ ssh $SERVER "bash -s" << EOF
 
   echo "☕ Building Maven project..."
   cd Modulith/
-  mvn clean package
+  mvn clean package -DskipTests
 
   echo "🐳 Rebuilding and starting Docker container..."
   cd ..
