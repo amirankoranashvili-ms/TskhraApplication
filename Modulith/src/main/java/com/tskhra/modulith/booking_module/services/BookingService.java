@@ -69,6 +69,7 @@ public class BookingService {
         }
 
         String businessOwnerId = userService.getUserKeycloakIdById(business.getUserId());
+        String bookedBy = userService.getCurrentUser(jwt).getUsername();
 
         Resource res = getOrCreateIndividualResource(business);
 
@@ -90,7 +91,7 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
         simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
-        simpMessagingTemplate.convertAndSendToUser();
+        simpMessagingTemplate.convertAndSendToUser(businessOwnerId, "/queue/messages", "User " + bookedBy + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime() + " for you");
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
