@@ -286,7 +286,7 @@ public class BookingService {
                 .map(bookingRepository::findAllByServiceId)
                 .flatMap(List::stream)
                 .filter(b -> b.getBookingStatus() == BookingStatus.AWAITING)
-                .filter(b -> !b.getBookingDate().isBefore(LocalDate.now()))
+//                .filter(b -> !b.getBookingDate().isBefore(LocalDate.now()))
                 .map(b -> mapToDto(b, lang))
                 .toList();
     }
@@ -312,7 +312,7 @@ public class BookingService {
                 .map(bookingRepository::findAllByServiceId)
                 .flatMap(List::stream)
                 .filter(b -> b.getBookingStatus() == BookingStatus.SCHEDULED)
-                .filter(b -> !b.getBookingDate().isBefore(LocalDate.now()))
+//                .filter(b -> !b.getBookingDate().isBefore(LocalDate.now()))
                 .map(b -> mapToDto(b, lang))
                 .toList();
     }
