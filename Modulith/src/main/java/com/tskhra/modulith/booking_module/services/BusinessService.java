@@ -204,6 +204,11 @@ public class BusinessService {
                     b.getAddress().getDetailsKa() == null ? b.getAddress().getDetails() : b.getAddress().getDetailsKa();
             case EN -> b.getAddress().getDetails();
         };
+        String city = b.getAddress() == null ? null : switch (lang) {
+            case KA ->
+                    b.getAddress().getCity().getNameKa() == null ? b.getAddress().getCity().getName() : b.getAddress().getCity().getNameKa();
+            case EN -> b.getAddress().getCity().getName();
+        };
         return new BusinessDetailsDto(
                 b.getId().toString(),
                 name,
