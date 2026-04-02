@@ -172,7 +172,7 @@ public class BookingService {
         BookingStatusChangeEvent event = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.SCHEDULED, booking.getBookingDate(), booking.getStartTime()
         );
-        String bookedBy = userService.getUserNameById(booking.getUserId());
+        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
                 bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
@@ -205,7 +205,7 @@ public class BookingService {
         BookingStatusChangeEvent event = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
         );
-        String bookedBy = userService.getUserNameById(booking.getUserId());
+        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
                 bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
@@ -238,8 +238,7 @@ public class BookingService {
         BookingStatusChangeEvent event = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.CANCELLED_BY_BUSINESS, booking.getBookingDate(), booking.getStartTime()
         );
-        String bookedBy = userService.getUserNameById(booking.getUserId());
-
+        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
         simpMessagingTemplate.convertAndSendToUser(
                 bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
     }
@@ -272,7 +271,7 @@ public class BookingService {
         BookingStatusChangeEvent event = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
         );
-        String businessOwner = userService.getUserNameById(business.getUserId());
+        String businessOwner = userService.getUserKeycloakIdById(business.getUserId());
 
         simpMessagingTemplate.convertAndSendToUser(
                 businessOwner, "/queue/statuschange", objectMapper.writeValueAsString(event));
