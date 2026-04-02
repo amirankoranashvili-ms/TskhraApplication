@@ -161,6 +161,10 @@ public class BookingService {
             throw new HttpConflictException("Booking is not in AWAITING status");
         }
 
+        if (booking.getBookingDate().isBefore(LocalDate.now())) {
+            throw new HttpBadRequestException("Cannot approve a booking in the past");
+        }
+
         booking.setBookingStatus(BookingStatus.SCHEDULED);
         bookingRepository.save(booking);
 
