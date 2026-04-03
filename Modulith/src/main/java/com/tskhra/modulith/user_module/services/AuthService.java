@@ -22,8 +22,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.Base64;
@@ -222,38 +224,45 @@ public class AuthService {
     }
 
     private boolean verifySignature(String publicKey, String challenge, String signature) {
-        // signature is challenge signed with private key and then encoded base 64
-        // publicKey is also base64 encoded
         try {
-            log.info("Verifying signature for device.");
-            log.info("Challenge: {}", challenge);
-            log.info("Signature: {}", signature);
-            log.info("Public Key: {}", publicKey);
             String cleanKey = publicKey
                     .replace("-----BEGIN PUBLIC KEY-----", "")
                     .replace("-----END PUBLIC KEY-----", "")
                     .replaceAll("\\s+", "");
 
-            log.info("Cleaned Public Key: {}", cleanKey);
-
             byte[] pubKeyBytes = Base64.getDecoder().decode(cleanKey);
             X509EncodedKeySpec spec = new X509EncodedKeySpec(pubKeyBytes);
-            PublicKey pubKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+
+            PublicKey pubKey = decodePublicKey(spec);
+
+            String algorithm = switch (pubKey.getAlgorithm()) {
+                case "RSA" -> "SHA256withRSA";
+                case "EC"  -> "SHA256withECDSA";
+                default -> throw new IllegalArgumentException(
+                        "Unsupported key algorithm: " + pubKey.getAlgorithm());
+            };
 
             byte[] signatureBytes = Base64.getDecoder().decode(signature);
+            Signature sig = Signature.getInstance(algorithm);
+            sig.initVerify(pubKey);
+            sig.update(challenge.getBytes());
 
-            Signature publicSignature = Signature.getInstance("SHA256withRSA");
-            publicSignature.initVerify(pubKey);
-            publicSignature.update(challenge.getBytes());
-
-
-            boolean verify = publicSignature.verify(signatureBytes);
+            boolean verify = sig.verify(signatureBytes);
             log.info("Signature verification result: {}", verify);
             return verify;
 
         } catch (Exception e) {
             log.error("Error verifying signature: {}", e.getMessage());
             return false;
+        }
+    }
+
+    private PublicKey decodePublicKey(X509EncodedKeySpec spec)
+            throws InvalidKeySpecException, NoSuchAlgorithmException {
+        try {
+            return KeyFactory.getInstance("RSA").generatePublic(spec);
+        } catch (InvalidKeySpecException e) {
+            return KeyFactory.getInstance("EC").generatePublic(spec);
         }
     }
 }
