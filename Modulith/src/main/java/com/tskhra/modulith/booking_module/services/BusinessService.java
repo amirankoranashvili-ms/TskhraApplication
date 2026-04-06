@@ -174,15 +174,18 @@ public class BusinessService {
         return savedBusiness.getId();
     }
 
-    public List<BusinessDetailsDto> getCurrentUserBusinesses(Lang lang, Jwt jwt) {
+    public List<BusinessWithCountDto> getCurrentUserBusinesses(Lang lang, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
-
 
         List<Business> businesses = businessRepository.findByUserId(userId);
         return businesses.stream()
                 .filter(b -> b.getActivityStatus() != ActivityStatus.DELETED)
-                .map(b -> mapToDto(b, lang))
+                .map(b -> new BusinessWithCountDto(mapToDto(b, lang), getBusinessAwaitingBookingCount(b.getId())))
                 .toList();
+    }
+
+    private int getBusinessAwaitingBookingCount(Long businessId) {
+        return bookingRepository.findByBusinessIdAndStatus(businessId, BookingStatus.AWAITING).size();
     }
 
     // todo This works only with sub categories (not main categories)

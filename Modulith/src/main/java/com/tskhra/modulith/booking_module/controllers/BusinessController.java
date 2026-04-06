@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.enums.Lang;
 import com.tskhra.modulith.booking_module.model.requests.BusinessDetailsDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessRegistrationDto;
 import com.tskhra.modulith.booking_module.model.requests.BusinessUpdateDto;
+import com.tskhra.modulith.booking_module.model.requests.BusinessWithCountDto;
 import com.tskhra.modulith.booking_module.model.requests.TimeslotRequest;
 import com.tskhra.modulith.booking_module.model.responses.BusinessIdResponseDto;
 import com.tskhra.modulith.booking_module.services.BusinessService;
@@ -40,9 +41,9 @@ public class BusinessController {
 
     @Operation(summary = "Get current user's businesses")
     @GetMapping("/me")
-    public ResponseEntity<List<BusinessDetailsDto>> getCurrentUserBusiness(@AuthenticationPrincipal Jwt jwt,
-                                                                           @RequestParam(defaultValue = "EN") Lang lang) {
-        List<BusinessDetailsDto> businesses = businessService.getCurrentUserBusinesses(lang, jwt);
+    public ResponseEntity<List<BusinessWithCountDto>> getCurrentUserBusiness(@AuthenticationPrincipal Jwt jwt,
+                                                                            @RequestParam(defaultValue = "EN") Lang lang) {
+        List<BusinessWithCountDto> businesses = businessService.getCurrentUserBusinesses(lang, jwt);
         return ResponseEntity.ok(businesses);
     }
 
