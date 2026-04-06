@@ -2,8 +2,7 @@ package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.enums.*;
-import com.tskhra.modulith.booking_module.model.events.BookingEvent;
-import com.tskhra.modulith.booking_module.model.events.BookingStatusChangeEvent;
+import com.tskhra.modulith.booking_module.model.events.*;
 import com.tskhra.modulith.booking_module.model.requests.IndividualBookingRequest;
 import com.tskhra.modulith.booking_module.model.responses.BookingDto;
 import com.tskhra.modulith.booking_module.repositories.*;
@@ -12,20 +11,19 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpConflictExceptio
 import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.user_module.services.UserService;
-import com.tskhra.modulith.booking_module.model.events.BookingStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
-import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -41,8 +39,6 @@ public class BookingService {
 
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
-    private final SimpMessagingTemplate simpMessagingTemplate;
-    private final ObjectMapper objectMapper;
 
     @Transactional
     public void createBooking(IndividualBookingRequest request, Jwt jwt) {
@@ -71,8 +67,7 @@ public class BookingService {
             throw new HttpConflictException("Time slot not available");
         }
 
-        String businessOwnerId = userService.getUserKeycloakIdById(business.getUserId());
-        String bookedBy = userService.getCurrentUser(jwt).getUsername();
+        String userKeycloakId = jwt.getClaimAsString("sub");
 
         Resource res = getOrCreateIndividualResource(business);
 
@@ -94,10 +89,20 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
-        BookingEvent event = new BookingEvent(business.getId(), bookedBy, service.getId(), booking.getBookingDate(), booking.getStartTime());
-
-        simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
-        simpMessagingTemplate.convertAndSendToUser(businessOwnerId, "/queue/messages", objectMapper.writeValueAsString(event));
+        eventPublisher.publishEvent(new BookingCreatedEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "booking_service",
+                booking.getId().toString(),
+                new BookingCreatedEvent.Payload(
+                        business.getId().toString(),
+                        service.getId().toString(),
+                        userKeycloakId,
+                        booking.getId().toString(),
+                        request.date().toString(),
+                        request.startTime()
+                )
+        ));
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
@@ -173,13 +178,16 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
-        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
-                service.getId(), business.getId(), BookingStatus.SCHEDULED, booking.getBookingDate(), booking.getStartTime()
-        );
-        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
-
-        simpMessagingTemplate.convertAndSendToUser(
-                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
+        eventPublisher.publishEvent(new BookingApprovedEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "approve_booking_service_by_business",
+                booking.getId().toString(),
+                new BookingApprovedEvent.Payload(
+                        business.getId().toString(),
+                        booking.getId().toString()
+                )
+        ));
     }
 
     public void rejectRequest(Long bookingId, Jwt jwt) {
@@ -206,13 +214,16 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
-        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
-                service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
-        );
-        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
-
-        simpMessagingTemplate.convertAndSendToUser(
-                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
+        eventPublisher.publishEvent(new BookingRejectedEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "reject_booking_service_by_business",
+                booking.getId().toString(),
+                new BookingRejectedEvent.Payload(
+                        business.getId().toString(),
+                        booking.getId().toString()
+                )
+        ));
     }
 
     public void cancelByBusiness(Long bookingId, Jwt jwt) {
@@ -239,12 +250,16 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
-        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
-                service.getId(), business.getId(), BookingStatus.CANCELLED_BY_BUSINESS, booking.getBookingDate(), booking.getStartTime()
-        );
-        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
-        simpMessagingTemplate.convertAndSendToUser(
-                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(event));
+        eventPublisher.publishEvent(new BookingCancelledByBusinessEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "cancel_booking_by_business_after_approve",
+                booking.getId().toString(),
+                new BookingCancelledByBusinessEvent.Payload(
+                        business.getId().toString(),
+                        booking.getId().toString()
+                )
+        ));
     }
 
     public void cancelByUser(Long bookingId, Jwt jwt) {
@@ -262,6 +277,7 @@ public class BookingService {
             throw new HttpConflictException("Booking is not Scheduled");
         }
 
+        String previousStatus = booking.getBookingStatus().name();
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_USER);
         bookingRepository.save(booking);
 
@@ -272,13 +288,18 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
-        BookingStatusChangeEvent event = new BookingStatusChangeEvent(
-                service.getId(), business.getId(), BookingStatus.CANCELLED_BY_USER, booking.getBookingDate(), booking.getStartTime()
-        );
-        String businessOwner = userService.getUserKeycloakIdById(business.getUserId());
-
-        simpMessagingTemplate.convertAndSendToUser(
-                businessOwner, "/queue/statuschange", objectMapper.writeValueAsString(event));
+        String userKeycloakId = jwt.getClaimAsString("sub");
+        eventPublisher.publishEvent(new BookingCancelledByUserEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "cancel_booking_by_user",
+                booking.getId().toString(),
+                new BookingCancelledByUserEvent.Payload(
+                        userKeycloakId,
+                        booking.getId().toString(),
+                        previousStatus
+                )
+        ));
     }
 
     public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {

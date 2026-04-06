@@ -4,6 +4,7 @@ import com.tskhra.modulith.booking_module.model.domain.*;
 import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
 import com.tskhra.modulith.booking_module.model.embeddable.WeekTimeInterval;
 import com.tskhra.modulith.booking_module.model.enums.*;
+import com.tskhra.modulith.booking_module.model.events.BusinessRegisteredEvent;
 import com.tskhra.modulith.booking_module.model.requests.*;
 import com.tskhra.modulith.booking_module.repositories.*;
 import com.tskhra.modulith.common.exception.custom_status_exceptions.CustomStatusException;
@@ -16,6 +17,7 @@ import com.tskhra.modulith.user_module.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,8 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +50,7 @@ public class BusinessService {
 
     private final UserService userService;
     private final ImageService imageService;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     private static final int MAX_BUSINESSES_PER_USER = 5;
@@ -129,6 +134,42 @@ public class BusinessService {
         resource.setName("self");
         resource.setActivityStatus(ActivityStatus.ACTIVE);
         resourceRepository.save(resource);
+
+        List<BusinessRegisteredEvent.TimeInterval> workTimeIntervals = dto.workTimes().stream()
+                .map(wt -> new BusinessRegisteredEvent.TimeInterval(wt.getWeekDay().name(), wt.getStartTime(), wt.getEndTime()))
+                .toList();
+
+        List<BusinessRegisteredEvent.TimeInterval> restTimeIntervals = dto.restTimes() == null
+                ? Collections.emptyList()
+                : dto.restTimes().stream()
+                .map(rt -> new BusinessRegisteredEvent.TimeInterval(rt.getWeekDay().name(), rt.getStartTime(), rt.getEndTime()))
+                .toList();
+
+        eventPublisher.publishEvent(new BusinessRegisteredEvent(
+                UUID.randomUUID().toString(),
+                now,
+                "register_new_individual_business",
+                savedBusiness.getId().toString(),
+                new BusinessRegisteredEvent.Payload(
+                        savedBusiness.getId().toString(),
+                        dto.businessName(),
+                        dto.businessNameKa(),
+                        dto.callType().name(),
+                        dto.cityId(),
+                        dto.addressDetails(),
+                        dto.addressDetailsKa(),
+                        dto.description(),
+                        dto.descriptionKa(),
+                        dto.subcategoryId(),
+                        workTimeIntervals,
+                        restTimeIntervals,
+                        new BusinessRegisteredEvent.InfoPayload(
+                                dto.info().phoneNumber(),
+                                dto.info().instagramUrl(),
+                                dto.info().facebookUrl()
+                        )
+                )
+        ));
 
         return savedBusiness.getId();
     }

@@ -6,6 +6,8 @@ import com.tskhra.modulith.booking_module.model.embeddable.ModificationDetails;
 import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 import com.tskhra.modulith.booking_module.model.enums.Lang;
+import com.tskhra.modulith.booking_module.model.events.ServiceCreatedEvent;
+import com.tskhra.modulith.booking_module.model.events.ServiceDeactivatedEvent;
 import com.tskhra.modulith.booking_module.model.requests.ServiceFullDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceRegistrationDto;
 import com.tskhra.modulith.booking_module.model.requests.ServiceUpdateDto;
@@ -18,12 +20,15 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class ServiceService {
     private final BusinessRepository businessRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String BUSINESS_NOT_FOUND_MESSAGE = "Business not found with id: ";
     private static final String SERVICE_NOT_FOUND_MESSAGE = "Service not found with id: ";
@@ -68,6 +74,24 @@ public class ServiceService {
                 .build();
 
         Service savedService = serviceRepository.save(service);
+
+        eventPublisher.publishEvent(new ServiceCreatedEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "create_new_service",
+                savedService.getId().toString(),
+                new ServiceCreatedEvent.Payload(
+                        businessId.toString(),
+                        savedService.getId().toString(),
+                        dto.name(),
+                        dto.nameKa(),
+                        dto.description(),
+                        dto.descriptionKa(),
+                        dto.price(),
+                        dto.duration()
+                )
+        ));
+
         return savedService.getId();
     }
 
@@ -247,6 +271,17 @@ public class ServiceService {
 
             service.setActivityStatus(ActivityStatus.INACTIVE);
             serviceRepository.save(service);
+
+            eventPublisher.publishEvent(new ServiceDeactivatedEvent(
+                    UUID.randomUUID().toString(),
+                    LocalDateTime.now(),
+                    "deactivate_service",
+                    serviceId.toString(),
+                    new ServiceDeactivatedEvent.Payload(
+                            businessId.toString(),
+                            serviceId.toString()
+                    )
+            ));
         }
     }
 
