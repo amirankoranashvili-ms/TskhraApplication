@@ -1,6 +1,7 @@
 package com.tskhra.modulith.booking_module.services;
 
 import com.tskhra.modulith.booking_module.model.domain.Business;
+import com.tskhra.modulith.booking_module.model.enums.ActivityStatus;
 import com.tskhra.modulith.booking_module.model.enums.BookingStatus;
 import com.tskhra.modulith.booking_module.repositories.BookingRepository;
 import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
@@ -27,6 +28,7 @@ public class NotificationService {
         Long businessOwnerId = userService.getCurrentUser(jwt).getId();
 
         return businessRepository.findByUserId(businessOwnerId).stream()
+                .filter(b -> b.getActivityStatus() == ActivityStatus.ACTIVE)
                 .map(Business::getId)
                 .peek(id -> log.info("Business id: {}", id))
                 .mapToInt(businessService::getBusinessAwaitingBookingCount)
