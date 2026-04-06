@@ -131,7 +131,7 @@ public class UserService {
                 .updatedAt(now)
                 .build();
 
-        String userId = userRepository.save(user).getId().toString();
+        String userId = userRepository.save(user).getKeycloakId().toString();
 
         UserRegisteredEvent event = new UserRegisteredEvent(
                 UUID.randomUUID().toString(),
