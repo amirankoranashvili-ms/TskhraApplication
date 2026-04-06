@@ -117,6 +117,7 @@ public class UserService {
 
     }
 
+    @Transactional
     public void registerKcUser(KeycloakSpiUserRegistrationDto dto) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -130,8 +131,20 @@ public class UserService {
                 .updatedAt(now)
                 .build();
 
-        userRepository.save(user);
+        String userId = userRepository.save(user).getId().toString();
 
+        UserRegisteredEvent event = new UserRegisteredEvent(
+                UUID.randomUUID().toString(),
+                now,
+                "user_registered",
+                userId,
+                new UserRegisteredEvent.Payload(
+                        userId,
+                        user.getUsername(),
+                        user.getEmail()
+                ));
+
+        events.publishEvent(event);
     }
 
     public UserSelfDto getCurrentUserInfo(Jwt jwt) {
