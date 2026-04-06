@@ -184,7 +184,7 @@ public class BusinessService {
                 .toList();
     }
 
-    private int getBusinessAwaitingBookingCount(Long businessId) {
+    public int getBusinessAwaitingBookingCount(Long businessId) {
         return bookingRepository.findByBusinessIdAndStatus(businessId, BookingStatus.AWAITING).size();
     }
 

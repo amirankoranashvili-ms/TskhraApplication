@@ -18,13 +18,15 @@ public class NotificationService {
     private final BookingRepository bookingRepository;
     private final BusinessRepository businessRepository;
     private final UserService userService;
+    private final BusinessService businessService;
 
 
     public int getNotificationCountByUser(Jwt jwt) {
         Long businessOwnerId = userService.getCurrentUser(jwt).getId();
-        List<Long> businessIds = businessRepository
-                .findByUserId(businessOwnerId).stream().map(Business::getId).toList();
 
-        return bookingRepository.countByBusinessIdsAndStatus(businessIds, BookingStatus.AWAITING);
+        return businessRepository.findByUserId(businessOwnerId).stream()
+                .map(Business::getId)
+                .mapToInt(businessService::getBusinessAwaitingBookingCount)
+                .sum();
     }
 }
