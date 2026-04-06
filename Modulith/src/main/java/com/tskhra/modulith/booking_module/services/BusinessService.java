@@ -174,13 +174,13 @@ public class BusinessService {
         return savedBusiness.getId();
     }
 
-    public List<BusinessWithCountDto> getCurrentUserBusinesses(Lang lang, Jwt jwt) {
+    public List<BusinessDetailsDto> getCurrentUserBusinesses(Lang lang, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
 
         List<Business> businesses = businessRepository.findByUserId(userId);
         return businesses.stream()
                 .filter(b -> b.getActivityStatus() != ActivityStatus.DELETED)
-                .map(b -> new BusinessWithCountDto(mapToDto(b, lang), getBusinessAwaitingBookingCount(b.getId())))
+                .map(b -> mapToDto(b, lang, getBusinessAwaitingBookingCount(b.getId())))
                 .toList();
     }
 
@@ -230,11 +230,16 @@ public class BusinessService {
                 b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
                 b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList(),
                 new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
-                b.getDescription()
+                b.getDescription(),
+                0
         );
     }
 
     private BusinessDetailsDto mapToDto(Business b, Lang lang) {
+        return mapToDto(b, lang, 0);
+    }
+
+    private BusinessDetailsDto mapToDto(Business b, Lang lang, int awaitingBookingCount) {
         String name = switch (lang) {
             case KA -> b.getNameKa() == null ? b.getName() : b.getNameKa();
             case EN -> b.getName();
@@ -276,7 +281,8 @@ public class BusinessService {
                 b.getBusinessSchedules().stream().map(BusinessSchedule::getInterval).toList(),
                 b.getBusinessUnavailableSchedules().stream().map(BusinessUnavailableSchedule::getInterval).toList(),
                 new Info(b.getPhoneNumber(), b.getInstagramUrl(), b.getFacebookUrl()),
-                description
+                description,
+                awaitingBookingCount
         );
     }
 

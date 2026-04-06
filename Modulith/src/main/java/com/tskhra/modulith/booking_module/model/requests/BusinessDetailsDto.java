@@ -18,6 +18,7 @@ public record BusinessDetailsDto(
         List<WeekTimeInterval> workTimes,
         List<WeekTimeInterval> restTimes,
         Info info,
-        String description
+        String description,
+        int awaitingBookingCount
 ) {
 }
