@@ -232,6 +232,7 @@ public class ServiceService {
         }
     }
 
+    @Transactional
     public void changeServiceStatus(Long businessId, Long serviceId, ActivityStatus status, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE).orElseThrow(

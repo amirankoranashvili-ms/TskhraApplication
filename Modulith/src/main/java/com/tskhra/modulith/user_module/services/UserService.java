@@ -169,6 +169,7 @@ public class UserService {
         );
     }
 
+    @Transactional
     public void updateProfile(UserProfileUpdateDto dto, Jwt jwt) {
         User user = getCurrentUser(jwt);
 
@@ -197,6 +198,7 @@ public class UserService {
         ));
     }
 
+    @Transactional
     public void uploadAvatar(MultipartFile file, Jwt jwt) {
         User user = getCurrentUser(jwt);
 

@@ -150,6 +150,7 @@ public class BookingService {
         return activeResources.getFirst();
     }
 
+    @Transactional
     public void approveRequest(Long bookingId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
@@ -190,6 +191,7 @@ public class BookingService {
         ));
     }
 
+    @Transactional
     public void rejectRequest(Long bookingId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
@@ -226,6 +228,7 @@ public class BookingService {
         ));
     }
 
+    @Transactional
     public void cancelByBusiness(Long bookingId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
@@ -262,6 +265,7 @@ public class BookingService {
         ));
     }
 
+    @Transactional
     public void cancelByUser(Long bookingId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
