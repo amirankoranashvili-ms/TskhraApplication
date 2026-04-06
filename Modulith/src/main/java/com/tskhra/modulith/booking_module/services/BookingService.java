@@ -15,9 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import com.tskhra.modulith.booking_module.model.domain.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,6 +41,8 @@ public class BookingService {
 
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public void createBooking(IndividualBookingRequest request, Jwt jwt) {
@@ -68,6 +72,8 @@ public class BookingService {
         }
 
         String userKeycloakId = jwt.getClaimAsString("sub");
+        String businessOwnerId = userService.getUserKeycloakIdById(business.getUserId());
+        String bookedBy = userService.getCurrentUser(jwt).getUsername();
 
         Resource res = getOrCreateIndividualResource(business);
 
@@ -88,6 +94,10 @@ public class BookingService {
                 booking.getId(), business.getUserId(), BookingStatus.AWAITING,
                 service.getName(), business.getName()
         ));
+
+        BookingEvent bookingEvent = new BookingEvent(business.getId(), bookedBy, service.getId(), booking.getBookingDate(), booking.getStartTime());
+        simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
+        simpMessagingTemplate.convertAndSendToUser(businessOwnerId, "/queue/messages", objectMapper.writeValueAsString(bookingEvent));
 
         eventPublisher.publishEvent(new BookingCreatedEvent(
                 UUID.randomUUID().toString(),
@@ -179,6 +189,13 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
+        BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.SCHEDULED, booking.getBookingDate(), booking.getStartTime()
+        );
+        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
+        simpMessagingTemplate.convertAndSendToUser(
+                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
+
         eventPublisher.publishEvent(new BookingApprovedEvent(
                 UUID.randomUUID().toString(),
                 LocalDateTime.now(),
@@ -216,6 +233,13 @@ public class BookingService {
                 service.getName(), business.getName()
         ));
 
+        BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()
+        );
+        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
+        simpMessagingTemplate.convertAndSendToUser(
+                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
+
         eventPublisher.publishEvent(new BookingRejectedEvent(
                 UUID.randomUUID().toString(),
                 LocalDateTime.now(),
@@ -252,6 +276,13 @@ public class BookingService {
                 booking.getId(), booking.getUserId(), BookingStatus.CANCELLED_BY_BUSINESS,
                 service.getName(), business.getName()
         ));
+
+        BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.CANCELLED_BY_BUSINESS, booking.getBookingDate(), booking.getStartTime()
+        );
+        String bookedBy = userService.getUserKeycloakIdById(booking.getUserId());
+        simpMessagingTemplate.convertAndSendToUser(
+                bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
 
         eventPublisher.publishEvent(new BookingCancelledByBusinessEvent(
                 UUID.randomUUID().toString(),
@@ -291,6 +322,13 @@ public class BookingService {
                 booking.getId(), business.getUserId(), BookingStatus.CANCELLED_BY_USER,
                 service.getName(), business.getName()
         ));
+
+        BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
+                service.getId(), business.getId(), BookingStatus.CANCELLED_BY_USER, booking.getBookingDate(), booking.getStartTime()
+        );
+        String businessOwner = userService.getUserKeycloakIdById(business.getUserId());
+        simpMessagingTemplate.convertAndSendToUser(
+                businessOwner, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
 
         String userKeycloakId = jwt.getClaimAsString("sub");
         eventPublisher.publishEvent(new BookingCancelledByUserEvent(
