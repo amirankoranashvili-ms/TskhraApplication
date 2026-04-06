@@ -9,6 +9,8 @@ import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.model.enums.Gender;
 import com.tskhra.modulith.user_module.model.enums.KycStatus;
 import com.tskhra.modulith.user_module.model.enums.UserStatus;
+import com.tskhra.modulith.user_module.model.events.UserProfilePictureUpdatedEvent;
+import com.tskhra.modulith.user_module.model.events.UserProfileUpdatedEvent;
 import com.tskhra.modulith.user_module.model.events.UserRegisteredEvent;
 import com.tskhra.modulith.user_module.model.requests.KeycloakSpiUserRegistrationDto;
 import com.tskhra.modulith.user_module.model.requests.UserProfileUpdateDto;
@@ -177,6 +179,22 @@ public class UserService {
         user.setBirthDate(dto.birthDate());
 
         userRepository.save(user);
+
+        String userId = jwt.getClaimAsString("sub");
+        events.publishEvent(new UserProfileUpdatedEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "user_profile_updated",
+                userId,
+                new UserProfileUpdatedEvent.Payload(
+                        userId,
+                        dto.firstName(),
+                        dto.lastName(),
+                        dto.gender(),
+                        dto.birthDate().toString(),
+                        dto.phoneCountryCode() + dto.phoneNumber()
+                )
+        ));
     }
 
     public void uploadAvatar(MultipartFile file, Jwt jwt) {
@@ -185,6 +203,18 @@ public class UserService {
         String uri = imageService.uploadAvatar(file);
         user.setProfilePictureUri(uri);
         userRepository.save(user);
+
+        String userId = jwt.getClaimAsString("sub");
+        events.publishEvent(new UserProfilePictureUpdatedEvent(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                "user_profile_picture_updated",
+                userId,
+                new UserProfilePictureUpdatedEvent.Payload(
+                        userId,
+                        uri
+                )
+        ));
     }
 
     public void deleteAvatar(Jwt jwt) {

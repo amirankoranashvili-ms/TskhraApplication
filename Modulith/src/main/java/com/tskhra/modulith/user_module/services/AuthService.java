@@ -237,7 +237,7 @@ public class AuthService {
 
             String algorithm = switch (pubKey.getAlgorithm()) {
                 case "RSA" -> "SHA256withRSA";
-                case "EC"  -> "SHA256withECDSA";
+                case "EC" -> "SHA256withECDSA";
                 default -> throw new IllegalArgumentException(
                         "Unsupported key algorithm: " + pubKey.getAlgorithm());
             };
@@ -257,8 +257,7 @@ public class AuthService {
         }
     }
 
-    private PublicKey decodePublicKey(X509EncodedKeySpec spec)
-            throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private PublicKey decodePublicKey(X509EncodedKeySpec spec) throws InvalidKeySpecException, NoSuchAlgorithmException {
         try {
             return KeyFactory.getInstance("RSA").generatePublic(spec);
         } catch (InvalidKeySpecException e) {
