@@ -1,5 +1,6 @@
 package com.tskhra.modulith.user_module.services;
 
+import com.tskhra.modulith.common.exception.http_exceptions.HttpConflictException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpUnauthorizedException;
 import com.tskhra.modulith.user_module.model.domain.UserDevice;
@@ -38,6 +39,12 @@ public class CredentialService {
     @Transactional
     public void registerDevice(CredentialsRegisterRequest request, Jwt jwt) {
         String userKeycloakId = jwt.getSubject();
+        String deviceId = request.deviceId();
+
+        boolean deviceExists = userDevicesRepository.existsUserDeviceByDeviceId(deviceId);
+        if (deviceExists) {
+            throw new HttpConflictException("Device with same id is already registered.");
+        }
 
         Map<CredentialType, String> credentials = request.credentials();
         String pinPublicKey = credentials.getOrDefault(CredentialType.PIN, null);
@@ -45,7 +52,7 @@ public class CredentialService {
 
         UserDevice device = UserDevice.builder()
                 .userId(userKeycloakId)
-                .deviceId(request.deviceId())
+                .deviceId(deviceId)
                 .pinPublicKey(pinPublicKey)
                 .biometricPublicKey(bioPublicKey)
                 .build();
