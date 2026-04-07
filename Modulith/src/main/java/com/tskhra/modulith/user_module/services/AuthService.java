@@ -154,7 +154,7 @@ public class AuthService {
     }
 
 
-    private TokensResponse exchangeTokenForUser(String userId) {
+    public TokensResponse exchangeTokenForUser(String userId) {
 
         MultiValueMap<String, String> serviceAccountForm = new LinkedMultiValueMap<>();
         serviceAccountForm.add("client_id", keycloakProperties.clientId());
