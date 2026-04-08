@@ -87,7 +87,7 @@ public class AuthController {
     @Operation(summary = "Unregister biometric device")
     @PostMapping("/biometric/unregister")
     public ResponseEntity<MessageResponse> unregisterDevice(@AuthenticationPrincipal Jwt jwt,
-                                                             @RequestBody ChallengeRequest request) {
+                                                            @RequestBody ChallengeRequest request) {
         authService.unregisterDevice(request.deviceId(), jwt);
         MessageResponse body = new MessageResponse(
                 HttpStatus.OK.value(),

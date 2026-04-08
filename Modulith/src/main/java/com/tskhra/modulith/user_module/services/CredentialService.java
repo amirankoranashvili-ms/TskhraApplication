@@ -101,6 +101,22 @@ public class CredentialService {
         return authService.exchangeTokenForUser(device.getUserId());
     }
 
+    @Transactional
+    public void updatePublicKey(CredentialUpdateRequest credentialUpdateRequest, CredentialType type) {
+        String deviceId = credentialUpdateRequest.deviceId();
+        String publicKey = credentialUpdateRequest.publicKey();
+
+        UserDevice device = userDevicesRepository.findByDeviceId(deviceId)
+                .orElseThrow(() -> new HttpUnauthorizedException("Device not registered."));
+
+        switch (type) {
+            case PIN -> device.setPinPublicKey(publicKey);
+            case BIO -> device.setBiometricPublicKey(publicKey);
+        }
+
+        userDevicesRepository.save(device);
+    }
+
     private boolean verifySignature(String publicKey, String challenge, String signature) {
         try {
             String cleanKey = publicKey
@@ -141,20 +157,4 @@ public class CredentialService {
         }
     }
 
-
-    @Transactional
-    public void updatePublicKey(CredentialUpdateRequest credentialUpdateRequest, CredentialType type) {
-        String deviceId = credentialUpdateRequest.deviceId();
-        String publicKey = credentialUpdateRequest.publicKey();
-
-        UserDevice device = userDevicesRepository.findByDeviceId(deviceId)
-                .orElseThrow(() -> new HttpUnauthorizedException("Device not registered."));
-
-        switch (type) {
-            case PIN -> device.setPinPublicKey(publicKey);
-            case BIO -> device.setBiometricPublicKey(publicKey);
-        }
-
-        userDevicesRepository.save(device);
-    }
 }
