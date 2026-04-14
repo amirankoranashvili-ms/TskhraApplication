@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.util.Set;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "categories_swap")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
