@@ -36,6 +36,27 @@ VALUES ('Tbilisi', 'თბილისი'),
        ('Mtskheta', 'მცხეთა'),
        ('Borjomi', 'ბორჯომი');
 
+INSERT INTO cities_swap (name)
+VALUES ('Tbilisi'),
+       ('Batumi'),
+       ('Kutaisi'),
+       ('Rustavi'),
+       ('Gori'),
+       ('Zugdidi'),
+       ('Poti'),
+       ('Khashuri'),
+       ('Samtredia'),
+       ('Senaki'),
+       ('Zestafoni'),
+       ('Marneuli'),
+       ('Telavi'),
+       ('Akhaltsikhe'),
+       ('Kobuleti'),
+       ('Ozurgeti'),
+       ('Chiatura'),
+       ('Mtskheta'),
+       ('Borjomi');
+
 -- categories
 -- ნაბიჯი 1: ვამატებთ მხოლოდ მთავარ (მშობელ) კატეგორიებს. 
 -- id-ს ბაზა თავისით მიანიჭებს.

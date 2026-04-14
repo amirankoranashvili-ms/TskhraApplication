@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "cities")
+@Table(name = "cities_swap")
 @Getter
 public class City {
 
