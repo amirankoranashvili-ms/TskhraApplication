@@ -19,6 +19,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -63,4 +67,54 @@ public class ItemService {
         Item save = itemRepository.save(item);
         return save.getId();
     }
+
+    @Transactional
+    public void removeItem(UUID itemId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new HttpNotFoundException("Item not found")
+        );
+
+        if (!item.getOwnerId().equals(userId)) {
+            throw new HttpBadRequestException("You are not authorized to perform this action");
+        }
+
+        item.setStatus(ItemStatus.REMOVED);
+        itemRepository.save(item);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ItemSummaryDto> getAllAvailableItems(Pageable pageable) {
+        return itemRepository.findAllByStatus(ItemStatus.AVAILABLE, pageable)
+                .map(this::toSummaryDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ItemSummaryDto> getAvailableItemsByUser(Long userId, Pageable pageable) {
+        return itemRepository.findAllByOwnerIdAndStatus(userId, ItemStatus.AVAILABLE, pageable)
+                .map(this::toSummaryDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ItemSummaryDto> getCurrentUserItems(Jwt jwt, Pageable pageable) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        return itemRepository.findAllByOwnerId(userId, pageable)
+                .map(this::toSummaryDto);
+    }
+
+    private ItemSummaryDto toSummaryDto(Item item) {
+        return new ItemSummaryDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getCategory() != null ? item.getCategory().getName() : null,
+                item.getCity() != null ? item.getCity().getName() : null,
+                item.getCondition(),
+                item.getTradeRange(),
+                item.getEstimatedValue(),
+                item.getCreatedAt()
+        );
+    }
+
 }

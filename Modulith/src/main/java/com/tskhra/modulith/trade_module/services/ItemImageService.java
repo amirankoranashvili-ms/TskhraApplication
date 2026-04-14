@@ -36,6 +36,11 @@ public class ItemImageService {
             throw new HttpForbiddenError("You are not authorized to perform this action");
         }
 
+        int imageCount = item.getImages().size();
+        if (imageCount >= 5) {
+            throw new HttpForbiddenError("Item can have at most 5 images");
+        }
+
         String filename = imageService.uploadItemImage(file);
 
         ItemImage image = new ItemImage();
