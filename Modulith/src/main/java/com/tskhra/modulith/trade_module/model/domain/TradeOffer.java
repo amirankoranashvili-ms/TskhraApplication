@@ -2,6 +2,10 @@ package com.tskhra.modulith.trade_module.model.domain;
 
 import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,6 +17,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "trade_offers")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class TradeOffer {
 
     @Id
@@ -23,7 +31,8 @@ public class TradeOffer {
     @JoinColumn(name = "parent_id")
     private TradeOffer parent;
 
-    // todo think about relationship + should trade be reset and new one created?
+   @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "trade_chain_id")
     private TradeChain tradeChain;
 
     @Column(nullable = false)

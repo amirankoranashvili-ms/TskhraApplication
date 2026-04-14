@@ -1,13 +1,20 @@
 package com.tskhra.modulith.trade_module.model.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "item_boosts")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class ItemBoost {
 
     @Id

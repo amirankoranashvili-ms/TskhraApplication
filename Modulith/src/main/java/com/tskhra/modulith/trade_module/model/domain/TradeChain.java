@@ -2,6 +2,10 @@ package com.tskhra.modulith.trade_module.model.domain;
 
 import com.tskhra.modulith.trade_module.model.enums.ChainStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -11,6 +15,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "trade_chains")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class TradeChain {
 
     @Id
