@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByName(String name);
 
-    @Query("SELECT c FROM CategorySwap c LEFT JOIN FETCH c.children WHERE c.parent IS NULL")
+    @Query("SELECT c FROM Category c LEFT JOIN FETCH c.children WHERE c.parent IS NULL")
     List<Category> findAllParentsWithChildren();
 }
