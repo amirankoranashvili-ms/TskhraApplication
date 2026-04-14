@@ -1,6 +1,7 @@
 package com.tskhra.modulith.trade_module.controllers;
 
 import com.tskhra.modulith.trade_module.model.requests.ItemUploadDto;
+import com.tskhra.modulith.trade_module.model.responses.ImageUploadedDto;
 import com.tskhra.modulith.trade_module.model.responses.ItemCreatedDto;
 import com.tskhra.modulith.trade_module.services.ItemImageService;
 import com.tskhra.modulith.trade_module.services.ItemService;
@@ -35,12 +36,12 @@ public class ItemController {
     }
 
     @PostMapping(value = "/{itemId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> uploadItemImage(@AuthenticationPrincipal Jwt jwt,
-                                                @PathVariable UUID itemId,
-                                                @RequestParam(defaultValue = "false") boolean isMain,
-                                                @ImageFile @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ImageUploadedDto> uploadItemImage(@AuthenticationPrincipal Jwt jwt,
+                                                           @PathVariable UUID itemId,
+                                                           @RequestParam(defaultValue = "false") boolean isMain,
+                                                           @ImageFile @RequestParam("file") MultipartFile file) {
         Long id = itemImageService.uploadImage(file, itemId, isMain, jwt);
-        return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ImageUploadedDto(id));
     }
 
     @DeleteMapping("/{itemId}/images/{imageId}")
