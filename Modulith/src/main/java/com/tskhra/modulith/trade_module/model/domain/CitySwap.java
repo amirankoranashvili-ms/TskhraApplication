@@ -6,7 +6,7 @@ import lombok.Getter;
 @Entity
 @Table(name = "cities_swap")
 @Getter
-public class City {
+public class CitySwap {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
