@@ -10,6 +10,7 @@ import com.tskhra.modulith.trade_module.validation.ImageFile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -64,19 +65,25 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ItemSummaryDto>> getAllItems(Pageable pageable) {
+    public ResponseEntity<Page<ItemSummaryDto>> getAllItems(@RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(itemService.getAllAvailableItems(pageable));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<ItemSummaryDto>> getItemsByUser(@PathVariable Long userId,
-                                                               Pageable pageable) {
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(itemService.getAvailableItemsByUser(userId, pageable));
     }
 
     @GetMapping("/me")
     public ResponseEntity<Page<ItemSummaryDto>> getCurrentUserItems(@AuthenticationPrincipal Jwt jwt,
-                                                                    Pageable pageable) {
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(itemService.getCurrentUserItems(jwt, pageable));
     }
 
