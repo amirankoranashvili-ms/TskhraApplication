@@ -129,6 +129,48 @@ public class ImageService {
         }
     }
 
+    public String uploadItemImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Cannot upload an empty file.");
+        }
+
+        String bucketName = minioProperties.bucketName();
+        String folderPrefix = minioProperties.itemFolder();
+        String originalFilename = file.getOriginalFilename();
+
+        String extension = StringUtils.getFilenameExtension(originalFilename);
+        String fileName = UUID.randomUUID() + (extension == null ? "" : "." + extension);
+
+        try (InputStream inputStream = file.getInputStream()) {
+            minioInternalClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(folderPrefix + fileName)
+                            .stream(inputStream, file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+            return fileName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload file: " + originalFilename, e);
+        }
+    }
+
+    public void deleteItemImage(String fileName) {
+        String objectKey = minioProperties.itemFolder() + fileName;
+        try {
+            minioInternalClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(minioProperties.bucketName())
+                            .object(objectKey)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete file: " + fileName, e);
+        }
+    }
+
     public String getBusinessImageUrl(String fileName) {
         if (fileName == null || fileName.isEmpty()) return null;
 

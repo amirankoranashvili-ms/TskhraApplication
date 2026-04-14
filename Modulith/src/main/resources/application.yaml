@@ -49,6 +49,7 @@ minio:
   bucket-name: tskhra-images
   avatar-folder: user-avatars/
   business-folder: business-pictures/
+  item-folder: swap-items/
 
 firebase:
   credentials-path: ${FIREBASE_CREDENTIALS_PATH:firebase-service-account.json}
