@@ -64,6 +64,20 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{itemId}/hide")
+    public ResponseEntity<Void> hideItem(@PathVariable UUID itemId,
+                                         @AuthenticationPrincipal Jwt jwt) {
+        itemService.hideItem(itemId, jwt);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{itemId}/unhide")
+    public ResponseEntity<Void> unhideItem(@PathVariable UUID itemId,
+                                           @AuthenticationPrincipal Jwt jwt) {
+        itemService.unhideItem(itemId, jwt);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     public ResponseEntity<Page<ItemSummaryDto>> getAllItems(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "12") int size) {

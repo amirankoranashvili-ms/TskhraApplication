@@ -8,6 +8,7 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundExceptio
 import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
 import com.tskhra.modulith.trade_module.model.domain.CitySwap;
 import com.tskhra.modulith.trade_module.model.domain.Item;
+import com.tskhra.modulith.trade_module.model.enums.ItemCondition;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemUploadDto;
 import com.tskhra.modulith.trade_module.repositories.CategorySwapRepository;
@@ -23,8 +24,11 @@ import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -61,8 +65,11 @@ public class ItemService {
                 .desiredCategories(desiredCategories)
                 .condition(dto.condition())
                 .tradeRange(dto.tradeRange())
+                .estimatedValue(mockEstimatedValue(dto.condition()))
+                .valueVarianceRatio(mockVarianceRatio(dto.condition()))
                 .status(ItemStatus.AVAILABLE)
                 .build();
+
 
         Item save = itemRepository.save(item);
         return save.getId();
@@ -84,6 +91,46 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    @Transactional
+    public void hideItem(UUID itemId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new HttpNotFoundException("Item not found")
+        );
+
+        if (!item.getOwnerId().equals(userId)) {
+            throw new HttpBadRequestException("You are not authorized to perform this action");
+        }
+
+        if (item.getStatus() != ItemStatus.AVAILABLE) {
+            throw new HttpBadRequestException("Only available items can be hidden");
+        }
+
+        item.setStatus(ItemStatus.HIDDEN);
+        itemRepository.save(item);
+    }
+
+    @Transactional
+    public void unhideItem(UUID itemId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new HttpNotFoundException("Item not found")
+        );
+
+        if (!item.getOwnerId().equals(userId)) {
+            throw new HttpBadRequestException("You are not authorized to perform this action");
+        }
+
+        if (item.getStatus() != ItemStatus.HIDDEN) {
+            throw new HttpBadRequestException("Only hidden items can be unhidden");
+        }
+
+        item.setStatus(ItemStatus.AVAILABLE);
+        itemRepository.save(item);
+    }
+
     @Transactional(readOnly = true)
     public Page<ItemSummaryDto> getAllAvailableItems(Pageable pageable) {
         return itemRepository.findAllByStatus(ItemStatus.AVAILABLE, pageable)
@@ -101,6 +148,28 @@ public class ItemService {
         Long userId = userService.getCurrentUser(jwt).getId();
         return itemRepository.findAllByOwnerId(userId, pageable)
                 .map(this::toSummaryDto);
+    }
+
+    private BigDecimal mockEstimatedValue(ItemCondition condition) {
+        double base = switch (condition) {
+            case NEW -> 200.0;
+            case LIKE_NEW -> 150.0;
+            case USED -> 80.0;
+            case DAMAGED -> 30.0;
+        };
+        double randomFactor = 0.7 + ThreadLocalRandom.current().nextDouble() * 0.6; // 0.7 - 1.3
+        return BigDecimal.valueOf(base * randomFactor).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal mockVarianceRatio(ItemCondition condition) {
+        double base = switch (condition) {
+            case NEW -> 0.05;
+            case LIKE_NEW -> 0.10;
+            case USED -> 0.20;
+            case DAMAGED -> 0.35;
+        };
+        double jitter = ThreadLocalRandom.current().nextDouble() * 0.05; // 0 - 0.05
+        return BigDecimal.valueOf(base + jitter).setScale(2, RoundingMode.HALF_UP);
     }
 
     private ItemSummaryDto toSummaryDto(Item item) {
