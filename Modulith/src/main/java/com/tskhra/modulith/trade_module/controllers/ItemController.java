@@ -64,14 +64,14 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{itemId}/hide")
+    @PutMapping("/{itemId}/hide")
     public ResponseEntity<Void> hideItem(@PathVariable UUID itemId,
                                          @AuthenticationPrincipal Jwt jwt) {
         itemService.hideItem(itemId, jwt);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{itemId}/unhide")
+    @PutMapping("/{itemId}/unhide")
     public ResponseEntity<Void> unhideItem(@PathVariable UUID itemId,
                                            @AuthenticationPrincipal Jwt jwt) {
         itemService.unhideItem(itemId, jwt);
