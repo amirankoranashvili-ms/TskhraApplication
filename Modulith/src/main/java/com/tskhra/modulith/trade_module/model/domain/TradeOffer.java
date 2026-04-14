@@ -46,6 +46,7 @@ public class TradeOffer {
     @Column(name = "status", columnDefinition = "trade_status")
     private TradeStatus status;
 
+    @Column(precision = 10, scale = 2)
     private BigDecimal fairnessRatio;
 
     private LocalDateTime offererConfirmedAt;

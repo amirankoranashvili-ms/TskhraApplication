@@ -56,9 +56,11 @@ public class Item {
     )
     private List<Category> desiredCategories;
 
-    private BigDecimal estimatedValue; // todo column definition + constraint
+    @Column(precision = 10, scale = 2)
+    private BigDecimal estimatedValue;
 
-    private BigDecimal valueVarianceRatio; // todo column definition + constraint
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valueVarianceRatio;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
