@@ -1,13 +1,13 @@
 package com.tskhra.modulith.trade_module.services;
 
-import com.tskhra.modulith.booking_module.model.domain.City;
-import com.tskhra.modulith.booking_module.repositories.CategoryRepository;
-import com.tskhra.modulith.booking_module.repositories.CityRepository;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
+import com.tskhra.modulith.common.properties.MinioProperties;
+import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
 import com.tskhra.modulith.trade_module.model.domain.CitySwap;
 import com.tskhra.modulith.trade_module.model.domain.Item;
+import com.tskhra.modulith.trade_module.model.domain.ItemImage;
 import com.tskhra.modulith.trade_module.model.enums.ItemCondition;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemUploadDto;
@@ -35,9 +35,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemImageService itemImageService;
     private final CategorySwapRepository categoryRepository;
     private final CitySwapRepository cityRepository;
     private final UserService userService;
+    private final ImageService imageService;
 
     @Transactional
     public UUID createItem(ItemUploadDto dto, Jwt jwt) {
@@ -146,7 +148,7 @@ public class ItemService {
     @Transactional(readOnly = true)
     public Page<ItemSummaryDto> getCurrentUserItems(Jwt jwt, Pageable pageable) {
         Long userId = userService.getCurrentUser(jwt).getId();
-        return itemRepository.findAllByOwnerId(userId, pageable)
+        return itemRepository.findAllByOwnerIdAndStatus(userId, ItemStatus.AVAILABLE, pageable)
                 .map(this::toSummaryDto);
     }
 
@@ -182,7 +184,11 @@ public class ItemService {
                 item.getCondition(),
                 item.getTradeRange(),
                 item.getEstimatedValue(),
-                item.getCreatedAt()
+                item.getCreatedAt(),
+                item.getImages().stream()
+                        .map(ItemImage::getUri)
+                        .map(imageService::getItemImageUrl)
+                        .toList()
         );
     }
 

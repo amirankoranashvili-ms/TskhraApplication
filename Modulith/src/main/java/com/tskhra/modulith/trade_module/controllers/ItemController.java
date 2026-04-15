@@ -48,7 +48,7 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ImageUploadedDto(id));
     }
 
-    @DeleteMapping("/items/{itemId}")
+    @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteVoid(@PathVariable UUID itemId,
                                            @AuthenticationPrincipal Jwt jwt) {
 

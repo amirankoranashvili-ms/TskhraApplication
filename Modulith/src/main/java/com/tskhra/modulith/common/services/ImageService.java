@@ -171,6 +171,25 @@ public class ImageService {
         }
     }
 
+    public String getItemImageUrl(String fileName) {
+        if (fileName == null || fileName.isEmpty()) return null;
+
+        String objectKey = minioProperties.itemFolder() + fileName;
+
+        try {
+            return minioExternalClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(minioProperties.bucketName())
+                            .region("us-east-1")
+                            .object(objectKey)
+                            .build()
+            );
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public String getBusinessImageUrl(String fileName) {
         if (fileName == null || fileName.isEmpty()) return null;
 

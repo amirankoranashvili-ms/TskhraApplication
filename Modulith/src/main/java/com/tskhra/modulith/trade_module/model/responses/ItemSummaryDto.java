@@ -5,6 +5,7 @@ import com.tskhra.modulith.trade_module.model.enums.TradeRange;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record ItemSummaryDto(
@@ -16,6 +17,7 @@ public record ItemSummaryDto(
         ItemCondition condition,
         TradeRange tradeRange,
         BigDecimal estimatedValue,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<String> images
 ) {
 }
