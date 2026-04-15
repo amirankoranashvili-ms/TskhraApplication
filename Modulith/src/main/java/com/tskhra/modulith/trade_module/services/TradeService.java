@@ -1,6 +1,8 @@
 package com.tskhra.modulith.trade_module.services;
 
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.domain.OfferItem;
 import com.tskhra.modulith.trade_module.model.domain.TradeOffer;
@@ -9,7 +11,6 @@ import com.tskhra.modulith.trade_module.model.enums.OwningSide;
 import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import com.tskhra.modulith.trade_module.model.requests.TradeOfferCreationDto;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
-import com.tskhra.modulith.trade_module.repositories.OfferItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class TradeService {
+
+    private static final long PENDING_EXPIRY_HOURS = 48;
+    private static final long CONFIRMATION_EXPIRY_HOURS = 72;
 
     private final UserService userService;
     private final ItemRepository itemRepository;
@@ -82,6 +89,7 @@ public class TradeService {
                 .offererId(offererId)
                 .responderId(responderId)
                 .status(TradeStatus.PENDING)
+                .expiresAt(Instant.now().plus(PENDING_EXPIRY_HOURS, ChronoUnit.HOURS))
                 .build();
 
         List<OfferItem> offerItems = Stream.concat(
@@ -95,6 +103,185 @@ public class TradeService {
         tradeOffer.setFairnessRatio(calculateFairnessRatio(offererItems, responderItems));
 
         return tradeOfferRepository.save(tradeOffer);
+    }
+
+    @Transactional
+    public void acceptOffer(UUID offerId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        TradeOffer offer = getOfferOrThrow(offerId);
+        checkExpiry(offer);
+
+        if (offer.getStatus() != TradeStatus.PENDING) {
+            throw new HttpBadRequestException("Only PENDING offers can be accepted");
+        }
+        if (!offer.getResponderId().equals(userId)) {
+            throw new HttpForbiddenError("Only the responder can accept an offer");
+        }
+
+        // Lock all items and verify availability
+        List<UUID> itemIds = offer.getOfferItems().stream()
+                .map(oi -> oi.getItem().getId())
+                .toList();
+        List<Item> lockedItems = itemRepository.findAllByIdForUpdate(itemIds);
+
+        boolean allAvailable = lockedItems.stream()
+                .allMatch(item -> item.getStatus() == ItemStatus.AVAILABLE);
+        if (!allAvailable) {
+            throw new HttpBadRequestException("One or more items are no longer available");
+        }
+
+        // Mark items as IN_TRADE
+        lockedItems.forEach(item -> item.setStatus(ItemStatus.IN_TRADE));
+        itemRepository.saveAll(lockedItems);
+
+        // Accept offer
+        offer.setStatus(TradeStatus.ACCEPTED);
+        offer.setExpiresAt(Instant.now().plus(CONFIRMATION_EXPIRY_HOURS, ChronoUnit.HOURS));
+        tradeOfferRepository.save(offer);
+
+        // Auto-reject other PENDING offers involving these items
+        List<TradeOffer> conflicting = tradeOfferRepository.findAllByItemIdsAndStatus(itemIds, TradeStatus.PENDING);
+        conflicting.stream()
+                .filter(o -> !o.getId().equals(offerId))
+                .forEach(o -> o.setStatus(TradeStatus.REJECTED));
+        tradeOfferRepository.saveAll(conflicting);
+    }
+
+    @Transactional
+    public void rejectOffer(UUID offerId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        TradeOffer offer = getOfferOrThrow(offerId);
+        checkExpiry(offer);
+
+        if (offer.getStatus() != TradeStatus.PENDING) {
+            throw new HttpBadRequestException("Only PENDING offers can be rejected");
+        }
+        if (!offer.getResponderId().equals(userId)) {
+            throw new HttpForbiddenError("Only the responder can reject an offer");
+        }
+
+        offer.setStatus(TradeStatus.REJECTED);
+        tradeOfferRepository.save(offer);
+    }
+
+    @Transactional
+    public void withdrawOffer(UUID offerId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        TradeOffer offer = getOfferOrThrow(offerId);
+        checkExpiry(offer);
+
+        if (offer.getStatus() != TradeStatus.PENDING) {
+            throw new HttpBadRequestException("Only PENDING offers can be withdrawn");
+        }
+        if (!offer.getOffererId().equals(userId)) {
+            throw new HttpForbiddenError("Only the offerer can withdraw an offer");
+        }
+
+        offer.setStatus(TradeStatus.WITHDRAWN);
+        tradeOfferRepository.save(offer);
+    }
+
+    @Transactional
+    public TradeOffer counterOffer(UUID offerId, TradeOfferCreationDto dto, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        TradeOffer original = getOfferOrThrow(offerId);
+        checkExpiry(original);
+
+        if (original.getStatus() != TradeStatus.PENDING) {
+            throw new HttpBadRequestException("Only PENDING offers can be countered");
+        }
+        if (!original.getResponderId().equals(userId)) {
+            throw new HttpForbiddenError("Only the responder can counter an offer");
+        }
+
+        original.setStatus(TradeStatus.COUNTERED);
+        tradeOfferRepository.save(original);
+
+        // Create counter-offer with swapped roles
+        TradeOffer counter = createOffer(dto, jwt);
+        counter.setParent(original);
+        return tradeOfferRepository.save(counter);
+    }
+
+    @Transactional
+    public void cancelOffer(UUID offerId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        TradeOffer offer = getOfferOrThrow(offerId);
+        checkExpiry(offer);
+
+        if (offer.getStatus() != TradeStatus.ACCEPTED) {
+            throw new HttpBadRequestException("Only ACCEPTED offers can be cancelled");
+        }
+        if (!offer.getOffererId().equals(userId) && !offer.getResponderId().equals(userId)) {
+            throw new HttpForbiddenError("Only participants can cancel an offer");
+        }
+
+        offer.setStatus(TradeStatus.CANCELED);
+        tradeOfferRepository.save(offer);
+
+        releaseItems(offer);
+    }
+
+    @Transactional
+    public void confirmHandoff(UUID offerId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        TradeOffer offer = getOfferOrThrow(offerId);
+        checkExpiry(offer);
+
+        if (offer.getStatus() != TradeStatus.ACCEPTED) {
+            throw new HttpBadRequestException("Only ACCEPTED offers can be confirmed");
+        }
+
+        if (offer.getOffererId().equals(userId)) {
+            if (offer.getOffererConfirmedAt() != null) {
+                throw new HttpBadRequestException("You have already confirmed");
+            }
+            offer.setOffererConfirmedAt(LocalDateTime.now());
+        } else if (offer.getResponderId().equals(userId)) {
+            if (offer.getResponderConfirmedAt() != null) {
+                throw new HttpBadRequestException("You have already confirmed");
+            }
+            offer.setResponderConfirmedAt(LocalDateTime.now());
+        } else {
+            throw new HttpForbiddenError("Only participants can confirm handoff");
+        }
+
+        // If both confirmed, complete the trade
+        if (offer.getOffererConfirmedAt() != null && offer.getResponderConfirmedAt() != null) {
+            offer.setStatus(TradeStatus.COMPLETED);
+            offer.getOfferItems().stream()
+                    .map(OfferItem::getItem)
+                    .forEach(item -> item.setStatus(ItemStatus.TRADED));
+        }
+
+        tradeOfferRepository.save(offer);
+    }
+
+    private TradeOffer getOfferOrThrow(UUID offerId) {
+        return tradeOfferRepository.findById(offerId)
+                .orElseThrow(() -> new HttpNotFoundException("Trade offer not found"));
+    }
+
+    private void checkExpiry(TradeOffer offer) {
+        if (offer.getExpiresAt() != null
+                && Instant.now().isAfter(offer.getExpiresAt())
+                && (offer.getStatus() == TradeStatus.PENDING || offer.getStatus() == TradeStatus.ACCEPTED)) {
+
+            if (offer.getStatus() == TradeStatus.ACCEPTED) {
+                releaseItems(offer);
+            }
+            offer.setStatus(TradeStatus.EXPIRED);
+            tradeOfferRepository.save(offer);
+            throw new HttpBadRequestException("This offer has expired");
+        }
+    }
+
+    private void releaseItems(TradeOffer offer) {
+        List<Item> items = offer.getOfferItems().stream()
+                .map(OfferItem::getItem)
+                .toList();
+        items.forEach(item -> item.setStatus(ItemStatus.AVAILABLE));
+        itemRepository.saveAll(items);
     }
 
     private BigDecimal calculateFairnessRatio(List<Item> offererItems, List<Item> responderItems) {

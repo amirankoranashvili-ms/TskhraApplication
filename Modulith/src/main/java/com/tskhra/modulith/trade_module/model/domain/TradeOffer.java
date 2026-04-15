@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +48,8 @@ public class TradeOffer {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal fairnessRatio;
+
+    private Instant expiresAt;
 
     @OneToMany(mappedBy = "tradeOffer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OfferItem> offerItems;
