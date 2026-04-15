@@ -2,7 +2,6 @@ package com.tskhra.modulith.trade_module.services;
 
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
-import com.tskhra.modulith.common.properties.MinioProperties;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
 import com.tskhra.modulith.trade_module.model.domain.CitySwap;
@@ -91,6 +90,19 @@ public class ItemService {
 
         item.setStatus(ItemStatus.REMOVED);
         itemRepository.save(item);
+    }
+
+    @Transactional(readOnly = true)
+    public ItemSummaryDto getItem(UUID itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new HttpNotFoundException("Item not found")
+        );
+
+        if (item.getStatus() == ItemStatus.REMOVED) {
+            throw new HttpNotFoundException("Item not found");
+        }
+
+        return toSummaryDto(item);
     }
 
     @Transactional

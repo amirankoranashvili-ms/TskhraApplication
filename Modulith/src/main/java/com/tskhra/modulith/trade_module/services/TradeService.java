@@ -28,7 +28,6 @@ public class TradeService {
 
     private final UserService userService;
     private final ItemRepository itemRepository;
-    private final OfferItemRepository offerItemRepository;
     private final TradeOfferRepository tradeOfferRepository;
 
     @Transactional

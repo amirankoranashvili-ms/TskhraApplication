@@ -78,6 +78,11 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ItemSummaryDto> getItem(@PathVariable UUID itemId) {
+        return ResponseEntity.ok(itemService.getItem(itemId));
+    }
+
     @GetMapping
     public ResponseEntity<Page<ItemSummaryDto>> getAllItems(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "12") int size) {
