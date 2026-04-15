@@ -2,10 +2,7 @@ package com.tskhra.modulith.trade_module.model.domain;
 
 import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,6 +10,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,6 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class TradeOffer {
 
     @Id
@@ -48,6 +47,9 @@ public class TradeOffer {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal fairnessRatio;
+
+    @OneToMany(mappedBy = "tradeOffer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OfferItem> offerItems;
 
     private LocalDateTime offererConfirmedAt;
 
