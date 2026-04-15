@@ -148,7 +148,7 @@ public class ItemService {
     @Transactional(readOnly = true)
     public Page<ItemSummaryDto> getCurrentUserItems(Jwt jwt, Pageable pageable) {
         Long userId = userService.getCurrentUser(jwt).getId();
-        return itemRepository.findAllByOwnerIdAndStatus(userId, ItemStatus.AVAILABLE, pageable)
+        return itemRepository.findAllByOwnerIdAndStatuses(userId, List.of(ItemStatus.AVAILABLE, ItemStatus.HIDDEN), pageable)
                 .map(this::toSummaryDto);
     }
 
