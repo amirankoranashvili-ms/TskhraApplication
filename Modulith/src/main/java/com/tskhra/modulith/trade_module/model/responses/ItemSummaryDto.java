@@ -1,6 +1,7 @@
 package com.tskhra.modulith.trade_module.model.responses;
 
 import com.tskhra.modulith.trade_module.model.enums.ItemCondition;
+import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.enums.TradeRange;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ public record ItemSummaryDto(
         TradeRange tradeRange,
         BigDecimal estimatedValue,
         LocalDateTime createdAt,
-        List<String> images
+        List<String> images,
+        ItemStatus status
 ) {
 }

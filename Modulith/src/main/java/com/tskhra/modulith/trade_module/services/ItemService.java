@@ -188,7 +188,8 @@ public class ItemService {
                 item.getImages().stream()
                         .map(ItemImage::getUri)
                         .map(imageService::getItemImageUrl)
-                        .toList()
+                        .toList(),
+                item.getStatus()
         );
     }
 
