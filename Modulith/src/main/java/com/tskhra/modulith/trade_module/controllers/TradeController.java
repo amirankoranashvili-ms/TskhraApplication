@@ -28,21 +28,21 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new OfferCreatedDto(offer.getId().toString()));
     }
 
-    @PatchMapping("/{offerId}/accept")
+    @PutMapping("/{offerId}/accept")
     public ResponseEntity<Void> acceptOffer(@PathVariable UUID offerId,
                                             @AuthenticationPrincipal Jwt jwt) {
         tradeService.acceptOffer(offerId, jwt);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{offerId}/reject")
+    @PutMapping("/{offerId}/reject")
     public ResponseEntity<Void> rejectOffer(@PathVariable UUID offerId,
                                             @AuthenticationPrincipal Jwt jwt) {
         tradeService.rejectOffer(offerId, jwt);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{offerId}/withdraw")
+    @PutMapping("/{offerId}/withdraw")
     public ResponseEntity<Void> withdrawOffer(@PathVariable UUID offerId,
                                               @AuthenticationPrincipal Jwt jwt) {
         tradeService.withdrawOffer(offerId, jwt);
@@ -57,14 +57,14 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new OfferCreatedDto(counter.getId().toString()));
     }
 
-    @PatchMapping("/{offerId}/cancel")
+    @PutMapping("/{offerId}/cancel")
     public ResponseEntity<Void> cancelOffer(@PathVariable UUID offerId,
                                             @AuthenticationPrincipal Jwt jwt) {
         tradeService.cancelOffer(offerId, jwt);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{offerId}/confirm")
+    @PutMapping("/{offerId}/confirm")
     public ResponseEntity<Void> confirmHandoff(@PathVariable UUID offerId,
                                                @AuthenticationPrincipal Jwt jwt) {
         tradeService.confirmHandoff(offerId, jwt);
