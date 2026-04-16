@@ -189,6 +189,7 @@ public class ItemService {
     private ItemSummaryDto toSummaryDto(Item item) {
         return new ItemSummaryDto(
                 item.getId(),
+                item.getOwnerId(),
                 item.getName(),
                 item.getDescription(),
                 item.getCategory() != null ? item.getCategory().getName() : null,

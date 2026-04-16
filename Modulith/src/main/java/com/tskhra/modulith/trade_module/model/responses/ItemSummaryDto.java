@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public record ItemSummaryDto(
         UUID id,
+        Long ownerId,
         String name,
         String description,
         String category,
