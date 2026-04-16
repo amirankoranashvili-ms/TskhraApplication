@@ -267,9 +267,23 @@ public class TradeService {
     @Transactional(readOnly = true)
     public Page<TradeOfferSummaryDto> getCurrentUserOffers(Jwt jwt, OfferDirection direction, TradeStatus status, Pageable pageable) {
         Long userId = userService.getCurrentUser(jwt).getId();
-        String directionStr = direction != null ? direction.name() : null;
-        return tradeOfferRepository.findByUserFiltered(userId, directionStr, status, pageable)
-                .map(this::toOfferSummaryDto);
+
+        Page<TradeOffer> offers;
+        if (direction == OfferDirection.SENT) {
+            offers = status != null
+                    ? tradeOfferRepository.findAllByOffererIdAndStatus(userId, status, pageable)
+                    : tradeOfferRepository.findAllByOffererId(userId, pageable);
+        } else if (direction == OfferDirection.RECEIVED) {
+            offers = status != null
+                    ? tradeOfferRepository.findAllByResponderIdAndStatus(userId, status, pageable)
+                    : tradeOfferRepository.findAllByResponderId(userId, pageable);
+        } else {
+            offers = status != null
+                    ? tradeOfferRepository.findAllByUserIdAndStatus(userId, status, pageable)
+                    : tradeOfferRepository.findAllByUserId(userId, pageable);
+        }
+
+        return offers.map(this::toOfferSummaryDto);
     }
 
     private TradeOfferSummaryDto toOfferSummaryDto(TradeOffer offer) {
