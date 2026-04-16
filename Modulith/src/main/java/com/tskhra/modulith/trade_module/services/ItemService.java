@@ -3,6 +3,8 @@ package com.tskhra.modulith.trade_module.services;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
+import com.tskhra.modulith.trade_module.elastic.documents.ItemDocument;
+import com.tskhra.modulith.trade_module.elastic.repositories.ItemDocumentRepository;
 import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
 import com.tskhra.modulith.trade_module.model.domain.CitySwap;
 import com.tskhra.modulith.trade_module.model.domain.Item;
@@ -34,6 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemDocumentRepository itemDocumentRepository;
     private final ItemImageService itemImageService;
     private final CategorySwapRepository categoryRepository;
     private final CitySwapRepository cityRepository;
@@ -73,6 +76,8 @@ public class ItemService {
 
 
         Item save = itemRepository.save(item);
+        ItemDocument itemDocument = ItemDocument.fromEntity(save);
+        itemDocumentRepository.save(itemDocument);
         return save.getId();
     }
 
