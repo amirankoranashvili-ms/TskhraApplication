@@ -187,18 +187,18 @@ services:
 
 
   # Kibana
-  kibana:
-    image: docker.elastic.co/kibana/kibana:9.0.0
-    container_name: kibana
-    environment:
-      # Tells Kibana where to find Elasticsearch on the bridge network
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    networks:
-      - micro-network
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:9.0.0
+#    container_name: kibana
+#    environment:
+#      # Tells Kibana where to find Elasticsearch on the bridge network
+#      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+#    ports:
+#      - "5601:5601"
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - micro-network
 
 
   #  Kafka
