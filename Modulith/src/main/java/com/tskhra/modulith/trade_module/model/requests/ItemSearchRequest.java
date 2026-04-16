@@ -11,8 +11,6 @@ public record ItemSearchRequest(
         Long cityId,
         ItemCondition condition,
         TradeRange tradeRange,
-        BigDecimal minPrice,
-        BigDecimal maxPrice,
         int page,
         int size
 ) {

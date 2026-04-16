@@ -11,12 +11,17 @@
       "item_analyzer": {
         "type": "custom",
         "tokenizer": "standard",
-        "filter": ["lowercase", "ngram_filter"]
+        "filter": [
+          "lowercase",
+          "ngram_filter"
+        ]
       },
       "item_search_analyzer": {
         "type": "custom",
         "tokenizer": "standard",
-        "filter": ["lowercase"]
+        "filter": [
+          "lowercase"
+        ]
       }
     }
   }

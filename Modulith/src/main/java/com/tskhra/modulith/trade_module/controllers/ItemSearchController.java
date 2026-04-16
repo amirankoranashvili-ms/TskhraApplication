@@ -33,13 +33,11 @@ public class ItemSearchController {
             @RequestParam(required = false) Long cityId,
             @RequestParam(required = false) ItemCondition condition,
             @RequestParam(required = false) TradeRange tradeRange,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size) {
 
         ItemSearchRequest request = new ItemSearchRequest(
-                query, categoryId, cityId, condition, tradeRange, minPrice, maxPrice, page, size
+                query, categoryId, cityId, condition, tradeRange, page, size
         );
 
         return ResponseEntity.ok(itemSearchService.search(request));

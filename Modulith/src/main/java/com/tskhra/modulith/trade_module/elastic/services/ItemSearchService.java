@@ -81,23 +81,6 @@ public class ItemSearchService {
             )));
         }
 
-        // Filter by price range
-        if (request.minPrice() != null || request.maxPrice() != null) {
-            boolBuilder.filter(Query.of(q -> q.range(r -> {
-                var rangeQuery = r.number(n -> {
-                    n.field("estimatedValue");
-                    if (request.minPrice() != null) {
-                        n.gte(request.minPrice().doubleValue());
-                    }
-                    if (request.maxPrice() != null) {
-                        n.lte(request.maxPrice().doubleValue());
-                    }
-                    return n;
-                });
-                return r;
-            })));
-        }
-
         NativeQuery query = NativeQuery.builder()
                 .withQuery(Query.of(q -> q.bool(boolBuilder.build())))
                 .withPageable(pageRequest)
@@ -122,7 +105,6 @@ public class ItemSearchService {
             itemDocumentRepository.save(doc);
         });
     }
-
 
 
     private ItemSummaryDto toSummaryDto(ItemDocument doc) {
