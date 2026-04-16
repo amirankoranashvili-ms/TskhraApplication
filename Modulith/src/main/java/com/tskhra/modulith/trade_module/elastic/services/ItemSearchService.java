@@ -45,6 +45,7 @@ public class ItemSearchService {
             boolBuilder.must(Query.of(q -> q.multiMatch(m -> m
                     .query(request.query())
                     .fields("name", "description")
+                    .fuzziness("AUTO")
             )));
         }
 

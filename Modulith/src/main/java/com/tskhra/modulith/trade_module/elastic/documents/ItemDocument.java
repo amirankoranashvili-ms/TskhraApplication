@@ -15,6 +15,7 @@ import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Document(indexName = "items_index")
+@Setting(settingPath = "elasticsearch/item-settings.json")
 @Data
 @Builder
 @NoArgsConstructor
@@ -34,10 +36,10 @@ public class ItemDocument {
     @Field(type = FieldType.Long)
     private Long ownerId;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "item_analyzer", searchAnalyzer = "item_search_analyzer")
     private String name;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "item_analyzer", searchAnalyzer = "item_search_analyzer")
     private String description;
 
     @Field(type = FieldType.Long)
