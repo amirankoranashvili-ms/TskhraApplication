@@ -12,6 +12,7 @@ import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import com.tskhra.modulith.trade_module.model.requests.TradeOfferCreationDto;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
+import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.model.domain.User;
 import com.tskhra.modulith.user_module.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,9 @@ class TradeServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private ImageService imageService;
 
     @Mock
     private ItemRepository itemRepository;

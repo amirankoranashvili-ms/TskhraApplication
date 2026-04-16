@@ -10,10 +10,16 @@ import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.enums.OwningSide;
 import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import com.tskhra.modulith.trade_module.model.requests.TradeOfferCreationDto;
+import com.tskhra.modulith.trade_module.model.domain.ItemImage;
+import com.tskhra.modulith.trade_module.model.enums.OfferDirection;
+import com.tskhra.modulith.trade_module.model.responses.TradeOfferSummaryDto;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
+import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +40,7 @@ public class TradeService {
     private static final long CONFIRMATION_EXPIRY_HOURS = 72;
 
     private final UserService userService;
+    private final ImageService imageService;
     private final ItemRepository itemRepository;
     private final TradeOfferRepository tradeOfferRepository;
 
@@ -255,6 +262,48 @@ public class TradeService {
         }
 
         tradeOfferRepository.save(offer);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TradeOfferSummaryDto> getCurrentUserOffers(Jwt jwt, OfferDirection direction, TradeStatus status, Pageable pageable) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+        String directionStr = direction != null ? direction.name() : null;
+        return tradeOfferRepository.findByUserFiltered(userId, directionStr, status, pageable)
+                .map(this::toOfferSummaryDto);
+    }
+
+    private TradeOfferSummaryDto toOfferSummaryDto(TradeOffer offer) {
+        List<TradeOfferSummaryDto.OfferItemDto> offererItems = offer.getOfferItems().stream()
+                .filter(oi -> oi.getOwningSide() == OwningSide.OFFERER)
+                .map(oi -> toOfferItemDto(oi.getItem()))
+                .toList();
+
+        List<TradeOfferSummaryDto.OfferItemDto> responderItems = offer.getOfferItems().stream()
+                .filter(oi -> oi.getOwningSide() == OwningSide.RESPONDER)
+                .map(oi -> toOfferItemDto(oi.getItem()))
+                .toList();
+
+        return new TradeOfferSummaryDto(
+                offer.getId(),
+                offer.getOffererId(),
+                offer.getResponderId(),
+                offer.getStatus(),
+                offer.getFairnessRatio(),
+                offer.getExpiresAt(),
+                offererItems,
+                responderItems,
+                offer.getCreatedAt()
+        );
+    }
+
+    private TradeOfferSummaryDto.OfferItemDto toOfferItemDto(Item item) {
+        String firstImage = item.getImages().stream()
+                .findFirst()
+                .map(ItemImage::getUri)
+                .map(imageService::getItemImageUrl)
+                .orElse(null);
+
+        return new TradeOfferSummaryDto.OfferItemDto(item.getId(), item.getName(), firstImage);
     }
 
     private TradeOffer getOfferOrThrow(UUID offerId) {

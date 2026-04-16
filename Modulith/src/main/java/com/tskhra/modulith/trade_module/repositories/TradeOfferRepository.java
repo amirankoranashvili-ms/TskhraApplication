@@ -23,6 +23,19 @@ public interface TradeOfferRepository extends JpaRepository<TradeOffer, UUID> {
     @Query("SELECT t FROM TradeOffer t WHERE (t.offererId = :userId OR t.responderId = :userId)")
     Page<TradeOffer> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
 
+    @Query("""
+            SELECT t FROM TradeOffer t
+            WHERE (:direction = 'SENT' AND t.offererId = :userId
+                OR :direction = 'RECEIVED' AND t.responderId = :userId
+                OR :direction IS NULL AND (t.offererId = :userId OR t.responderId = :userId))
+            AND (:status IS NULL OR t.status = :status)
+            """)
+    Page<TradeOffer> findByUserFiltered(
+            @Param("userId") Long userId,
+            @Param("direction") String direction,
+            @Param("status") TradeStatus status,
+            Pageable pageable);
+
     @Query("SELECT t FROM TradeOffer t WHERE t.status IN :statuses AND t.expiresAt < :now")
     List<TradeOffer> findExpiredOffers(@Param("statuses") List<TradeStatus> statuses, @Param("now") Instant now);
 }

@@ -1,13 +1,19 @@
 package com.tskhra.modulith.trade_module.controllers;
 
 import com.tskhra.modulith.trade_module.model.domain.TradeOffer;
+import com.tskhra.modulith.trade_module.model.enums.OfferDirection;
+import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import com.tskhra.modulith.trade_module.model.requests.TradeOfferCreationDto;
 import com.tskhra.modulith.trade_module.model.responses.OfferCreatedDto;
+import com.tskhra.modulith.trade_module.model.responses.TradeOfferSummaryDto;
 import com.tskhra.modulith.trade_module.services.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -79,6 +85,18 @@ public class TradeController {
                                                @AuthenticationPrincipal Jwt jwt) {
         tradeService.confirmHandoff(offerId, jwt);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get current user's trade offers (filter by direction{SENT, RECEIVED} and status)")
+    @GetMapping("/me")
+    public ResponseEntity<Page<TradeOfferSummaryDto>> getCurrentUserOffers(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) OfferDirection direction,
+            @RequestParam(required = false) TradeStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(tradeService.getCurrentUserOffers(jwt, direction, status, pageable));
     }
 
 }
