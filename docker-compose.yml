@@ -122,6 +122,7 @@ services:
       - MINIO_HOST=minio
       - REDIS_HOST=redis
       - KAFKA_HOST=kafka
+      - ELASTICSEARCH_HOST=elasticsearch
     env_file:
       - ./.env
     volumes:
@@ -133,6 +134,7 @@ services:
       - keycloak
       - minio
       - redis
+      - elasticsearch
     networks:
       - micro-network
 

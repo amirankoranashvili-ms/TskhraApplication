@@ -3,6 +3,7 @@ package com.tskhra.modulith.trade_module.services;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
+import com.tskhra.modulith.trade_module.elastic.services.ItemSearchService;
 import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
 import com.tskhra.modulith.trade_module.model.domain.CitySwap;
 import com.tskhra.modulith.trade_module.model.domain.Item;
@@ -34,6 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemSearchService itemSearchService;
     private final ItemImageService itemImageService;
     private final CategorySwapRepository categoryRepository;
     private final CitySwapRepository cityRepository;
@@ -73,6 +75,7 @@ public class ItemService {
 
 
         Item save = itemRepository.save(item);
+        itemSearchService.indexItem(save);
         return save.getId();
     }
 
@@ -90,6 +93,7 @@ public class ItemService {
 
         item.setStatus(ItemStatus.REMOVED);
         itemRepository.save(item);
+        itemSearchService.updateItemStatus(itemId, ItemStatus.REMOVED);
     }
 
     @Transactional(readOnly = true)
@@ -123,6 +127,7 @@ public class ItemService {
 
         item.setStatus(ItemStatus.HIDDEN);
         itemRepository.save(item);
+        itemSearchService.updateItemStatus(itemId, ItemStatus.HIDDEN);
     }
 
     @Transactional
@@ -143,6 +148,7 @@ public class ItemService {
 
         item.setStatus(ItemStatus.AVAILABLE);
         itemRepository.save(item);
+        itemSearchService.updateItemStatus(itemId, ItemStatus.AVAILABLE);
     }
 
     @Transactional(readOnly = true)

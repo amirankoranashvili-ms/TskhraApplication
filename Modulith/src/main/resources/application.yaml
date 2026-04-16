@@ -29,6 +29,8 @@ spring:
   servlet:
     multipart:
       max-file-size: 5MB
+  elasticsearch:
+    uris: http://${ELASTICSEARCH_HOST:localhost}:9200
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -50,6 +52,10 @@ minio:
   avatar-folder: user-avatars/
   business-folder: business-pictures/
   item-folder: swap-items/
+
+elasticsearch:
+  item-index-name: swap-items
+  max-result-window: 10000
 
 firebase:
   credentials-path: ${FIREBASE_CREDENTIALS_PATH:firebase-service-account.json}
