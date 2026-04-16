@@ -130,11 +130,16 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - postgres
-      - keycloak
-      - minio
-      - redis
-      - elasticsearch
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      minio:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
     networks:
       - micro-network
 
@@ -171,6 +176,12 @@ services:
       - "9200:9200"
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
       - micro-network
 
