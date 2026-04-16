@@ -7,6 +7,8 @@ import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
 import com.tskhra.modulith.trade_module.services.ItemImageService;
 import com.tskhra.modulith.trade_module.services.ItemService;
 import com.tskhra.modulith.trade_module.validation.ImageFile;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
+@Tag(name = "Items", description = "Create, manage, and browse tradeable items")
 @RestController
 @Validated
 @RequestMapping("/items")
@@ -32,6 +35,7 @@ public class ItemController {
     private final ItemService itemService;
     private final ItemImageService itemImageService;
 
+    @Operation(summary = "Create a new item for trading")
     @PostMapping
     public ResponseEntity<ItemCreatedDto> uploadItem(@Valid @RequestBody ItemUploadDto dto,
                                                      @AuthenticationPrincipal Jwt jwt) {
@@ -39,6 +43,7 @@ public class ItemController {
         return new ResponseEntity<>(new ItemCreatedDto(id.toString()), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Upload an image for an item (max 5 per item)")
     @PostMapping(value = "/{itemId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageUploadedDto> uploadItemImage(@AuthenticationPrincipal Jwt jwt,
                                                             @PathVariable UUID itemId,
@@ -48,6 +53,7 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ImageUploadedDto(id));
     }
 
+    @Operation(summary = "Remove an item (sets status to REMOVED)")
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteVoid(@PathVariable UUID itemId,
                                            @AuthenticationPrincipal Jwt jwt) {
@@ -56,6 +62,7 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Delete a specific image from an item")
     @DeleteMapping("/{itemId}/images/{imageId}")
     public ResponseEntity<Void> deleteItemImage(@PathVariable UUID itemId,
                                                 @PathVariable Long imageId,
@@ -64,6 +71,7 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Hide an item from public listings")
     @PutMapping("/{itemId}/hide")
     public ResponseEntity<Void> hideItem(@PathVariable UUID itemId,
                                          @AuthenticationPrincipal Jwt jwt) {
@@ -71,6 +79,7 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Make a hidden item visible again")
     @PutMapping("/{itemId}/unhide")
     public ResponseEntity<Void> unhideItem(@PathVariable UUID itemId,
                                            @AuthenticationPrincipal Jwt jwt) {
@@ -78,11 +87,13 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get a single item by ID (excludes REMOVED items)")
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemSummaryDto> getItem(@PathVariable UUID itemId) {
         return ResponseEntity.ok(itemService.getItem(itemId));
     }
 
+    @Operation(summary = "Browse all AVAILABLE items (paginated)")
     @GetMapping
     public ResponseEntity<Page<ItemSummaryDto>> getAllItems(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "12") int size) {
@@ -90,6 +101,7 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getAllAvailableItems(pageable));
     }
 
+    @Operation(summary = "Browse AVAILABLE items of a specific user")
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<ItemSummaryDto>> getItemsByUser(@PathVariable Long userId,
                                                                @RequestParam(defaultValue = "0") int page,
@@ -98,6 +110,7 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getAvailableItemsByUser(userId, pageable));
     }
 
+    @Operation(summary = "Get current user's items (all statuses except REMOVED)")
     @GetMapping("/me")
     public ResponseEntity<Page<ItemSummaryDto>> getCurrentUserItems(@AuthenticationPrincipal Jwt jwt,
                                                                     @RequestParam(defaultValue = "0") int page,
