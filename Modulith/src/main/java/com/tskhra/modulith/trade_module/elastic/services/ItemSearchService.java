@@ -125,6 +125,7 @@ public class ItemSearchService {
     private ItemSummaryDto toSummaryDto(ItemDocument doc) {
         return new ItemSummaryDto(
                 doc.getId(),
+                doc.getOwnerId(),
                 doc.getName(),
                 doc.getDescription(),
                 doc.getCategoryName(),
