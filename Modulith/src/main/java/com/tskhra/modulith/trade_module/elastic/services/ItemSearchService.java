@@ -116,6 +116,32 @@ public class ItemSearchService {
         return new PageImpl<>(results, pageRequest, searchHits.getTotalHits());
     }
 
+    public List<String> suggest(String query, int limit) {
+        BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
+
+        boolBuilder.filter(Query.of(q -> q.term(t -> t
+                .field("status")
+                .value(ItemStatus.AVAILABLE.name())
+        )));
+
+        boolBuilder.must(Query.of(q -> q.matchPhrasePrefix(m -> m
+                .field("name")
+                .query(query)
+        )));
+
+        NativeQuery nativeQuery = NativeQuery.builder()
+                .withQuery(Query.of(q -> q.bool(boolBuilder.build())))
+                .withPageable(PageRequest.of(0, limit))
+                .build();
+
+        SearchHits<ItemDocument> hits = elasticsearchOperations.search(nativeQuery, ItemDocument.class);
+
+        return hits.getSearchHits().stream()
+                .map(hit -> hit.getContent().getName())
+                .distinct()
+                .toList();
+    }
+
     public void indexItem(Item item) {
         itemDocumentRepository.save(ItemDocument.fromEntity(item));
     }

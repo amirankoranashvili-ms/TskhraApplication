@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Tag(name = "Item Search", description = "Search and filter tradeable items")
 @RestController
@@ -43,5 +43,13 @@ public class ItemSearchController {
         );
 
         return ResponseEntity.ok(itemSearchService.search(request));
+    }
+
+    @Operation(summary = "Get search suggestions based on partial input")
+    @GetMapping("/suggest")
+    public ResponseEntity<List<String>> suggest(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(itemSearchService.suggest(query, limit));
     }
 }
