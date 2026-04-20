@@ -1,8 +1,10 @@
 package com.tskhra.modulith.trade_module.elastic.services;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import com.tskhra.modulith.trade_module.model.enums.SortByDate;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.trade_module.elastic.documents.ItemDocument;
 import com.tskhra.modulith.trade_module.elastic.repositories.ItemDocumentRepository;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
@@ -89,12 +92,22 @@ public class ItemSearchService {
             )));
         }
 
-        NativeQuery query = NativeQuery.builder()
-                .withQuery(Query.of(q -> q.bool(boolBuilder.build())))
-                .withPageable(pageRequest)
-                .build();
+        SortOrder dateSortOrder = request.sortByDate() == SortByDate.OLDEST
+                ? SortOrder.Asc : SortOrder.Desc;
 
-        SearchHits<ItemDocument> searchHits = elasticsearchOperations.search(query, ItemDocument.class);
+        boolean hasTextQuery = request.query() != null && !request.query().isBlank();
+
+        NativeQueryBuilder queryBuilder = NativeQuery.builder()
+                .withQuery(Query.of(q -> q.bool(boolBuilder.build())))
+                .withPageable(pageRequest);
+
+        if (hasTextQuery) {
+            queryBuilder.withSort(s -> s.score(sc -> sc.order(SortOrder.Desc)));
+        }
+        queryBuilder.withSort(s -> s.field(f -> f.field("updatedAt").order(dateSortOrder)));
+
+        SearchHits<ItemDocument> searchHits = elasticsearchOperations.search(
+                queryBuilder.build(), ItemDocument.class);
 
         List<ItemSummaryDto> results = searchHits.getSearchHits().stream()
                 .map(hit -> toSummaryDto(hit.getContent()))
