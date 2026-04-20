@@ -77,10 +77,6 @@ public class Item {
     @Column(name = "status", columnDefinition = "item_status") // todo add type to db
     private ItemStatus status;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean vip = false;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 

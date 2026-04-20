@@ -1,19 +1,15 @@
 package com.tskhra.modulith.trade_module.elastic.services;
 
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.trade_module.elastic.documents.ItemDocument;
 import com.tskhra.modulith.trade_module.elastic.repositories.ItemDocumentRepository;
-import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
 import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
-import com.tskhra.modulith.trade_module.model.enums.SortByDate;
 import com.tskhra.modulith.trade_module.model.requests.ItemSearchRequest;
 import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
-import com.tskhra.modulith.trade_module.repositories.CategorySwapRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +32,6 @@ public class ItemSearchService {
     private final ElasticsearchOperations elasticsearchOperations;
     private final ItemDocumentRepository itemDocumentRepository;
     private final ItemRepository itemRepository;
-    private final CategorySwapRepository categorySwapRepository;
     private final ImageService imageService;
 
     public Page<ItemSummaryDto> search(ItemSearchRequest request) {
@@ -44,11 +39,13 @@ public class ItemSearchService {
 
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
+        // Always filter to AVAILABLE items only
         boolBuilder.filter(Query.of(q -> q.term(t -> t
                 .field("status")
                 .value(ItemStatus.AVAILABLE.name())
         )));
 
+        // Full-text search on name and description
         if (request.query() != null && !request.query().isBlank()) {
             boolBuilder.must(Query.of(q -> q.multiMatch(m -> m
                     .query(request.query())
@@ -60,10 +57,15 @@ public class ItemSearchService {
             )));
         }
 
+        // Filter by category
         if (request.categoryId() != null) {
-            buildCategoryFilter(request.categoryId(), boolBuilder);
+            boolBuilder.filter(Query.of(q -> q.term(t -> t
+                    .field("categoryId")
+                    .value(request.categoryId())
+            )));
         }
 
+        // Filter by city
         if (request.cityId() != null) {
             boolBuilder.filter(Query.of(q -> q.term(t -> t
                     .field("cityId")
@@ -71,6 +73,7 @@ public class ItemSearchService {
             )));
         }
 
+        // Filter by condition
         if (request.condition() != null) {
             boolBuilder.filter(Query.of(q -> q.term(t -> t
                     .field("condition")
@@ -78,6 +81,7 @@ public class ItemSearchService {
             )));
         }
 
+        // Filter by trade range
         if (request.tradeRange() != null) {
             boolBuilder.filter(Query.of(q -> q.term(t -> t
                     .field("tradeRange")
@@ -85,63 +89,18 @@ public class ItemSearchService {
             )));
         }
 
-        if (request.vipOnly()) {
-            boolBuilder.filter(Query.of(q -> q.term(t -> t
-                    .field("vip")
-                    .value(true)
-            )));
-        }
-
-        boolBuilder.should(Query.of(q -> q.term(t -> t
-                .field("vip")
-                .value(true)
-                .boost(10.0f)
-        )));
-
-        SortOrder dateSortOrder = request.sortByDate() == SortByDate.OLDEST
-                ? SortOrder.Asc : SortOrder.Desc;
-
-        boolean hasTextQuery = request.query() != null && !request.query().isBlank();
-
-        org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder queryBuilder = NativeQuery.builder()
+        NativeQuery query = NativeQuery.builder()
                 .withQuery(Query.of(q -> q.bool(boolBuilder.build())))
-                .withPageable(pageRequest);
+                .withPageable(pageRequest)
+                .build();
 
-        if (hasTextQuery) {
-            queryBuilder.withSort(s -> s.score(sc -> sc.order(SortOrder.Desc)));
-        }
-        queryBuilder.withSort(s -> s.field(f -> f.field("updatedAt").order(dateSortOrder)));
-
-        SearchHits<ItemDocument> searchHits = elasticsearchOperations.search(
-                queryBuilder.build(), ItemDocument.class);
+        SearchHits<ItemDocument> searchHits = elasticsearchOperations.search(query, ItemDocument.class);
 
         List<ItemSummaryDto> results = searchHits.getSearchHits().stream()
                 .map(hit -> toSummaryDto(hit.getContent()))
                 .toList();
 
         return new PageImpl<>(results, pageRequest, searchHits.getTotalHits());
-    }
-
-    private void buildCategoryFilter(Long categoryId, BoolQuery.Builder boolBuilder) {
-        CategorySwap category = categorySwapRepository.findById(categoryId).orElse(null);
-        if (category == null) return;
-
-        if (category.getChildren() != null && !category.getChildren().isEmpty()) {
-            List<Long> childIds = category.getChildren().stream()
-                    .map(CategorySwap::getId)
-                    .toList();
-            boolBuilder.filter(Query.of(q -> q.terms(t -> t
-                    .field("categoryId")
-                    .terms(v -> v.value(childIds.stream()
-                            .map(co.elastic.clients.elasticsearch._types.FieldValue::of)
-                            .toList()))
-            )));
-        } else {
-            boolBuilder.filter(Query.of(q -> q.term(t -> t
-                    .field("categoryId")
-                    .value(categoryId)
-            )));
-        }
     }
 
     public void indexItem(Item item) {
