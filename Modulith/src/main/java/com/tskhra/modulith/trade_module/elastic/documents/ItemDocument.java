@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Document(indexName = "items_index")
+@Document(indexName = "#{@elasticsearchProperties.itemIndexName()}")
 @Setting(settingPath = "elasticsearch/item-settings.json")
 @Data
 @Builder

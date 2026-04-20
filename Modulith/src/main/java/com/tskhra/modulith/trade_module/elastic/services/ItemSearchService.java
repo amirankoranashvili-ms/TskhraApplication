@@ -2,6 +2,7 @@ package com.tskhra.modulith.trade_module.elastic.services;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.trade_module.elastic.documents.ItemDocument;
 import com.tskhra.modulith.trade_module.elastic.repositories.ItemDocumentRepository;
@@ -9,7 +10,9 @@ import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemSearchRequest;
 import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
+import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,12 +24,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final ItemDocumentRepository itemDocumentRepository;
+    private final ItemRepository itemRepository;
     private final ImageService imageService;
 
     public Page<ItemSummaryDto> search(ItemSearchRequest request) {
@@ -44,8 +49,11 @@ public class ItemSearchService {
         if (request.query() != null && !request.query().isBlank()) {
             boolBuilder.must(Query.of(q -> q.multiMatch(m -> m
                     .query(request.query())
-                    .fields("name", "description")
+                    .fields("name^3", "description")
+                    .type(TextQueryType.BestFields)
                     .fuzziness("AUTO")
+                    .prefixLength(2)
+                    .minimumShouldMatch("75%")
             )));
         }
 
@@ -99,11 +107,29 @@ public class ItemSearchService {
         itemDocumentRepository.save(ItemDocument.fromEntity(item));
     }
 
+    public void reindexItem(Item item) {
+        itemDocumentRepository.save(ItemDocument.fromEntity(item));
+    }
+
     public void updateItemStatus(UUID itemId, ItemStatus status) {
         itemDocumentRepository.findById(itemId).ifPresent(doc -> {
             doc.setStatus(status);
             itemDocumentRepository.save(doc);
         });
+    }
+
+    public void deleteFromIndex(UUID itemId) {
+        itemDocumentRepository.deleteById(itemId);
+    }
+
+    public long bulkReindex() {
+        List<Item> allItems = itemRepository.findAll();
+        List<ItemDocument> documents = allItems.stream()
+                .map(ItemDocument::fromEntity)
+                .toList();
+        itemDocumentRepository.saveAll(documents);
+        log.info("Bulk re-indexed {} items into Elasticsearch", documents.size());
+        return documents.size();
     }
 
 

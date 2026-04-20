@@ -93,7 +93,7 @@ public class ItemService {
 
         item.setStatus(ItemStatus.REMOVED);
         itemRepository.save(item);
-        itemSearchService.updateItemStatus(itemId, ItemStatus.REMOVED);
+        itemSearchService.deleteFromIndex(itemId);
     }
 
     @Transactional(readOnly = true)

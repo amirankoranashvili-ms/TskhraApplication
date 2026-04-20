@@ -1,4 +1,5 @@
 {
+  "max_result_window": 10000,
   "analysis": {
     "filter": {
       "ngram_filter": {

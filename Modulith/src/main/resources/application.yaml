@@ -31,6 +31,8 @@ spring:
       max-file-size: 5MB
   elasticsearch:
     uris: http://${ELASTICSEARCH_HOST:localhost}:9200
+    connection-timeout: 5s
+    socket-timeout: 30s
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -54,7 +56,7 @@ minio:
   item-folder: swap-items/
 
 elasticsearch:
-  item-index-name: swap-items
+  item-index-name: items_index
   max-result-window: 10000
 
 firebase:
