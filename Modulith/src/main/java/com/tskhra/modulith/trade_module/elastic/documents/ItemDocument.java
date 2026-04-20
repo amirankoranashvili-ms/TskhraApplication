@@ -75,6 +75,9 @@ public class ItemDocument {
     @Field(type = FieldType.Keyword)
     private ItemStatus status;
 
+    @Field(type = FieldType.Boolean)
+    private boolean vip;
+
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
     private LocalDateTime createdAt;
 
@@ -102,6 +105,7 @@ public class ItemDocument {
                 .condition(item.getCondition())
                 .tradeRange(item.getTradeRange())
                 .status(item.getStatus())
+                .vip(item.isVip())
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .build();
