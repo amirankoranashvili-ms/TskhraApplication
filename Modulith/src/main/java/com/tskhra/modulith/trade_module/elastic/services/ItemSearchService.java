@@ -107,6 +107,14 @@ public class ItemSearchService {
             )));
         }
 
+        // TODO: implement vipOnly filter once VIP status is available
+        // if (request.vipOnly()) {
+        //     boolBuilder.filter(Query.of(q -> q.term(t -> t
+        //             .field("vipStatus")
+        //             .value(true)
+        //     )));
+        // }
+
         SortOrder dateSortOrder = request.sortByDate() == SortByDate.OLDEST
                 ? SortOrder.Asc : SortOrder.Desc;
 
@@ -202,7 +210,8 @@ public class ItemSearchService {
                 doc.getImageUris() != null
                         ? doc.getImageUris().stream().map(imageService::getItemImageUrl).toList()
                         : List.of(),
-                doc.getStatus()
+                doc.getStatus(),
+                false
         );
     }
 }

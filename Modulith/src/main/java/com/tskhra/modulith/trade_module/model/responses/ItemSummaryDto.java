@@ -21,6 +21,8 @@ public record ItemSummaryDto(
         BigDecimal estimatedValue,
         LocalDateTime createdAt,
         List<String> images,
-        ItemStatus status
+        ItemStatus status,
+        // TODO: replace hardcoded false with actual VIP status
+        boolean vipStatus
 ) {
 }

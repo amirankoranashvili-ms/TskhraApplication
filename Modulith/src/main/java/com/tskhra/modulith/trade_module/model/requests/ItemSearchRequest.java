@@ -10,6 +10,7 @@ public record ItemSearchRequest(
         Long cityId,
         ItemCondition condition,
         TradeRange tradeRange,
+        boolean vipOnly,
         SortByDate sortByDate,
         int page,
         int size

@@ -208,7 +208,8 @@ public class ItemService {
                         .map(ItemImage::getUri)
                         .map(imageService::getItemImageUrl)
                         .toList(),
-                item.getStatus()
+                item.getStatus(),
+                false
         );
     }
 
