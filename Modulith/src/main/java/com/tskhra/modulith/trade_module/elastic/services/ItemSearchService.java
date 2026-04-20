@@ -1,5 +1,6 @@
 package com.tskhra.modulith.trade_module.elastic.services;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -12,6 +13,7 @@ import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemSearchRequest;
 import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
+import com.tskhra.modulith.trade_module.repositories.CategorySwapRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ public class ItemSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final ItemDocumentRepository itemDocumentRepository;
+    private final CategorySwapRepository categorySwapRepository;
     private final ItemRepository itemRepository;
     private final ImageService imageService;
 
@@ -62,10 +65,22 @@ public class ItemSearchService {
 
         // Filter by category
         if (request.categoryId() != null) {
-            boolBuilder.filter(Query.of(q -> q.term(t -> t
-                    .field("categoryId")
-                    .value(request.categoryId())
-            )));
+            boolean isParentCategory = categorySwapRepository.isParentCategoryById(request.categoryId());
+            if (isParentCategory) {
+                List<Long> childIds = categorySwapRepository.findChildIdsByParentId(request.categoryId());
+                List<FieldValue> fieldValues = childIds.stream()
+                        .map(FieldValue::of)
+                        .toList();
+                boolBuilder.filter(Query.of(q -> q.terms(t -> t
+                        .field("categoryId")
+                        .terms(tv -> tv.value(fieldValues))
+                )));
+            } else {
+                boolBuilder.filter(Query.of(q -> q.term(t -> t
+                        .field("categoryId")
+                        .value(request.categoryId())
+                )));
+            }
         }
 
         // Filter by city
