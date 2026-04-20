@@ -175,8 +175,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-    sysctls:
-      - vm.max_map_count=262144
     ports:
       - "9200:9200"
     volumes:
