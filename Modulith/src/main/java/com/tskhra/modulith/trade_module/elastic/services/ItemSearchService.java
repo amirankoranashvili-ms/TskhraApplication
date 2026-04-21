@@ -127,7 +127,7 @@ public class ItemSearchService {
         if (hasTextQuery) {
             queryBuilder.withSort(s -> s.score(sc -> sc.order(SortOrder.Desc)));
         }
-        queryBuilder.withSort(s -> s.field(f -> f.field("updatedAt").order(dateSortOrder)));
+        queryBuilder.withSort(s -> s.field(f -> f.field("updatedAt").order(dateSortOrder).missing("_last")));
 
         SearchHits<ItemDocument> searchHits = elasticsearchOperations.search(
                 queryBuilder.build(), ItemDocument.class);

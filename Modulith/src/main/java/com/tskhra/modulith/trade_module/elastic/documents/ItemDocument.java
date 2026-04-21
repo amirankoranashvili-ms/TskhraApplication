@@ -103,7 +103,7 @@ public class ItemDocument {
                 .tradeRange(item.getTradeRange())
                 .status(item.getStatus())
                 .createdAt(item.getCreatedAt())
-                .updatedAt(item.getUpdatedAt())
+                .updatedAt(item.getUpdatedAt() != null ? item.getUpdatedAt() : item.getCreatedAt())
                 .build();
     }
 }
