@@ -20,6 +20,7 @@ import java.util.UUID;
 public interface ItemRepository extends JpaRepository<Item, UUID> {
 
     @EntityGraph(attributePaths = "images")
+    @NonNull
     List<Item> findAll();
 
     @EntityGraph(attributePaths = "images")
