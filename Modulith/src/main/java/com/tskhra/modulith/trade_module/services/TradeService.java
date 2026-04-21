@@ -13,6 +13,7 @@ import com.tskhra.modulith.trade_module.model.requests.TradeOfferCreationDto;
 import com.tskhra.modulith.trade_module.model.domain.ItemImage;
 import com.tskhra.modulith.trade_module.model.enums.OfferDirection;
 import com.tskhra.modulith.trade_module.model.responses.TradeOfferSummaryDto;
+import com.tskhra.modulith.trade_module.elastic.services.ItemSearchService;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
 import com.tskhra.modulith.common.services.ImageService;
@@ -41,6 +42,7 @@ public class TradeService {
 
     private final UserService userService;
     private final ImageService imageService;
+    private final ItemSearchService itemSearchService;
     private final ItemRepository itemRepository;
     private final TradeOfferRepository tradeOfferRepository;
 
@@ -138,7 +140,10 @@ public class TradeService {
         }
 
         // Mark items as IN_TRADE
-        lockedItems.forEach(item -> item.setStatus(ItemStatus.IN_TRADE));
+        lockedItems.forEach(item -> {
+            item.setStatus(ItemStatus.IN_TRADE);
+            itemSearchService.updateItemStatus(item.getId(), ItemStatus.IN_TRADE);
+        });
         itemRepository.saveAll(lockedItems);
 
         // Accept offer
@@ -258,7 +263,10 @@ public class TradeService {
             offer.setStatus(TradeStatus.COMPLETED);
             offer.getOfferItems().stream()
                     .map(OfferItem::getItem)
-                    .forEach(item -> item.setStatus(ItemStatus.TRADED));
+                    .forEach(item -> {
+                        item.setStatus(ItemStatus.TRADED);
+                        itemSearchService.updateItemStatus(item.getId(), ItemStatus.TRADED);
+                    });
         }
 
         tradeOfferRepository.save(offer);
@@ -343,7 +351,10 @@ public class TradeService {
         List<Item> items = offer.getOfferItems().stream()
                 .map(OfferItem::getItem)
                 .toList();
-        items.forEach(item -> item.setStatus(ItemStatus.AVAILABLE));
+        items.forEach(item -> {
+            item.setStatus(ItemStatus.AVAILABLE);
+            itemSearchService.updateItemStatus(item.getId(), ItemStatus.AVAILABLE);
+        });
         itemRepository.saveAll(items);
     }
 
