@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -33,9 +35,15 @@ public class UserController {
     @Hidden
     @PostMapping("/kc-register")
     public ResponseEntity<Void> registerKcUser(@RequestBody KeycloakSpiUserRegistrationDto dto) {
-
-        userService.registerKcUser(dto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        log.info("kc-register: received request for username={}, email={}, keycloakId={}", dto.username(), dto.email(), dto.keycloakId());
+        try {
+            userService.registerKcUser(dto);
+            log.info("kc-register: success for username={}", dto.username());
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error("kc-register: failed for username={}", dto.username(), e);
+            throw e;
+        }
     }
 
     @Operation(summary = "Get current user info")

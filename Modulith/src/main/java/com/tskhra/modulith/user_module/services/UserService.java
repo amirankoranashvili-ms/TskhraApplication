@@ -20,6 +20,7 @@ import com.tskhra.modulith.user_module.model.responses.UserSelfDto;
 import com.tskhra.modulith.user_module.repositories.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -40,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @NamedInterface
@@ -119,6 +121,7 @@ public class UserService {
 
     @Transactional
     public void registerKcUser(KeycloakSpiUserRegistrationDto dto) {
+        log.info("registerKcUser: start for username={}", dto.username());
         LocalDateTime now = LocalDateTime.now();
 
         User user = User.builder()
@@ -132,6 +135,7 @@ public class UserService {
                 .build();
 
         String userId = userRepository.save(user).getKeycloakId().toString();
+        log.info("registerKcUser: user saved with keycloakId={}", userId);
 
         UserRegisteredEvent event = new UserRegisteredEvent(
                 UUID.randomUUID().toString(),
@@ -144,7 +148,9 @@ public class UserService {
                         user.getEmail()
                 ));
 
+        log.info("registerKcUser: publishing UserRegisteredEvent for keycloakId={}", userId);
         events.publishEvent(event);
+        log.info("registerKcUser: event published successfully for keycloakId={}", userId);
     }
 
     public UserSelfDto getCurrentUserInfo(Jwt jwt) {
