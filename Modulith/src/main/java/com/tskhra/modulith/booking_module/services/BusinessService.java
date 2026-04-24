@@ -329,8 +329,8 @@ public class BusinessService {
     }
 
     public List<Integer> getAvailableStartTimes(Long businessId, TimeslotRequest request) {
-        log.info("Fetching available timeslots for businessId: {}, serviceId: {}, date: {}",
-                businessId, request.serviceId(), request.date());
+//        log.info("Fetching available timeslots for businessId: {}, serviceId: {}, date: {}",
+//                businessId, request.serviceId(), request.date());
 
         Business business = businessRepository.findByIdAndActivityStatus(businessId, ActivityStatus.ACTIVE)
                 .orElseThrow(() -> new HttpNotFoundException("Business not found"));
@@ -340,7 +340,7 @@ public class BusinessService {
                         .orElseThrow(() -> new HttpNotFoundException("Service not found"));
 
         int duration = service.getSessionDuration();
-        log.info("Service duration: {} minutes", duration);
+//        log.info("Service duration: {} minutes", duration);
 
         LocalDate date = request.date();
         Optional<WeekTimeInterval> workingHoursOptional = business.getBusinessSchedules().stream()
@@ -353,25 +353,25 @@ public class BusinessService {
                 .filter(interval -> interval.getWeekDay() == WeekDay.from(date.getDayOfWeek()))
                 .findFirst();
 
-        log.info("Working hours: {}, Rest hours: {}",
-                workingHoursOptional.map(WeekTimeInterval::toString).orElse("None"),
-                restHoursOptional.map(WeekTimeInterval::toString).orElse("None"));
+//        log.info("Working hours: {}, Rest hours: {}",
+//                workingHoursOptional.map(WeekTimeInterval::toString).orElse("None"),
+//                restHoursOptional.map(WeekTimeInterval::toString).orElse("None"));
 
         List<Booking> existingBookings = bookingRepository.findByBusinessIdAndDateAndStatuses(
                 businessId, date, List.of(BookingStatus.AWAITING, BookingStatus.SCHEDULED)
         );
 
-        log.info("Found {} existing bookings for date: {}", existingBookings.size(), date);
+//        log.info("Found {} existing bookings for date: {}", existingBookings.size(), date);
 
         boolean isToday = LocalDate.now().isEqual(date);
 
-        log.info("Is today: {}", isToday);
+//        log.info("Is today: {}", isToday);
 
         List<Integer> timeslots = workingHoursOptional.map(weekTimeInterval ->
                         generateTimeslots(weekTimeInterval, restHoursOptional, existingBookings, duration, SLOT_INTERVAL_MINUTES, isToday))
                 .orElseGet(List::of);
 
-        log.info("Generated {} available timeslots", timeslots.size());
+//        log.info("Generated {} available timeslots", timeslots.size());
         return timeslots;
     }
 
@@ -379,7 +379,7 @@ public class BusinessService {
         int start = weekTimeInterval.getStartTime();
         int end = weekTimeInterval.getEndTime();
 
-        log.info("Generating timeslots from {} to {} with {} minute interval", start, end, slotIntervalMinutes);
+//        log.info("Generating timeslots from {} to {} with {} minute interval", start, end, slotIntervalMinutes);
 
         List<Integer> availableTimeslots = new ArrayList<>();
         for (int startTime = start; startTime <= end; startTime += slotIntervalMinutes) {
@@ -388,7 +388,7 @@ public class BusinessService {
 
             boolean withinSchedule = start <= startTime && endTime <= end;
             if (!withinSchedule) {
-                log.debug("Timeslot {}:{} skipped - outside working hours", startTime, endTime);
+//                log.debug("Timeslot {}:{} skipped - outside working hours", startTime, endTime);
                 continue;
             }
 
@@ -396,14 +396,14 @@ public class BusinessService {
                             finalStartTime < restInterval.getEndTime() && restInterval.getStartTime() < endTime)
                     .orElse(false);
             if (overlapsRest) {
-                log.debug("Timeslot {}:{} skipped - overlaps with rest hours", startTime, endTime);
+//                log.debug("Timeslot {}:{} skipped - overlaps with rest hours", startTime, endTime);
                 continue;
             }
 
             boolean overlapsBookings = existingBookings.stream()
                     .anyMatch(b -> finalStartTime < (b.getStartTime() + b.getDuration()) && b.getStartTime() < endTime);
             if (overlapsBookings) {
-                log.debug("Timeslot {}:{} skipped - overlaps with existing booking", startTime, endTime);
+//                log.debug("Timeslot {}:{} skipped - overlaps with existing booking", startTime, endTime);
                 continue;
             }
 
@@ -411,12 +411,12 @@ public class BusinessService {
         }
 
 
-        log.info("Total available timeslots generated: {}", availableTimeslots.size());
+//        log.info("Total available timeslots generated: {}", availableTimeslots.size());
         if (today) {
 
             LocalDateTime now = LocalDateTime.now();
             int currentTimeMinutes = now.getMinute() + now.getHour() * 60;
-            log.info("Current time: {} minutes", currentTimeMinutes);
+//            log.info("Current time: {} minutes", currentTimeMinutes);
             return availableTimeslots.stream().filter(t -> t > currentTimeMinutes).toList();
         } else {
             return availableTimeslots;
