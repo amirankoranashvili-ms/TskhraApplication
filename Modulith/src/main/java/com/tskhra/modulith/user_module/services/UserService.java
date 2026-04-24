@@ -99,7 +99,7 @@ public class UserService {
                         )
                 );
 
-                events.publishEvent(event);
+//                events.publishEvent(event);
                 simpMessagingTemplate.convertAndSend("/topic/users", "User " + saved.getUsername() + " has registered");
 
             } else if (response.getStatus() == 409) {
@@ -149,7 +149,7 @@ public class UserService {
                 ));
 
         log.info("registerKcUser: publishing UserRegisteredEvent for keycloakId={}", userId);
-        events.publishEvent(event);
+//        events.publishEvent(event);
         log.info("registerKcUser: event published successfully for keycloakId={}", userId);
     }
 
@@ -201,20 +201,20 @@ public class UserService {
         userRepository.save(user);
 
         String userId = jwt.getClaimAsString("sub");
-        events.publishEvent(new UserProfileUpdatedEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "user_profile_updated",
-                userId,
-                new UserProfileUpdatedEvent.Payload(
-                        userId,
-                        dto.firstName(),
-                        dto.lastName(),
-                        dto.gender(),
-                        dto.birthDate().toString(),
-                        dto.phoneCountryCode() + dto.phoneNumber()
-                )
-        ));
+//        events.publishEvent(new UserProfileUpdatedEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "user_profile_updated",
+//                userId,
+//                new UserProfileUpdatedEvent.Payload(
+//                        userId,
+//                        dto.firstName(),
+//                        dto.lastName(),
+//                        dto.gender(),
+//                        dto.birthDate().toString(),
+//                        dto.phoneCountryCode() + dto.phoneNumber()
+//                )
+//        ));
     }
 
     @Transactional
@@ -226,16 +226,16 @@ public class UserService {
         userRepository.save(user);
 
         String userId = jwt.getClaimAsString("sub");
-        events.publishEvent(new UserProfilePictureUpdatedEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "user_profile_picture_updated",
-                userId,
-                new UserProfilePictureUpdatedEvent.Payload(
-                        userId,
-                        uri
-                )
-        ));
+//        events.publishEvent(new UserProfilePictureUpdatedEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "user_profile_picture_updated",
+//                userId,
+//                new UserProfilePictureUpdatedEvent.Payload(
+//                        userId,
+//                        uri
+//                )
+//        ));
     }
 
     public void deleteAvatar(Jwt jwt) {
