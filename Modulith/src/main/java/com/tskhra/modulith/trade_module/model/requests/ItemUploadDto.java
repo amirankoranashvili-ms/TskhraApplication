@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ItemUploadDto(
@@ -16,7 +17,13 @@ public record ItemUploadDto(
         @NotNull Long cityId,
         @NotNull ItemCondition condition,
         @NotNull TradeRange tradeRange,
-        List<Long> desiredCategories
-
+        List<Long> desiredCategories,
+        Integer itemTypeId,
+        Map<String, Object> specifications,
+        List<DesiredTypeEntry> desiredTypes
 ) {
+    public record DesiredTypeEntry(
+            @NotNull Integer itemTypeId,
+            Map<String, Object> desiredSpecs
+    ) {}
 }

@@ -7,6 +7,7 @@ import com.tskhra.modulith.trade_module.model.enums.TradeRange;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public record ItemSummaryDto(
@@ -23,6 +24,15 @@ public record ItemSummaryDto(
         List<String> images,
         ItemStatus status,
         // TODO: replace hardcoded false with actual VIP status
-        boolean vipStatus
+        boolean vipStatus,
+        Integer itemTypeId,
+        String itemTypeName,
+        Map<String, Object> specifications,
+        List<DesiredTypeSummary> desiredTypes
 ) {
+    public record DesiredTypeSummary(
+            Integer itemTypeId,
+            String itemTypeName,
+            Map<String, Object> desiredSpecs
+    ) {}
 }

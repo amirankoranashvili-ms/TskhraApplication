@@ -83,6 +83,14 @@ public class ItemSearchService {
             }
         }
 
+        // Filter by item type
+        if (request.itemTypeId() != null) {
+            boolBuilder.filter(Query.of(q -> q.term(t -> t
+                    .field("itemTypeId")
+                    .value(request.itemTypeId())
+            )));
+        }
+
         // Filter by city
         if (request.cityId() != null) {
             boolBuilder.filter(Query.of(q -> q.term(t -> t
@@ -211,7 +219,11 @@ public class ItemSearchService {
                         ? doc.getImageUris().stream().map(imageService::getItemImageUrl).toList()
                         : List.of(),
                 doc.getStatus(),
-                false
+                false,
+                doc.getItemTypeId(),
+                doc.getItemTypeName(),
+                doc.getSpecifications(),
+                null
         );
     }
 }

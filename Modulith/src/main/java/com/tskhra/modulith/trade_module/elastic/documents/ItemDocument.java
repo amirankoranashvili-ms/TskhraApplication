@@ -20,6 +20,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Document(indexName = "items_index")
@@ -60,6 +61,15 @@ public class ItemDocument {
     @Field(type = FieldType.Long)
     private List<Long> desiredCategoryIds;
 
+    @Field(type = FieldType.Integer)
+    private Integer itemTypeId;
+
+    @Field(type = FieldType.Keyword)
+    private String itemTypeName;
+
+    @Field(type = FieldType.Object, enabled = false)
+    private Map<String, Object> specifications;
+
     @Field(type = FieldType.Double)
     private BigDecimal estimatedValue;
 
@@ -97,6 +107,9 @@ public class ItemDocument {
                 .desiredCategoryIds(item.getDesiredCategories() != null
                         ? item.getDesiredCategories().stream().map(CategorySwap::getId).toList()
                         : List.of())
+                .itemTypeId(item.getItemType() != null ? item.getItemType().getId() : null)
+                .itemTypeName(item.getItemType() != null ? item.getItemType().getName() : null)
+                .specifications(item.getSpecifications())
                 .estimatedValue(item.getEstimatedValue())
                 .valueVarianceRatio(item.getValueVarianceRatio())
                 .condition(item.getCondition())

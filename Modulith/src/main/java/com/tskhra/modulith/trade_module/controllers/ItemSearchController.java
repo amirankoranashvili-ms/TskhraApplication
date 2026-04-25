@@ -37,10 +37,11 @@ public class ItemSearchController {
             @RequestParam(defaultValue = "false") boolean vipOnly,
             @RequestParam(defaultValue = "NEWEST") SortByDate sortByDate,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) Integer itemTypeId) {
 
         ItemSearchRequest request = new ItemSearchRequest(
-                query, categoryId, cityId, condition, tradeRange, vipOnly, sortByDate, page, size
+                query, categoryId, cityId, condition, tradeRange, vipOnly, sortByDate, page, size, itemTypeId
         );
 
         return ResponseEntity.ok(itemSearchService.search(request));

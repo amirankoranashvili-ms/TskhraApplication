@@ -13,6 +13,7 @@ public record ItemSearchRequest(
         boolean vipOnly,
         SortByDate sortByDate,
         int page,
-        int size
+        int size,
+        Integer itemTypeId
 ) {
 }

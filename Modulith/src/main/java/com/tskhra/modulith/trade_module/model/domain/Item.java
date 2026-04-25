@@ -13,6 +13,7 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -55,6 +56,14 @@ public class Item {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<CategorySwap> desiredCategories;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_type_id")
+    private ItemType itemType;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> specifications;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal estimatedValue;

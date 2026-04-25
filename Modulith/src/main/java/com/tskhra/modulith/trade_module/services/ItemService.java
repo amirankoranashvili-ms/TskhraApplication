@@ -4,16 +4,11 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestExcept
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.trade_module.elastic.services.ItemSearchService;
-import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
-import com.tskhra.modulith.trade_module.model.domain.CitySwap;
-import com.tskhra.modulith.trade_module.model.domain.Item;
-import com.tskhra.modulith.trade_module.model.domain.ItemImage;
+import com.tskhra.modulith.trade_module.model.domain.*;
 import com.tskhra.modulith.trade_module.model.enums.ItemCondition;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemUploadDto;
-import com.tskhra.modulith.trade_module.repositories.CategorySwapRepository;
-import com.tskhra.modulith.trade_module.repositories.CitySwapRepository;
-import com.tskhra.modulith.trade_module.repositories.ItemRepository;
+import com.tskhra.modulith.trade_module.repositories.*;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -27,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,6 +35,9 @@ public class ItemService {
     private final ItemImageService itemImageService;
     private final CategorySwapRepository categoryRepository;
     private final CitySwapRepository cityRepository;
+    private final ItemTypeRepository itemTypeRepository;
+    private final ItemDesiredTypeRepository itemDesiredTypeRepository;
+    private final SpecificationValidationService specValidationService;
     private final UserService userService;
     private final ImageService imageService;
 
@@ -54,9 +53,26 @@ public class ItemService {
                 () -> new HttpBadRequestException("No such city with id: " + dto.cityId())
         );
 
-        List<CategorySwap> desiredCategories = categoryRepository.findAllById(dto.desiredCategories());
-        if (desiredCategories.size() != dto.desiredCategories().size()) {
-            throw new HttpNotFoundException("One or more desired categories not found");
+        List<CategorySwap> desiredCategories = List.of();
+        if (dto.desiredCategories() != null && !dto.desiredCategories().isEmpty()) {
+            desiredCategories = categoryRepository.findAllById(dto.desiredCategories());
+            if (desiredCategories.size() != dto.desiredCategories().size()) {
+                throw new HttpNotFoundException("One or more desired categories not found");
+            }
+        }
+
+        ItemType itemType = null;
+        Map<String, Object> specifications = null;
+
+        if (dto.itemTypeId() != null) {
+            itemType = itemTypeRepository.findById(dto.itemTypeId()).orElseThrow(
+                    () -> new HttpBadRequestException("No such item type with id: " + dto.itemTypeId())
+            );
+
+            if (dto.specifications() != null && !dto.specifications().isEmpty()) {
+                specValidationService.validate(dto.itemTypeId(), dto.specifications());
+                specifications = dto.specifications();
+            }
         }
 
         Item item = Item.builder()
@@ -66,6 +82,8 @@ public class ItemService {
                 .category(categorySwap)
                 .city(city)
                 .desiredCategories(desiredCategories)
+                .itemType(itemType)
+                .specifications(specifications)
                 .condition(dto.condition())
                 .tradeRange(dto.tradeRange())
                 .estimatedValue(mockEstimatedValue(dto.condition()))
@@ -73,10 +91,27 @@ public class ItemService {
                 .status(ItemStatus.AVAILABLE)
                 .build();
 
+        Item saved = itemRepository.save(item);
 
-        Item save = itemRepository.save(item);
-        itemSearchService.indexItem(save);
-        return save.getId();
+        if (dto.desiredTypes() != null && !dto.desiredTypes().isEmpty()) {
+            for (ItemUploadDto.DesiredTypeEntry dt : dto.desiredTypes()) {
+                ItemType desiredItemType = itemTypeRepository.findById(dt.itemTypeId()).orElseThrow(
+                        () -> new HttpBadRequestException("No such item type with id: " + dt.itemTypeId())
+                );
+                if (dt.desiredSpecs() != null && !dt.desiredSpecs().isEmpty()) {
+                    specValidationService.validateDesiredSpecs(dt.itemTypeId(), dt.desiredSpecs());
+                }
+                ItemDesiredType idt = ItemDesiredType.builder()
+                        .item(saved)
+                        .itemType(desiredItemType)
+                        .desiredSpecs(dt.desiredSpecs())
+                        .build();
+                itemDesiredTypeRepository.save(idt);
+            }
+        }
+
+        itemSearchService.indexItem(saved);
+        return saved.getId();
     }
 
     @Transactional
@@ -193,6 +228,17 @@ public class ItemService {
     }
 
     private ItemSummaryDto toSummaryDto(Item item) {
+        List<ItemSummaryDto.DesiredTypeSummary> desiredTypeSummaries = null;
+        if (item.getItemType() != null) {
+            List<ItemDesiredType> desiredTypes = itemDesiredTypeRepository.findAllByItemId(item.getId());
+            desiredTypeSummaries = desiredTypes.stream()
+                    .map(dt -> new ItemSummaryDto.DesiredTypeSummary(
+                            dt.getItemType().getId(),
+                            dt.getItemType().getName(),
+                            dt.getDesiredSpecs()
+                    )).toList();
+        }
+
         return new ItemSummaryDto(
                 item.getId(),
                 item.getOwnerId(),
@@ -209,7 +255,11 @@ public class ItemService {
                         .map(imageService::getItemImageUrl)
                         .toList(),
                 item.getStatus(),
-                false
+                false,
+                item.getItemType() != null ? item.getItemType().getId() : null,
+                item.getItemType() != null ? item.getItemType().getName() : null,
+                item.getSpecifications(),
+                desiredTypeSummaries
         );
     }
 
