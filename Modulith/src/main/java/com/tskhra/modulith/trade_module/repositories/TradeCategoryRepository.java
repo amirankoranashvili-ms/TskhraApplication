@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,8 +17,12 @@ public interface TradeCategoryRepository extends JpaRepository<TradeCategory, In
 
     Optional<TradeCategory> findBySlug(String slug);
 
+    boolean existsBySlug(String slug);
+
     @Query("SELECT tc FROM TradeCategory tc WHERE tc.parent IS NULL")
     List<TradeCategory> findAllParents();
+
+    Page<TradeCategory> findAllByParentIsNull(Pageable pageable);
 
     @Query("SELECT COUNT(tc) > 0 FROM TradeCategory tc WHERE tc.parent.id = :categoryId")
     boolean isParentCategoryById(@Param("categoryId") Integer categoryId);

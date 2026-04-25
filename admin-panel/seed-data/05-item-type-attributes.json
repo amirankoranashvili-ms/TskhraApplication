@@ -1,0 +1,239 @@
+[
+  {"itemTypeSlug": "iphone", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "iphone", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "iphone", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 4.7, "max": 6.9}},
+  {"itemTypeSlug": "iphone", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [64, 128, 256, 512, 1024]}},
+  {"itemTypeSlug": "iphone", "attributeKey": "ram", "required": false, "filterable": true, "constraints": {"min": 3, "max": 8}},
+  {"itemTypeSlug": "iphone", "attributeKey": "battery_health", "required": false, "filterable": true, "constraints": {"min": 0, "max": 100}},
+  {"itemTypeSlug": "iphone", "attributeKey": "wireless_charging", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "iphone", "attributeKey": "5g_capable", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "iphone", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2015, "max": 2026}},
+
+  {"itemTypeSlug": "android-phone", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "android-phone", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "android-phone", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 5.0, "max": 7.5}},
+  {"itemTypeSlug": "android-phone", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [32, 64, 128, 256, 512]}},
+  {"itemTypeSlug": "android-phone", "attributeKey": "ram", "required": false, "filterable": true, "constraints": {"min": 2, "max": 16}},
+  {"itemTypeSlug": "android-phone", "attributeKey": "battery_health", "required": false, "filterable": true, "constraints": {"min": 0, "max": 100}},
+  {"itemTypeSlug": "android-phone", "attributeKey": "wireless_charging", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "android-phone", "attributeKey": "5g_capable", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "android-phone", "attributeKey": "os", "required": false, "filterable": true, "constraints": {"options": ["Android 12", "Android 13", "Android 14", "Android 15"]}},
+  {"itemTypeSlug": "android-phone", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2015, "max": 2026}},
+
+  {"itemTypeSlug": "macbook", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "macbook", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "macbook", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"options": [13.3, 13.6, 14.2, 15.3, 16.2]}},
+  {"itemTypeSlug": "macbook", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [256, 512, 1024, 2048]}},
+  {"itemTypeSlug": "macbook", "attributeKey": "ram", "required": true, "filterable": true, "constraints": {"options": [8, 16, 24, 32, 36, 48, 64]}},
+  {"itemTypeSlug": "macbook", "attributeKey": "processor", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "macbook", "attributeKey": "battery_health", "required": false, "filterable": true, "constraints": {"min": 0, "max": 100}},
+  {"itemTypeSlug": "macbook", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2015, "max": 2026}},
+
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 11.6, "max": 17.3}},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [128, 256, 512, 1024, 2048]}},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "ram", "required": true, "filterable": true, "constraints": {"options": [4, 8, 16, 32, 64]}},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "processor", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "gpu", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "windows-laptop", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2015, "max": 2026}},
+
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 14.0, "max": 18.0}},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [256, 512, 1024, 2048]}},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "ram", "required": true, "filterable": true, "constraints": {"options": [8, 16, 32, 64]}},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "processor", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "gpu", "required": true, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "refresh_rate", "required": false, "filterable": true, "constraints": {"options": [60, 120, 144, 165, 240, 360]}},
+  {"itemTypeSlug": "gaming-laptop", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2018, "max": 2026}},
+
+  {"itemTypeSlug": "ipad", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "ipad", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "ipad", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"options": [8.3, 10.2, 10.9, 11.0, 12.9, 13.0]}},
+  {"itemTypeSlug": "ipad", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [64, 128, 256, 512, 1024, 2048]}},
+  {"itemTypeSlug": "ipad", "attributeKey": "connectivity", "required": false, "filterable": true, "constraints": {"options": ["WiFi", "WiFi + Cellular"]}},
+  {"itemTypeSlug": "ipad", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2017, "max": 2026}},
+
+  {"itemTypeSlug": "android-tablet", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "android-tablet", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 7.0, "max": 14.6}},
+  {"itemTypeSlug": "android-tablet", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [32, 64, 128, 256, 512]}},
+  {"itemTypeSlug": "android-tablet", "attributeKey": "ram", "required": false, "filterable": true, "constraints": {"min": 2, "max": 16}},
+  {"itemTypeSlug": "android-tablet", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2018, "max": 2026}},
+
+  {"itemTypeSlug": "playstation", "attributeKey": "brand", "required": true, "filterable": false, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "playstation", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "playstation", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [500, 825, 1024, 2048]}},
+  {"itemTypeSlug": "playstation", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2013, "max": 2026}},
+
+  {"itemTypeSlug": "xbox", "attributeKey": "brand", "required": true, "filterable": false, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "xbox", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "xbox", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [500, 512, 1024, 2048]}},
+  {"itemTypeSlug": "xbox", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2013, "max": 2026}},
+
+  {"itemTypeSlug": "nintendo-switch", "attributeKey": "brand", "required": true, "filterable": false, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "nintendo-switch", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "nintendo-switch", "attributeKey": "storage", "required": false, "filterable": true, "constraints": {"options": [32, 64, 256]}},
+
+  {"itemTypeSlug": "steam-deck", "attributeKey": "brand", "required": true, "filterable": false, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "steam-deck", "attributeKey": "storage", "required": true, "filterable": true, "constraints": {"options": [64, 256, 512, 1024]}},
+
+  {"itemTypeSlug": "wireless-earbuds", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "wireless-earbuds", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "wireless-earbuds", "attributeKey": "noise_cancelling", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "wireless-earbuds", "attributeKey": "battery_life", "required": false, "filterable": true, "constraints": {"min": 1, "max": 12}},
+  {"itemTypeSlug": "wireless-earbuds", "attributeKey": "water_resistant", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "over-ear-headphones", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "over-ear-headphones", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "over-ear-headphones", "attributeKey": "noise_cancelling", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "over-ear-headphones", "attributeKey": "connectivity", "required": false, "filterable": true, "constraints": {"options": ["Wired", "Wireless", "Both"]}},
+  {"itemTypeSlug": "over-ear-headphones", "attributeKey": "driver_type", "required": false, "filterable": true, "constraints": {"options": ["Dynamic", "Planar Magnetic", "Electrostatic"]}},
+
+  {"itemTypeSlug": "bluetooth-speaker", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "bluetooth-speaker", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "bluetooth-speaker", "attributeKey": "wattage", "required": false, "filterable": true, "constraints": {"min": 1, "max": 200}},
+  {"itemTypeSlug": "bluetooth-speaker", "attributeKey": "water_resistant", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "bluetooth-speaker", "attributeKey": "battery_life", "required": false, "filterable": true, "constraints": {"min": 1, "max": 30}},
+
+  {"itemTypeSlug": "dslr-camera", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "dslr-camera", "attributeKey": "megapixels", "required": true, "filterable": true, "constraints": {"min": 10, "max": 100}},
+  {"itemTypeSlug": "dslr-camera", "attributeKey": "sensor_type", "required": false, "filterable": true, "constraints": {"options": ["Full Frame", "APS-C", "Micro Four Thirds"]}},
+  {"itemTypeSlug": "dslr-camera", "attributeKey": "lens_type", "required": false, "filterable": true, "constraints": {"options": ["Kit Lens", "Prime", "Zoom", "Macro", "Wide Angle", "Telephoto"]}},
+  {"itemTypeSlug": "dslr-camera", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2010, "max": 2026}},
+
+  {"itemTypeSlug": "mirrorless-camera", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "mirrorless-camera", "attributeKey": "megapixels", "required": true, "filterable": true, "constraints": {"min": 10, "max": 100}},
+  {"itemTypeSlug": "mirrorless-camera", "attributeKey": "sensor_type", "required": false, "filterable": true, "constraints": {"options": ["Full Frame", "APS-C", "Micro Four Thirds"]}},
+  {"itemTypeSlug": "mirrorless-camera", "attributeKey": "lens_type", "required": false, "filterable": true, "constraints": {"options": ["Kit Lens", "Prime", "Zoom", "Macro", "Wide Angle", "Telephoto"]}},
+  {"itemTypeSlug": "mirrorless-camera", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2012, "max": 2026}},
+
+  {"itemTypeSlug": "action-camera", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "action-camera", "attributeKey": "resolution", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "action-camera", "attributeKey": "water_resistant", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "drone", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "drone", "attributeKey": "megapixels", "required": false, "filterable": true, "constraints": {"min": 5, "max": 50}},
+  {"itemTypeSlug": "drone", "attributeKey": "battery_life", "required": false, "filterable": true, "constraints": {"min": 5, "max": 60}},
+
+  {"itemTypeSlug": "smartwatch", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "smartwatch", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "smartwatch", "attributeKey": "os", "required": false, "filterable": true, "constraints": {"options": ["watchOS", "Wear OS", "Garmin OS", "Fitbit OS", "Tizen"]}},
+  {"itemTypeSlug": "smartwatch", "attributeKey": "water_resistant", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "smartwatch", "attributeKey": "battery_life", "required": false, "filterable": true, "constraints": {"min": 1, "max": 14}},
+
+  {"itemTypeSlug": "fitness-tracker", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "fitness-tracker", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "fitness-tracker", "attributeKey": "water_resistant", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "fitness-tracker", "attributeKey": "battery_life", "required": false, "filterable": true, "constraints": {"min": 1, "max": 21}},
+
+  {"itemTypeSlug": "vr-headset", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "vr-headset", "attributeKey": "resolution", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "vr-headset", "attributeKey": "storage", "required": false, "filterable": true, "constraints": {"options": [64, 128, 256, 512]}},
+  {"itemTypeSlug": "vr-headset", "attributeKey": "refresh_rate", "required": false, "filterable": true, "constraints": {"options": [72, 90, 120]}},
+
+  {"itemTypeSlug": "graphics-card", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "graphics-card", "attributeKey": "vram", "required": true, "filterable": true, "constraints": {"options": [4, 6, 8, 10, 12, 16, 24]}},
+  {"itemTypeSlug": "graphics-card", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2016, "max": 2026}},
+
+  {"itemTypeSlug": "cpu", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "cpu", "attributeKey": "processor", "required": true, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "cpu", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2016, "max": 2026}},
+
+  {"itemTypeSlug": "tv", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "tv", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 24, "max": 98}},
+  {"itemTypeSlug": "tv", "attributeKey": "resolution", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "tv", "attributeKey": "panel_type", "required": false, "filterable": true, "constraints": {"options": ["LED", "OLED", "QLED", "Mini-LED", "AMOLED"]}},
+  {"itemTypeSlug": "tv", "attributeKey": "refresh_rate", "required": false, "filterable": true, "constraints": {"options": [60, 120, 144]}},
+  {"itemTypeSlug": "tv", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2016, "max": 2026}},
+
+  {"itemTypeSlug": "monitor", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "monitor", "attributeKey": "screen_size", "required": true, "filterable": true, "constraints": {"min": 19, "max": 49}},
+  {"itemTypeSlug": "monitor", "attributeKey": "resolution", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "monitor", "attributeKey": "panel_type", "required": false, "filterable": true, "constraints": {"options": ["IPS", "VA", "TN", "OLED"]}},
+  {"itemTypeSlug": "monitor", "attributeKey": "refresh_rate", "required": false, "filterable": true, "constraints": {"options": [60, 75, 120, 144, 165, 240, 360]}},
+
+  {"itemTypeSlug": "sneakers", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "sneakers", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "sneakers", "attributeKey": "size", "required": true, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "boots", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "boots", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "boots", "attributeKey": "size", "required": true, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "boots", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "analog-watch", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "analog-watch", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "analog-watch", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "backpack", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "backpack", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "backpack", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "handbag", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "handbag", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "handbag", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "road-bike", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "road-bike", "attributeKey": "frame_material", "required": false, "filterable": true, "constraints": {"options": ["Carbon", "Aluminum", "Steel", "Titanium"]}},
+  {"itemTypeSlug": "road-bike", "attributeKey": "wheel_size", "required": false, "filterable": true, "constraints": {"options": [26, 27.5, 29]}},
+  {"itemTypeSlug": "road-bike", "attributeKey": "gears", "required": false, "filterable": true, "constraints": {"min": 1, "max": 30}},
+
+  {"itemTypeSlug": "mountain-bike", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "mountain-bike", "attributeKey": "frame_material", "required": false, "filterable": true, "constraints": {"options": ["Carbon", "Aluminum", "Steel"]}},
+  {"itemTypeSlug": "mountain-bike", "attributeKey": "wheel_size", "required": false, "filterable": true, "constraints": {"options": [26, 27.5, 29]}},
+  {"itemTypeSlug": "mountain-bike", "attributeKey": "gears", "required": false, "filterable": true, "constraints": {"min": 1, "max": 30}},
+
+  {"itemTypeSlug": "electric-guitar", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "electric-guitar", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "electric-guitar", "attributeKey": "num_strings", "required": false, "filterable": true, "constraints": {"options": [6, 7, 8]}},
+  {"itemTypeSlug": "electric-guitar", "attributeKey": "body_type", "required": false, "filterable": true, "constraints": {"options": ["Solid Body", "Semi-Hollow", "Hollow Body"]}},
+
+  {"itemTypeSlug": "acoustic-guitar", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "acoustic-guitar", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "acoustic-guitar", "attributeKey": "num_strings", "required": false, "filterable": true, "constraints": {"options": [6, 12]}},
+  {"itemTypeSlug": "acoustic-guitar", "attributeKey": "body_type", "required": false, "filterable": true, "constraints": {"options": ["Dreadnought", "Concert", "Parlor", "Jumbo", "Classical"]}},
+
+  {"itemTypeSlug": "digital-piano", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "digital-piano", "attributeKey": "num_keys", "required": false, "filterable": true, "constraints": {"options": [61, 76, 88]}},
+
+  {"itemTypeSlug": "novel", "attributeKey": "genre", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "novel", "attributeKey": "author", "required": false, "filterable": false, "constraints": null},
+  {"itemTypeSlug": "novel", "attributeKey": "format", "required": false, "filterable": true, "constraints": {"options": ["Hardcover", "Paperback"]}},
+
+  {"itemTypeSlug": "textbook", "attributeKey": "author", "required": false, "filterable": false, "constraints": null},
+  {"itemTypeSlug": "textbook", "attributeKey": "format", "required": false, "filterable": true, "constraints": {"options": ["Hardcover", "Paperback"]}},
+  {"itemTypeSlug": "textbook", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2000, "max": 2026}},
+
+  {"itemTypeSlug": "sedan", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "sedan", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "sedan", "attributeKey": "year", "required": true, "filterable": true, "constraints": {"min": 1990, "max": 2026}},
+  {"itemTypeSlug": "sedan", "attributeKey": "mileage", "required": false, "filterable": true, "constraints": {"min": 0, "max": 500000}},
+  {"itemTypeSlug": "sedan", "attributeKey": "engine_size", "required": false, "filterable": true, "constraints": {"min": 800, "max": 6000}},
+  {"itemTypeSlug": "sedan", "attributeKey": "fuel_type", "required": false, "filterable": true, "constraints": {"options": ["Petrol", "Diesel", "Hybrid", "Electric"]}},
+
+  {"itemTypeSlug": "suv", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "suv", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "suv", "attributeKey": "year", "required": true, "filterable": true, "constraints": {"min": 1990, "max": 2026}},
+  {"itemTypeSlug": "suv", "attributeKey": "mileage", "required": false, "filterable": true, "constraints": {"min": 0, "max": 500000}},
+  {"itemTypeSlug": "suv", "attributeKey": "fuel_type", "required": false, "filterable": true, "constraints": {"options": ["Petrol", "Diesel", "Hybrid", "Electric"]}},
+
+  {"itemTypeSlug": "building-set", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "building-set", "attributeKey": "age_range", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "console-game", "attributeKey": "genre", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "console-game", "attributeKey": "year", "required": false, "filterable": true, "constraints": {"min": 2000, "max": 2026}},
+
+  {"itemTypeSlug": "sofa", "attributeKey": "brand", "required": false, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "sofa", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "sofa", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "desk", "attributeKey": "brand", "required": false, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "desk", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "chair", "attributeKey": "brand", "required": false, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "chair", "attributeKey": "material", "required": false, "filterable": true, "constraints": null},
+  {"itemTypeSlug": "chair", "attributeKey": "color", "required": false, "filterable": true, "constraints": null},
+
+  {"itemTypeSlug": "coffee-machine", "attributeKey": "brand", "required": true, "filterable": true, "constraints": {"lookup": "brands"}},
+  {"itemTypeSlug": "coffee-machine", "attributeKey": "color", "required": false, "filterable": true, "constraints": null}
+]

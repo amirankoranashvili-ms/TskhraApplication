@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen" class="login-container">
+    <div class="login-card">
+        <h1>Trade Admin</h1>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="Username" required autocomplete="username">
+            <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+            <button type="submit">Sign In</button>
+            <p id="login-error" class="error" hidden></p>
+        </form>
+    </div>
+</div>
+
+<!-- Admin Shell -->
+<div id="admin-shell" hidden>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>Trade Admin</h2>
+        </div>
+        <ul>
+            <li><a href="#" data-section="categories" class="nav-link active">Categories</a></li>
+            <li><a href="#" data-section="item-types" class="nav-link">Item Types</a></li>
+            <li><a href="#" data-section="attributes" class="nav-link">Attributes</a></li>
+            <li><a href="#" data-section="attr-links" class="nav-link">Attribute Links</a></li>
+            <li><a href="#" data-section="brands" class="nav-link">Brands</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="seed-btn" class="btn-seed" onclick="loadSeedData()">Load Seed Data</button>
+            <button id="logout-btn" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+
+    <main class="content">
+        <!-- Categories -->
+        <section id="sec-categories" class="section">
+            <div class="section-header">
+                <h2>Trade Categories</h2>
+                <div class="header-actions">
+                    <button class="btn-import" onclick="importEntity('categories')">Import JSON</button>
+                    <button class="btn-export" onclick="exportEntity('categories')">Export JSON</button>
+                    <button class="btn-add" onclick="showForm('cat-form')">+ Add Category</button>
+                </div>
+            </div>
+            <div id="cat-form" class="form-row" hidden>
+                <input type="text" id="cat-name" placeholder="Name" required>
+                <input type="text" id="cat-slug" placeholder="Slug" required>
+                <select id="cat-parent"><option value="">No parent (root)</option></select>
+                <button class="btn-save" onclick="createCategory()">Save</button>
+                <button class="btn-cancel" onclick="hideForm('cat-form')">Cancel</button>
+            </div>
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Slug</th><th>Parent</th><th></th></tr></thead>
+                <tbody id="cat-table"></tbody>
+            </table>
+            <div class="pagination" id="cat-pagination"></div>
+        </section>
+
+        <!-- Item Types -->
+        <section id="sec-item-types" class="section" hidden>
+            <div class="section-header">
+                <h2>Item Types</h2>
+                <div class="header-actions">
+                    <button class="btn-import" onclick="importEntity('item-types')">Import JSON</button>
+                    <button class="btn-export" onclick="exportEntity('item-types')">Export JSON</button>
+                    <button class="btn-add" onclick="showForm('it-form')">+ Add Item Type</button>
+                </div>
+            </div>
+            <div id="it-form" class="form-row" hidden>
+                <input type="text" id="it-name" placeholder="Name" required>
+                <input type="text" id="it-slug" placeholder="Slug" required>
+                <select id="it-category" required><option value="">Select category</option></select>
+                <button class="btn-save" onclick="createItemType()">Save</button>
+                <button class="btn-cancel" onclick="hideForm('it-form')">Cancel</button>
+            </div>
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Slug</th><th>Category</th><th></th></tr></thead>
+                <tbody id="it-table"></tbody>
+            </table>
+            <div class="pagination" id="it-pagination"></div>
+        </section>
+
+        <!-- Attributes -->
+        <section id="sec-attributes" class="section" hidden>
+            <div class="section-header">
+                <h2>Attributes</h2>
+                <div class="header-actions">
+                    <button class="btn-import" onclick="importEntity('attributes')">Import JSON</button>
+                    <button class="btn-export" onclick="exportEntity('attributes')">Export JSON</button>
+                    <button class="btn-add" onclick="showForm('attr-form')">+ Add Attribute</button>
+                </div>
+            </div>
+            <div id="attr-form" class="form-row" hidden>
+                <input type="text" id="attr-name" placeholder="Display Name" required>
+                <input type="text" id="attr-key" placeholder="Key (e.g. screen_size)" required>
+                <select id="attr-datatype" required>
+                    <option value="STRING">STRING</option>
+                    <option value="NUMBER">NUMBER</option>
+                    <option value="BOOLEAN">BOOLEAN</option>
+                    <option value="ENUM">ENUM</option>
+                </select>
+                <input type="text" id="attr-unit" placeholder="Unit (optional)">
+                <button class="btn-save" onclick="createAttribute()">Save</button>
+                <button class="btn-cancel" onclick="hideForm('attr-form')">Cancel</button>
+            </div>
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Key</th><th>Type</th><th>Unit</th><th></th></tr></thead>
+                <tbody id="attr-table"></tbody>
+            </table>
+            <div class="pagination" id="attr-pagination"></div>
+        </section>
+
+        <!-- Attribute Links -->
+        <section id="sec-attr-links" class="section" hidden>
+            <div class="section-header">
+                <h2>Attribute Links</h2>
+                <div class="header-actions">
+                    <button class="btn-import" onclick="importEntity('attr-links')">Import JSON</button>
+                    <button class="btn-export" onclick="exportEntity('attr-links')">Export JSON</button>
+                    <button class="btn-add" onclick="showForm('link-form')">+ Link Attribute</button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <label>Item Type:</label>
+                <select id="link-filter-it" onchange="loadAttrLinks()">
+                    <option value="">Select item type</option>
+                </select>
+            </div>
+            <div id="link-form" class="form-row" hidden>
+                <select id="link-attr" required><option value="">Select attribute</option></select>
+                <label class="checkbox-label"><input type="checkbox" id="link-required"> Required</label>
+                <label class="checkbox-label"><input type="checkbox" id="link-filterable" checked> Filterable</label>
+                <input type="text" id="link-constraints" placeholder='Constraints JSON (optional)'>
+                <button class="btn-save" onclick="createAttrLink()">Save</button>
+                <button class="btn-cancel" onclick="hideForm('link-form')">Cancel</button>
+            </div>
+            <table>
+                <thead><tr><th>ID</th><th>Attribute</th><th>Key</th><th>Type</th><th>Required</th><th>Filterable</th><th>Constraints</th><th></th></tr></thead>
+                <tbody id="link-table"></tbody>
+            </table>
+        </section>
+
+        <!-- Brands -->
+        <section id="sec-brands" class="section" hidden>
+            <div class="section-header">
+                <h2>Brands</h2>
+                <div class="header-actions">
+                    <button class="btn-import" onclick="importEntity('brands')">Import JSON</button>
+                    <button class="btn-export" onclick="exportEntity('brands')">Export JSON</button>
+                    <button class="btn-add" onclick="showForm('brand-form')">+ Add Brand</button>
+                </div>
+            </div>
+            <div id="brand-form" class="form-row" hidden>
+                <input type="text" id="brand-name" placeholder="Name" required>
+                <input type="text" id="brand-slug" placeholder="Slug" required>
+                <button class="btn-save" onclick="createBrand()">Save</button>
+                <button class="btn-cancel" onclick="hideForm('brand-form')">Cancel</button>
+            </div>
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Slug</th><th></th></tr></thead>
+                <tbody id="brand-table"></tbody>
+            </table>
+            <div class="pagination" id="brand-pagination"></div>
+        </section>
+    </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -14,4 +14,6 @@ public interface ItemTypeAttributeRepository extends JpaRepository<ItemTypeAttri
 
     Optional<ItemTypeAttribute> findByItemTypeIdAndAttributeId(Integer itemTypeId, Integer attributeId);
 
+    boolean existsByItemTypeIdAndAttributeId(Integer itemTypeId, Integer attributeId);
+
 }

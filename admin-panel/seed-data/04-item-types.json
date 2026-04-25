@@ -1,0 +1,88 @@
+[
+  {"categorySlug": "smartphones", "name": "iPhone", "slug": "iphone"},
+  {"categorySlug": "smartphones", "name": "Android Phone", "slug": "android-phone"},
+  {"categorySlug": "smartphones", "name": "Feature Phone", "slug": "feature-phone"},
+
+  {"categorySlug": "laptops", "name": "MacBook", "slug": "macbook"},
+  {"categorySlug": "laptops", "name": "Windows Laptop", "slug": "windows-laptop"},
+  {"categorySlug": "laptops", "name": "Chromebook", "slug": "chromebook"},
+  {"categorySlug": "laptops", "name": "Gaming Laptop", "slug": "gaming-laptop"},
+
+  {"categorySlug": "tablets", "name": "iPad", "slug": "ipad"},
+  {"categorySlug": "tablets", "name": "Android Tablet", "slug": "android-tablet"},
+
+  {"categorySlug": "gaming-consoles", "name": "PlayStation", "slug": "playstation"},
+  {"categorySlug": "gaming-consoles", "name": "Xbox", "slug": "xbox"},
+  {"categorySlug": "gaming-consoles", "name": "Nintendo Switch", "slug": "nintendo-switch"},
+  {"categorySlug": "gaming-consoles", "name": "Steam Deck", "slug": "steam-deck"},
+
+  {"categorySlug": "audio-headphones", "name": "Wireless Earbuds", "slug": "wireless-earbuds"},
+  {"categorySlug": "audio-headphones", "name": "Over-Ear Headphones", "slug": "over-ear-headphones"},
+  {"categorySlug": "audio-headphones", "name": "Bluetooth Speaker", "slug": "bluetooth-speaker"},
+  {"categorySlug": "audio-headphones", "name": "Soundbar", "slug": "soundbar"},
+
+  {"categorySlug": "cameras-photography", "name": "DSLR Camera", "slug": "dslr-camera"},
+  {"categorySlug": "cameras-photography", "name": "Mirrorless Camera", "slug": "mirrorless-camera"},
+  {"categorySlug": "cameras-photography", "name": "Action Camera", "slug": "action-camera"},
+  {"categorySlug": "cameras-photography", "name": "Drone", "slug": "drone"},
+
+  {"categorySlug": "wearables", "name": "Smartwatch", "slug": "smartwatch"},
+  {"categorySlug": "wearables", "name": "Fitness Tracker", "slug": "fitness-tracker"},
+  {"categorySlug": "wearables", "name": "VR Headset", "slug": "vr-headset"},
+
+  {"categorySlug": "computer-components", "name": "Graphics Card", "slug": "graphics-card"},
+  {"categorySlug": "computer-components", "name": "CPU", "slug": "cpu"},
+  {"categorySlug": "computer-components", "name": "Motherboard", "slug": "motherboard"},
+  {"categorySlug": "computer-components", "name": "RAM Module", "slug": "ram-module"},
+  {"categorySlug": "computer-components", "name": "SSD / HDD", "slug": "ssd-hdd"},
+  {"categorySlug": "computer-components", "name": "Power Supply", "slug": "power-supply"},
+
+  {"categorySlug": "tv-monitors", "name": "TV", "slug": "tv"},
+  {"categorySlug": "tv-monitors", "name": "Monitor", "slug": "monitor"},
+
+  {"categorySlug": "shoes", "name": "Sneakers", "slug": "sneakers"},
+  {"categorySlug": "shoes", "name": "Boots", "slug": "boots"},
+  {"categorySlug": "shoes", "name": "Dress Shoes", "slug": "dress-shoes"},
+
+  {"categorySlug": "watches", "name": "Analog Watch", "slug": "analog-watch"},
+  {"categorySlug": "watches", "name": "Digital Watch", "slug": "digital-watch"},
+
+  {"categorySlug": "bags-wallets", "name": "Backpack", "slug": "backpack"},
+  {"categorySlug": "bags-wallets", "name": "Handbag", "slug": "handbag"},
+
+  {"categorySlug": "furniture", "name": "Desk", "slug": "desk"},
+  {"categorySlug": "furniture", "name": "Chair", "slug": "chair"},
+  {"categorySlug": "furniture", "name": "Sofa", "slug": "sofa"},
+
+  {"categorySlug": "kitchen-appliances", "name": "Coffee Machine", "slug": "coffee-machine"},
+  {"categorySlug": "kitchen-appliances", "name": "Blender", "slug": "blender"},
+
+  {"categorySlug": "cycling", "name": "Road Bike", "slug": "road-bike"},
+  {"categorySlug": "cycling", "name": "Mountain Bike", "slug": "mountain-bike"},
+  {"categorySlug": "cycling", "name": "Electric Bike", "slug": "electric-bike"},
+
+  {"categorySlug": "guitars", "name": "Electric Guitar", "slug": "electric-guitar"},
+  {"categorySlug": "guitars", "name": "Acoustic Guitar", "slug": "acoustic-guitar"},
+  {"categorySlug": "guitars", "name": "Bass Guitar", "slug": "bass-guitar"},
+
+  {"categorySlug": "keyboards-pianos", "name": "Digital Piano", "slug": "digital-piano"},
+  {"categorySlug": "keyboards-pianos", "name": "Synthesizer", "slug": "synthesizer"},
+
+  {"categorySlug": "books", "name": "Novel", "slug": "novel"},
+  {"categorySlug": "books", "name": "Textbook", "slug": "textbook"},
+
+  {"categorySlug": "video-games", "name": "Console Game", "slug": "console-game"},
+  {"categorySlug": "video-games", "name": "PC Game", "slug": "pc-game"},
+
+  {"categorySlug": "cars", "name": "Sedan", "slug": "sedan"},
+  {"categorySlug": "cars", "name": "SUV", "slug": "suv"},
+
+  {"categorySlug": "motorcycles", "name": "Sport Motorcycle", "slug": "sport-motorcycle"},
+  {"categorySlug": "motorcycles", "name": "Cruiser Motorcycle", "slug": "cruiser-motorcycle"},
+
+  {"categorySlug": "toys", "name": "Building Set", "slug": "building-set"},
+  {"categorySlug": "toys", "name": "RC Vehicle", "slug": "rc-vehicle"},
+
+  {"categorySlug": "trading-cards", "name": "Pokemon Cards", "slug": "pokemon-cards"},
+  {"categorySlug": "trading-cards", "name": "Sports Cards", "slug": "sports-cards"}
+]

@@ -12,6 +12,8 @@ public interface ItemTypeRepository extends JpaRepository<ItemType, Integer> {
 
     Optional<ItemType> findBySlug(String slug);
 
+    boolean existsBySlug(String slug);
+
     List<ItemType> findAllByCategoryId(Integer categoryId);
 
 }

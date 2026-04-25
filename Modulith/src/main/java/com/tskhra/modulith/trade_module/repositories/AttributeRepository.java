@@ -11,4 +11,6 @@ public interface AttributeRepository extends JpaRepository<Attribute, Integer> {
 
     Optional<Attribute> findByKey(String key);
 
+    boolean existsByKey(String key);
+
 }

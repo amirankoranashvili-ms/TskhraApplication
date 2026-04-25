@@ -1,6 +1,8 @@
 package com.tskhra.modulith.trade_module.controllers;
 
+import com.tskhra.modulith.trade_module.model.requests.ItemTypeAttributeBulkDto;
 import com.tskhra.modulith.trade_module.model.requests.ItemTypeAttributeCreateDto;
+import com.tskhra.modulith.trade_module.model.responses.BulkImportResult;
 import com.tskhra.modulith.trade_module.model.responses.ItemTypeAttributeSummaryDto;
 import com.tskhra.modulith.trade_module.services.ItemTypeAttributeAdminService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +33,18 @@ public class ItemTypeAttributeAdminController {
     @GetMapping("/by-item-type/{itemTypeId}")
     public ResponseEntity<List<ItemTypeAttributeSummaryDto>> findByItemType(@PathVariable Integer itemTypeId) {
         return ResponseEntity.ok(service.findAllByItemTypeId(itemTypeId));
+    }
+
+    @Operation(summary = "Bulk import item type attribute links")
+    @PostMapping("/bulk")
+    public ResponseEntity<BulkImportResult> bulkCreate(@RequestBody List<ItemTypeAttributeBulkDto> dtos) {
+        return ResponseEntity.ok(service.bulkCreate(dtos));
+    }
+
+    @Operation(summary = "Export all item type attribute links")
+    @GetMapping("/export")
+    public ResponseEntity<List<ItemTypeAttributeBulkDto>> exportAll() {
+        return ResponseEntity.ok(service.exportAll());
     }
 
     @Operation(summary = "Remove an item type attribute mapping")

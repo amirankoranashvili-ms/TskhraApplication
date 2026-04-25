@@ -3,14 +3,19 @@ package com.tskhra.modulith.trade_module.services;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.trade_module.model.domain.ItemType;
 import com.tskhra.modulith.trade_module.model.domain.TradeCategory;
+import com.tskhra.modulith.trade_module.model.requests.ItemTypeBulkDto;
 import com.tskhra.modulith.trade_module.model.requests.ItemTypeCreateDto;
+import com.tskhra.modulith.trade_module.model.responses.BulkImportResult;
 import com.tskhra.modulith.trade_module.model.responses.ItemTypeSummaryDto;
 import com.tskhra.modulith.trade_module.repositories.ItemTypeRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeCategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,6 +51,35 @@ public class ItemTypeAdminService {
     public List<ItemTypeSummaryDto> findAll() {
         return itemTypeRepository.findAll().stream()
                 .map(this::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ItemTypeSummaryDto> findAll(Pageable pageable) {
+        return itemTypeRepository.findAll(pageable).map(this::toDto);
+    }
+
+    @Transactional
+    public BulkImportResult bulkCreate(List<ItemTypeBulkDto> dtos) {
+        int created = 0, skipped = 0, failed = 0;
+        List<String> errors = new ArrayList<>();
+
+        for (ItemTypeBulkDto dto : dtos) {
+            if (itemTypeRepository.existsBySlug(dto.slug())) { skipped++; continue; }
+            var category = tradeCategoryRepository.findBySlug(dto.categorySlug());
+            if (category.isEmpty()) { failed++; errors.add("Category not found: " + dto.categorySlug()); continue; }
+            ItemType it = ItemType.builder().category(category.get()).name(dto.name()).slug(dto.slug()).build();
+            itemTypeRepository.save(it);
+            created++;
+        }
+
+        return new BulkImportResult(created, skipped, failed, errors);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemTypeBulkDto> exportAll() {
+        return itemTypeRepository.findAll().stream()
+                .map(it -> new ItemTypeBulkDto(it.getCategory().getSlug(), it.getName(), it.getSlug()))
                 .toList();
     }
 

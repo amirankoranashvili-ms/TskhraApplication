@@ -4,11 +4,15 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundExceptio
 import com.tskhra.modulith.trade_module.model.domain.Attribute;
 import com.tskhra.modulith.trade_module.model.requests.AttributeCreateDto;
 import com.tskhra.modulith.trade_module.model.responses.AttributeSummaryDto;
+import com.tskhra.modulith.trade_module.model.responses.BulkImportResult;
 import com.tskhra.modulith.trade_module.repositories.AttributeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,6 +38,35 @@ public class AttributeAdminService {
     public List<AttributeSummaryDto> findAll() {
         return attributeRepository.findAll().stream()
                 .map(this::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AttributeSummaryDto> findAll(Pageable pageable) {
+        return attributeRepository.findAll(pageable).map(this::toDto);
+    }
+
+    @Transactional
+    public BulkImportResult bulkCreate(List<AttributeCreateDto> dtos) {
+        int created = 0, skipped = 0, failed = 0;
+        List<String> errors = new ArrayList<>();
+
+        for (AttributeCreateDto dto : dtos) {
+            if (attributeRepository.existsByKey(dto.key())) { skipped++; continue; }
+            Attribute attr = Attribute.builder()
+                    .name(dto.name()).key(dto.key()).dataType(dto.dataType()).unit(dto.unit())
+                    .build();
+            attributeRepository.save(attr);
+            created++;
+        }
+
+        return new BulkImportResult(created, skipped, failed, errors);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AttributeCreateDto> exportAll() {
+        return attributeRepository.findAll().stream()
+                .map(a -> new AttributeCreateDto(a.getName(), a.getKey(), a.getDataType(), a.getUnit()))
                 .toList();
     }
 
