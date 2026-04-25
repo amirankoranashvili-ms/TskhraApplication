@@ -31,12 +31,12 @@ public class TradeCategoryAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
-    @Operation(summary = "List all root categories (paginated)")
+    @Operation(summary = "List all categories (paginated)")
     @GetMapping
-    public ResponseEntity<Page<TradeCategorySummaryDto>> listParents(
+    public ResponseEntity<Page<TradeCategorySummaryDto>> listAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(service.findAllParents(PageRequest.of(page, size)));
+        return ResponseEntity.ok(service.findAll(PageRequest.of(page, size)));
     }
 
     @Operation(summary = "List children of a category")

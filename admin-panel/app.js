@@ -159,42 +159,34 @@ function renderPagination(containerId, pageData, loadFn) {
 
 // --- Categories ---
 
-let allCategories = [];
+let categoriesDropdownLoaded = false;
 
 async function loadCategories(page = 0) {
     try {
         const pageData = await api('GET', `/admin/trade-categories?page=${page}&size=20`);
-        const parents = pageData.content;
-        allCategories = [...parents];
-
-        for (const parent of parents) {
-            try {
-                const children = await api('GET', `/admin/trade-categories/${parent.id}/children`);
-                children.forEach(c => { c._parentName = parent.name; });
-                allCategories.push(...children);
-            } catch (_) {}
-        }
-
-        renderCategories();
+        renderCategories(pageData.content);
         renderPagination('cat-pagination', pageData, loadCategories);
-        populateCategorySelects();
+        if (!categoriesDropdownLoaded) {
+            await populateCategorySelects();
+            categoriesDropdownLoaded = true;
+        }
     } catch (err) {
         toast(err.message, 'error');
     }
 }
 
-function renderCategories() {
+function renderCategories(categories) {
     const tbody = document.getElementById('cat-table');
-    if (allCategories.length === 0) {
+    if (categories.length === 0) {
         tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No categories yet</td></tr>';
         return;
     }
-    tbody.innerHTML = allCategories.map(c => `
+    tbody.innerHTML = categories.map(c => `
         <tr>
             <td class="mono">${c.id}</td>
             <td>${c.name}</td>
             <td class="mono">${c.slug}</td>
-            <td>${c._parentName || c.parentId ? (c._parentName || 'ID: ' + c.parentId) : '-'}</td>
+            <td>${c.parentName || '-'}</td>
             <td><button class="btn-delete" onclick="deleteCategory(${c.id})">Delete</button></td>
         </tr>
     `).join('');
@@ -204,24 +196,17 @@ async function populateCategorySelects() {
     try {
         const allPage = await api('GET', '/admin/trade-categories?page=0&size=1000');
         const allCats = allPage.content;
-        let fullList = [...allCats];
-        for (const parent of allCats) {
-            try {
-                const children = await api('GET', `/admin/trade-categories/${parent.id}/children`);
-                fullList.push(...children);
-            } catch (_) {}
-        }
 
         const parentSelect = document.getElementById('cat-parent');
         const itCatSelect = document.getElementById('it-category');
 
         parentSelect.innerHTML = '<option value="">No parent (root)</option>' +
-            fullList.filter(c => !c.parentId).map(c =>
+            allCats.filter(c => !c.parentId).map(c =>
                 `<option value="${c.id}">${c.name}</option>`
             ).join('');
 
         itCatSelect.innerHTML = '<option value="">Select category</option>' +
-            fullList.map(c =>
+            allCats.map(c =>
                 `<option value="${c.id}">${c.name}${c.parentId ? '' : ' (root)'}</option>`
             ).join('');
     } catch (_) {}
@@ -243,6 +228,7 @@ async function createCategory() {
         document.getElementById('cat-parent').value = '';
         hideForm('cat-form');
         toast('Category created');
+        categoriesDropdownLoaded = false;
         loadCategories();
     } catch (err) {
         toast(err.message, 'error');
@@ -254,6 +240,7 @@ async function deleteCategory(id) {
     try {
         await api('DELETE', `/admin/trade-categories/${id}`);
         toast('Category deleted');
+        categoriesDropdownLoaded = false;
         loadCategories();
     } catch (err) {
         toast(err.message, 'error');
@@ -262,15 +249,21 @@ async function deleteCategory(id) {
 
 // --- Item Types ---
 
+let itemTypesDropdownLoaded = false;
+
 async function loadItemTypes(page = 0) {
     try {
         const pageData = await api('GET', `/admin/item-types?page=${page}&size=20`);
         renderItemTypes(pageData.content);
         renderPagination('it-pagination', pageData, loadItemTypes);
-        populateItemTypeSelects();
-
-        if (allCategories.length === 0) await loadCategories();
-        else await populateCategorySelects();
+        if (!itemTypesDropdownLoaded) {
+            await populateItemTypeSelects();
+            itemTypesDropdownLoaded = true;
+        }
+        if (!categoriesDropdownLoaded) {
+            await populateCategorySelects();
+            categoriesDropdownLoaded = true;
+        }
     } catch (err) {
         toast(err.message, 'error');
     }
@@ -319,6 +312,7 @@ async function createItemType() {
         document.getElementById('it-category').value = '';
         hideForm('it-form');
         toast('Item type created');
+        itemTypesDropdownLoaded = false;
         loadItemTypes();
     } catch (err) {
         toast(err.message, 'error');
@@ -330,6 +324,7 @@ async function deleteItemType(id) {
     try {
         await api('DELETE', `/admin/item-types/${id}`);
         toast('Item type deleted');
+        itemTypesDropdownLoaded = false;
         loadItemTypes();
     } catch (err) {
         toast(err.message, 'error');
@@ -339,6 +334,7 @@ async function deleteItemType(id) {
 // --- Attributes ---
 
 let allAttributes = [];
+let attributesDropdownLoaded = false;
 
 async function loadAttributes(page = 0) {
     try {
@@ -346,7 +342,10 @@ async function loadAttributes(page = 0) {
         allAttributes = pageData.content;
         renderAttributes();
         renderPagination('attr-pagination', pageData, loadAttributes);
-        populateAttributeSelect();
+        if (!attributesDropdownLoaded) {
+            await populateAttributeSelect();
+            attributesDropdownLoaded = true;
+        }
     } catch (err) {
         toast(err.message, 'error');
     }
@@ -396,6 +395,7 @@ async function createAttribute() {
         document.getElementById('attr-unit').value = '';
         hideForm('attr-form');
         toast('Attribute created');
+        attributesDropdownLoaded = false;
         loadAttributes();
     } catch (err) {
         toast(err.message, 'error');
@@ -407,6 +407,7 @@ async function deleteAttribute(id) {
     try {
         await api('DELETE', `/admin/attributes/${id}`);
         toast('Attribute deleted');
+        attributesDropdownLoaded = false;
         loadAttributes();
     } catch (err) {
         toast(err.message, 'error');
@@ -416,15 +417,14 @@ async function deleteAttribute(id) {
 // --- Attribute Links ---
 
 async function loadAttrLinksSection() {
-    if (allAttributes.length === 0) await loadAttributes();
-    else await populateAttributeSelect();
-
-    try {
-        await populateItemTypeSelects();
-    } catch (err) {
-        toast(err.message, 'error');
+    if (!attributesDropdownLoaded) {
+        await populateAttributeSelect();
+        attributesDropdownLoaded = true;
     }
-
+    if (!itemTypesDropdownLoaded) {
+        await populateItemTypeSelects();
+        itemTypesDropdownLoaded = true;
+    }
     loadAttrLinks();
 }
 
@@ -606,7 +606,14 @@ async function exportEntity(type) {
     }
 }
 
+function invalidateDropdownCaches() {
+    categoriesDropdownLoaded = false;
+    itemTypesDropdownLoaded = false;
+    attributesDropdownLoaded = false;
+}
+
 function reloadCurrentSection() {
+    invalidateDropdownCaches();
     const active = document.querySelector('.nav-link.active');
     if (active) loadSection(active.dataset.section);
 }

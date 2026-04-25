@@ -62,8 +62,8 @@ public class TradeCategoryAdminService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TradeCategorySummaryDto> findAllParents(Pageable pageable) {
-        return tradeCategoryRepository.findAllByParentIsNull(pageable).map(this::toDto);
+    public Page<TradeCategorySummaryDto> findAll(Pageable pageable) {
+        return tradeCategoryRepository.findAll(pageable).map(this::toDto);
     }
 
     @Transactional
@@ -114,7 +114,8 @@ public class TradeCategoryAdminService {
                 c.getId(),
                 c.getName(),
                 c.getSlug(),
-                c.getParent() != null ? c.getParent().getId() : null
+                c.getParent() != null ? c.getParent().getId() : null,
+                c.getParent() != null ? c.getParent().getName() : null
         );
     }
 

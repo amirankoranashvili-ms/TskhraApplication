@@ -4,5 +4,6 @@ public record TradeCategorySummaryDto(
         Integer id,
         String name,
         String slug,
-        Integer parentId
+        Integer parentId,
+        String parentName
 ) {}
