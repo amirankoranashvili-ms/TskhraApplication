@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/Modulith/src/main/resources/db/migration/V1__add_item_type_attributes_schema.sql" value="450caf97-5d5f-4255-8d53-25a7e0e84b7c" />
+    <file url="file://$PROJECT_DIR$/Modulith/src/main/resources/db/migration/V2__add_brands_table.sql" value="450caf97-5d5f-4255-8d53-25a7e0e84b7c" />
     <file url="file://$PROJECT_DIR$/backups/init.sql" value="450caf97-5d5f-4255-8d53-25a7e0e84b7c" />
   </component>
 </project>
