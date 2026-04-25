@@ -3,6 +3,7 @@ package com.tskhra.modulith.trade_module.services;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.trade_module.model.domain.ItemTypeAttribute;
 import com.tskhra.modulith.trade_module.model.enums.AttributeDataType;
+import com.tskhra.modulith.trade_module.repositories.BrandRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemTypeAttributeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class SpecificationValidationService {
 
     private final ItemTypeAttributeRepository itemTypeAttributeRepository;
+    private final BrandRepository brandRepository;
 
     public void validate(Integer itemTypeId, Map<String, Object> specifications) {
         if (specifications == null || specifications.isEmpty()) return;
@@ -69,8 +71,17 @@ public class SpecificationValidationService {
 
         for (Map.Entry<String, Object> entry : desiredSpecs.entrySet()) {
             String key = entry.getKey();
-            if (!schemaByKey.containsKey(key)) {
+            Object value = entry.getValue();
+
+            ItemTypeAttribute attr = schemaByKey.get(key);
+            if (attr == null) {
                 errors.add("Unknown attribute: " + key);
+                continue;
+            }
+
+            String lookup = getLookup(attr);
+            if (lookup != null) {
+                validateLookupDesiredValue(key, value, lookup, errors);
             }
         }
 
@@ -82,6 +93,18 @@ public class SpecificationValidationService {
     private void validateValue(String key, Object value, ItemTypeAttribute attr, List<String> errors) {
         AttributeDataType dataType = attr.getAttribute().getDataType();
         Map<String, Object> constraints = attr.getConstraints();
+
+        String lookup = getLookup(attr);
+        if (lookup != null) {
+            if (!(value instanceof String strVal)) {
+                errors.add(key + ": expected string");
+                return;
+            }
+            if (!existsInLookup(lookup, strVal)) {
+                errors.add(key + ": '" + strVal + "' not found in " + lookup);
+            }
+            return;
+        }
 
         switch (dataType) {
             case STRING -> {
@@ -125,6 +148,39 @@ public class SpecificationValidationService {
                 }
             }
         }
+    }
+
+    private void validateLookupDesiredValue(String key, Object value, String lookup, List<String> errors) {
+        if (value instanceof String strVal) {
+            if (!existsInLookup(lookup, strVal)) {
+                errors.add(key + ": '" + strVal + "' not found in " + lookup);
+            }
+        } else if (value instanceof List<?> listVal) {
+            for (Object item : listVal) {
+                if (!(item instanceof String strItem)) {
+                    errors.add(key + ": expected string values in list");
+                    return;
+                }
+                if (!existsInLookup(lookup, strItem)) {
+                    errors.add(key + ": '" + strItem + "' not found in " + lookup);
+                }
+            }
+        }
+    }
+
+    private String getLookup(ItemTypeAttribute attr) {
+        Map<String, Object> constraints = attr.getConstraints();
+        if (constraints != null && constraints.containsKey("lookup")) {
+            return (String) constraints.get("lookup");
+        }
+        return null;
+    }
+
+    private boolean existsInLookup(String lookup, String value) {
+        if ("brands".equals(lookup)) {
+            return brandRepository.existsByNameIgnoreCase(value);
+        }
+        return true;
     }
 
 }
