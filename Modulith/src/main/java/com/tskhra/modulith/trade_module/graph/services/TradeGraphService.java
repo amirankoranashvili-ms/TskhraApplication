@@ -8,6 +8,7 @@ import com.tskhra.modulith.trade_module.model.domain.ItemDesiredType;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.repositories.ItemDesiredTypeRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
+import com.tskhra.modulith.trade_module.repositories.TradeCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -26,6 +27,7 @@ public class TradeGraphService {
     private final Neo4jClient neo4jClient;
     private final ItemRepository itemRepository;
     private final ItemDesiredTypeRepository desiredTypeRepository;
+    private final TradeCategoryRepository tradeCategoryRepository;
 
     private TradeGraphService self;
 
@@ -38,7 +40,7 @@ public class TradeGraphService {
     @Transactional("neo4jTransactionManager")
     public void syncItem(Item item) {
         List<Integer> desiredCategoryIds = item.getDesiredCategories() != null
-                ? item.getDesiredCategories().stream().map(TradeCategory::getId).toList()
+                ? expandCategoryIds(item.getDesiredCategories().stream().map(TradeCategory::getId).toList())
                 : Collections.emptyList();
 
         List<ItemDesiredType> desiredTypes = desiredTypeRepository.findAllByItemId(item.getId());
@@ -74,7 +76,7 @@ public class TradeGraphService {
         nodeRepository.deleteOutgoingWants(itemId);
 
         List<Integer> desiredCategoryIds = item.getDesiredCategories() != null
-                ? item.getDesiredCategories().stream().map(TradeCategory::getId).toList()
+                ? expandCategoryIds(item.getDesiredCategories().stream().map(TradeCategory::getId).toList())
                 : Collections.emptyList();
 
         List<ItemDesiredType> desiredTypes = desiredTypeRepository.findAllByItemId(item.getId());
@@ -84,6 +86,8 @@ public class TradeGraphService {
 
         Long ownerId = item.getOwnerId();
         Integer categoryId = item.getCategory() != null ? item.getCategory().getId() : null;
+        Integer parentCategoryId = item.getCategory() != null && item.getCategory().getParent() != null
+                ? item.getCategory().getParent().getId() : null;
 
         if (!desiredCategoryIds.isEmpty()) {
             neo4jClient.query("""
@@ -188,6 +192,16 @@ public class TradeGraphService {
 
         log.info("Graph rebuild complete: {} nodes, {} edges",
                 nodeRepository.countNodes(), nodeRepository.countEdges());
+    }
+
+    private List<Integer> expandCategoryIds(List<Integer> categoryIds) {
+        Set<Integer> expanded = new LinkedHashSet<>(categoryIds);
+        for (Integer id : categoryIds) {
+            if (tradeCategoryRepository.isParentCategoryById(id)) {
+                expanded.addAll(tradeCategoryRepository.findChildIdsByParentId(id));
+            }
+        }
+        return List.copyOf(expanded);
     }
 
     @Transactional(value = "neo4jTransactionManager", readOnly = true)
