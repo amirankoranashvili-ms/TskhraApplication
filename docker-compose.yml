@@ -8,6 +8,7 @@ volumes:
   elastic_data:
   redis_data:
   kafka_data:
+  neo4j_data:
 
 services:
 
@@ -123,6 +124,7 @@ services:
       - REDIS_HOST=redis
       - KAFKA_HOST=kafka
       - ELASTICSEARCH_HOST=elasticsearch
+      - NEO4J_HOST=neo4j
     env_file:
       - ./.env
     volumes:
@@ -202,6 +204,21 @@ services:
 #      - elasticsearch
 #    networks:
 #      - micro-network
+
+
+  # Neo4j
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: neo4j-tskhra
+    environment:
+      - NEO4J_AUTH=neo4j/password
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - micro-network
 
 
   #  Kafka

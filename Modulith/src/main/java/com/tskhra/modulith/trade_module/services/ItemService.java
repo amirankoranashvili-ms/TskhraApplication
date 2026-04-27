@@ -8,9 +8,12 @@ import com.tskhra.modulith.trade_module.model.domain.*;
 import com.tskhra.modulith.trade_module.model.enums.ItemCondition;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemUploadDto;
+import com.tskhra.modulith.trade_module.model.events.ItemCreatedEvent;
+import com.tskhra.modulith.trade_module.model.events.ItemStatusChangedEvent;
 import com.tskhra.modulith.trade_module.repositories.*;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +43,7 @@ public class ItemService {
     private final SpecificationValidationService specValidationService;
     private final UserService userService;
     private final ImageService imageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public UUID createItem(ItemUploadDto dto, Jwt jwt) {
@@ -111,6 +115,7 @@ public class ItemService {
         }
 
         itemSearchService.indexItem(saved);
+        eventPublisher.publishEvent(new ItemCreatedEvent(saved.getId()));
         return saved.getId();
     }
 
@@ -126,9 +131,11 @@ public class ItemService {
             throw new HttpBadRequestException("You are not authorized to perform this action");
         }
 
+        ItemStatus oldStatus = item.getStatus();
         item.setStatus(ItemStatus.REMOVED);
         itemRepository.save(item);
         itemSearchService.deleteFromIndex(itemId);
+        eventPublisher.publishEvent(new ItemStatusChangedEvent(itemId, oldStatus, ItemStatus.REMOVED));
     }
 
     @Transactional(readOnly = true)
@@ -163,6 +170,7 @@ public class ItemService {
         item.setStatus(ItemStatus.HIDDEN);
         itemRepository.save(item);
         itemSearchService.updateItemStatus(itemId, ItemStatus.HIDDEN);
+        eventPublisher.publishEvent(new ItemStatusChangedEvent(itemId, ItemStatus.AVAILABLE, ItemStatus.HIDDEN));
     }
 
     @Transactional
@@ -184,6 +192,7 @@ public class ItemService {
         item.setStatus(ItemStatus.AVAILABLE);
         itemRepository.save(item);
         itemSearchService.updateItemStatus(itemId, ItemStatus.AVAILABLE);
+        eventPublisher.publishEvent(new ItemStatusChangedEvent(itemId, ItemStatus.HIDDEN, ItemStatus.AVAILABLE));
     }
 
     @Transactional(readOnly = true)

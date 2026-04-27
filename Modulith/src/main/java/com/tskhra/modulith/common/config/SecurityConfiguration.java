@@ -49,6 +49,7 @@ public class SecurityConfiguration {
                         ).permitAll()
                         .requestMatchers("/ws").permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
+                        .requestMatchers("/chain-trades/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

@@ -33,6 +33,11 @@ spring:
     uris: http://${ELASTICSEARCH_HOST:localhost}:9200
     connection-timeout: 5s
     socket-timeout: 30s
+  neo4j:
+    uri: bolt://${NEO4J_HOST:localhost}:7687
+    authentication:
+      username: neo4j
+      password: password
   data:
     redis:
       host: ${REDIS_HOST:localhost}

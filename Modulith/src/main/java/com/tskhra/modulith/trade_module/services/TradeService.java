@@ -9,6 +9,7 @@ import com.tskhra.modulith.trade_module.model.domain.TradeOffer;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.enums.OwningSide;
 import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
+import com.tskhra.modulith.trade_module.model.events.ItemStatusChangedEvent;
 import com.tskhra.modulith.trade_module.model.requests.TradeOfferCreationDto;
 import com.tskhra.modulith.trade_module.model.domain.ItemImage;
 import com.tskhra.modulith.trade_module.model.enums.OfferDirection;
@@ -19,6 +20,7 @@ import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -45,6 +47,7 @@ public class TradeService {
     private final ItemSearchService itemSearchService;
     private final ItemRepository itemRepository;
     private final TradeOfferRepository tradeOfferRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public TradeOffer createOffer(TradeOfferCreationDto dto, Jwt jwt) {
@@ -139,10 +142,11 @@ public class TradeService {
             throw new HttpBadRequestException("One or more items are no longer available");
         }
 
-        // Mark items as IN_TRADE
         lockedItems.forEach(item -> {
+            ItemStatus oldStatus = item.getStatus();
             item.setStatus(ItemStatus.IN_TRADE);
             itemSearchService.updateItemStatus(item.getId(), ItemStatus.IN_TRADE);
+            eventPublisher.publishEvent(new ItemStatusChangedEvent(item.getId(), oldStatus, ItemStatus.IN_TRADE));
         });
         itemRepository.saveAll(lockedItems);
 
@@ -266,6 +270,7 @@ public class TradeService {
                     .forEach(item -> {
                         item.setStatus(ItemStatus.TRADED);
                         itemSearchService.updateItemStatus(item.getId(), ItemStatus.TRADED);
+                        eventPublisher.publishEvent(new ItemStatusChangedEvent(item.getId(), ItemStatus.IN_TRADE, ItemStatus.TRADED));
                     });
         }
 
@@ -352,8 +357,10 @@ public class TradeService {
                 .map(OfferItem::getItem)
                 .toList();
         items.forEach(item -> {
+            ItemStatus oldStatus = item.getStatus();
             item.setStatus(ItemStatus.AVAILABLE);
             itemSearchService.updateItemStatus(item.getId(), ItemStatus.AVAILABLE);
+            eventPublisher.publishEvent(new ItemStatusChangedEvent(item.getId(), oldStatus, ItemStatus.AVAILABLE));
         });
         itemRepository.saveAll(items);
     }

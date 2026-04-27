@@ -26,6 +26,8 @@ public interface ItemRepository extends JpaRepository<Item, UUID> {
     @EntityGraph(attributePaths = "images")
     Page<Item> findAllByStatus(ItemStatus status, Pageable pageable);
 
+    List<Item> findAllByStatus(ItemStatus status);
+
     @EntityGraph(attributePaths = "images")
     Page<Item> findAllByOwnerIdAndStatus(Long ownerId, ItemStatus status, Pageable pageable);
 
