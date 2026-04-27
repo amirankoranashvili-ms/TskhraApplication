@@ -40,7 +40,7 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private CategorySwap category;
+    private TradeCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
@@ -55,7 +55,7 @@ public class Item {
             joinColumns = @JoinColumn(name = "item_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    private List<CategorySwap> desiredCategories;
+    private List<TradeCategory> desiredCategories;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_type_id")

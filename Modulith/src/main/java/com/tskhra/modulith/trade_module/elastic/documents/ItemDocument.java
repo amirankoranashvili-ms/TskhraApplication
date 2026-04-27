@@ -1,6 +1,6 @@
 package com.tskhra.modulith.trade_module.elastic.documents;
 
-import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
+import com.tskhra.modulith.trade_module.model.domain.TradeCategory;
 import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.domain.ItemImage;
 import com.tskhra.modulith.trade_module.model.enums.ItemCondition;
@@ -43,8 +43,8 @@ public class ItemDocument {
     @Field(type = FieldType.Text, analyzer = "item_analyzer", searchAnalyzer = "item_search_analyzer")
     private String description;
 
-    @Field(type = FieldType.Long)
-    private Long categoryId;
+    @Field(type = FieldType.Integer)
+    private Integer categoryId;
 
     @Field(type = FieldType.Keyword)
     private String categoryName;
@@ -58,8 +58,8 @@ public class ItemDocument {
     @Field(type = FieldType.Keyword)
     private List<String> imageUris;
 
-    @Field(type = FieldType.Long)
-    private List<Long> desiredCategoryIds;
+    @Field(type = FieldType.Integer)
+    private List<Integer> desiredCategoryIds;
 
     @Field(type = FieldType.Integer)
     private Integer itemTypeId;
@@ -105,7 +105,7 @@ public class ItemDocument {
                         ? item.getImages().stream().map(ItemImage::getUri).toList()
                         : List.of())
                 .desiredCategoryIds(item.getDesiredCategories() != null
-                        ? item.getDesiredCategories().stream().map(CategorySwap::getId).toList()
+                        ? item.getDesiredCategories().stream().map(TradeCategory::getId).toList()
                         : List.of())
                 .itemTypeId(item.getItemType() != null ? item.getItemType().getId() : null)
                 .itemTypeName(item.getItemType() != null ? item.getItemType().getName() : null)

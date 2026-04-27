@@ -13,11 +13,11 @@ import java.util.Map;
 public record ItemUploadDto(
         @NotBlank String title,
         String description,
-        @NotNull Long categoryId,
+        @NotNull Integer categoryId,
         @NotNull Long cityId,
         @NotNull ItemCondition condition,
         @NotNull TradeRange tradeRange,
-        List<Long> desiredCategories,
+        List<Integer> desiredCategories,
         Integer itemTypeId,
         Map<String, Object> specifications,
         List<DesiredTypeEntry> desiredTypes

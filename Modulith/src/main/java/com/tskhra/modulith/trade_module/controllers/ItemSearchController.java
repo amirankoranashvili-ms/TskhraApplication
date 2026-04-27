@@ -30,7 +30,7 @@ public class ItemSearchController {
     @GetMapping
     public ResponseEntity<Page<ItemSummaryDto>> searchItems(
             @RequestParam(required = false) String query,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) Long cityId,
             @RequestParam(required = false) ItemCondition condition,
             @RequestParam(required = false) TradeRange tradeRange,

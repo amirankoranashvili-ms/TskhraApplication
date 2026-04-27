@@ -6,7 +6,7 @@ import com.tskhra.modulith.trade_module.model.enums.TradeRange;
 
 public record ItemSearchRequest(
         String query,
-        Long categoryId,
+        Integer categoryId,
         Long cityId,
         ItemCondition condition,
         TradeRange tradeRange,

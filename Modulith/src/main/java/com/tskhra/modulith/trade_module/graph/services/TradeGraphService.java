@@ -2,7 +2,7 @@ package com.tskhra.modulith.trade_module.graph.services;
 
 import com.tskhra.modulith.trade_module.graph.nodes.TradeItemNode;
 import com.tskhra.modulith.trade_module.graph.repositories.TradeItemNodeRepository;
-import com.tskhra.modulith.trade_module.model.domain.CategorySwap;
+import com.tskhra.modulith.trade_module.model.domain.TradeCategory;
 import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.domain.ItemDesiredType;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
@@ -37,8 +37,8 @@ public class TradeGraphService {
 
     @Transactional("neo4jTransactionManager")
     public void syncItem(Item item) {
-        List<Long> desiredCategoryIds = item.getDesiredCategories() != null
-                ? item.getDesiredCategories().stream().map(CategorySwap::getId).toList()
+        List<Integer> desiredCategoryIds = item.getDesiredCategories() != null
+                ? item.getDesiredCategories().stream().map(TradeCategory::getId).toList()
                 : Collections.emptyList();
 
         List<ItemDesiredType> desiredTypes = desiredTypeRepository.findAllByItemId(item.getId());
@@ -73,8 +73,8 @@ public class TradeGraphService {
 
         nodeRepository.deleteOutgoingWants(itemId);
 
-        List<Long> desiredCategoryIds = item.getDesiredCategories() != null
-                ? item.getDesiredCategories().stream().map(CategorySwap::getId).toList()
+        List<Integer> desiredCategoryIds = item.getDesiredCategories() != null
+                ? item.getDesiredCategories().stream().map(TradeCategory::getId).toList()
                 : Collections.emptyList();
 
         List<ItemDesiredType> desiredTypes = desiredTypeRepository.findAllByItemId(item.getId());
@@ -83,7 +83,7 @@ public class TradeGraphService {
                 .toList();
 
         Long ownerId = item.getOwnerId();
-        Long categoryId = item.getCategory() != null ? item.getCategory().getId() : null;
+        Integer categoryId = item.getCategory() != null ? item.getCategory().getId() : null;
 
         if (!desiredCategoryIds.isEmpty()) {
             neo4jClient.query("""

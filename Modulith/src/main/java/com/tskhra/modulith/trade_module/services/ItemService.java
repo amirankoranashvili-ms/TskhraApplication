@@ -36,7 +36,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemSearchService itemSearchService;
     private final ItemImageService itemImageService;
-    private final CategorySwapRepository categoryRepository;
+    private final TradeCategoryRepository categoryRepository;
     private final CitySwapRepository cityRepository;
     private final ItemTypeRepository itemTypeRepository;
     private final ItemDesiredTypeRepository itemDesiredTypeRepository;
@@ -49,7 +49,7 @@ public class ItemService {
     public UUID createItem(ItemUploadDto dto, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
 
-        CategorySwap categorySwap = categoryRepository.findById(dto.categoryId()).orElseThrow(
+        TradeCategory category = categoryRepository.findById(dto.categoryId()).orElseThrow(
                 () -> new HttpBadRequestException("No such category with id: " + dto.categoryId())
         );
 
@@ -57,7 +57,7 @@ public class ItemService {
                 () -> new HttpBadRequestException("No such city with id: " + dto.cityId())
         );
 
-        List<CategorySwap> desiredCategories = List.of();
+        List<TradeCategory> desiredCategories = List.of();
         if (dto.desiredCategories() != null && !dto.desiredCategories().isEmpty()) {
             desiredCategories = categoryRepository.findAllById(dto.desiredCategories());
             if (desiredCategories.size() != dto.desiredCategories().size()) {
@@ -83,7 +83,7 @@ public class ItemService {
                 .name(dto.title())
                 .ownerId(userId)
                 .description(dto.description())
-                .category(categorySwap)
+                .category(category)
                 .city(city)
                 .desiredCategories(desiredCategories)
                 .itemType(itemType)

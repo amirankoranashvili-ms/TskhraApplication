@@ -13,7 +13,7 @@ import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.requests.ItemSearchRequest;
 import com.tskhra.modulith.trade_module.model.responses.ItemSummaryDto;
-import com.tskhra.modulith.trade_module.repositories.CategorySwapRepository;
+import com.tskhra.modulith.trade_module.repositories.TradeCategoryRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class ItemSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final ItemDocumentRepository itemDocumentRepository;
-    private final CategorySwapRepository categorySwapRepository;
+    private final TradeCategoryRepository tradeCategoryRepository;
     private final ItemRepository itemRepository;
     private final ImageService imageService;
 
@@ -65,9 +65,9 @@ public class ItemSearchService {
 
         // Filter by category
         if (request.categoryId() != null) {
-            boolean isParentCategory = categorySwapRepository.isParentCategoryById(request.categoryId());
+            boolean isParentCategory = tradeCategoryRepository.isParentCategoryById(request.categoryId());
             if (isParentCategory) {
-                List<Long> childIds = categorySwapRepository.findChildIdsByParentId(request.categoryId());
+                List<Integer> childIds = tradeCategoryRepository.findChildIdsByParentId(request.categoryId());
                 List<FieldValue> fieldValues = childIds.stream()
                         .map(FieldValue::of)
                         .toList();

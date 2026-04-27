@@ -23,7 +23,7 @@ public class TradeItemNode {
 
     private Long ownerId;
     private String name;
-    private Long categoryId;
+    private Integer categoryId;
     private String categoryName;
     private Integer itemTypeId;
     private String status;
@@ -32,7 +32,7 @@ public class TradeItemNode {
     private String tradeRange;
 
     @Builder.Default
-    private List<Long> desiredCategoryIds = Collections.emptyList();
+    private List<Integer> desiredCategoryIds = Collections.emptyList();
 
     @Builder.Default
     private List<Integer> desiredItemTypeIds = Collections.emptyList();
