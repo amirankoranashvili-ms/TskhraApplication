@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,5 +25,12 @@ public class ItemSearchAdminController {
     public ResponseEntity<Map<String, Object>> bulkReindex() {
         long count = itemSearchService.bulkReindex();
         return ResponseEntity.ok(Map.of("reindexed", count));
+    }
+
+    @Operation(summary = "Delete all items from Elasticsearch index")
+    @DeleteMapping("/items")
+    public ResponseEntity<Void> deleteAll() {
+        itemSearchService.deleteAllFromIndex();
+        return ResponseEntity.noContent().build();
     }
 }

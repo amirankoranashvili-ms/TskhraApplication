@@ -192,6 +192,11 @@ public class ItemSearchService {
         itemDocumentRepository.deleteById(itemId);
     }
 
+    public void deleteAllFromIndex() {
+        itemDocumentRepository.deleteAll();
+        log.info("Deleted all items from Elasticsearch index");
+    }
+
     public long bulkReindex() {
         List<Item> allItems = itemRepository.findAll();
         List<ItemDocument> documents = allItems.stream()

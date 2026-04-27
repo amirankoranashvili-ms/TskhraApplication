@@ -28,9 +28,9 @@ public class TradeGraphListener {
             if (item == null || item.getStatus() != ItemStatus.AVAILABLE) return;
             graphService.syncItem(item);
             graphService.computeEdges(item);
-            log.debug("Synced new item {} to trade graph", event.itemId());
+            log.info("Synced new item {} to trade graph", event.itemId());
         } catch (Exception e) {
-            log.error("Failed to sync item {} to trade graph", event.itemId(), e);
+            log.info("Failed to sync item {} to trade graph", event.itemId(), e);
         }
     }
 
