@@ -10,6 +10,7 @@ import com.tskhra.modulith.trade_module.repositories.ItemDesiredTypeRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,14 @@ public class TradeGraphService {
     private final Neo4jClient neo4jClient;
     private final ItemRepository itemRepository;
     private final ItemDesiredTypeRepository desiredTypeRepository;
+
+    private TradeGraphService self;
+
+    @Lazy
+    @org.springframework.beans.factory.annotation.Autowired
+    public void setSelf(TradeGraphService self) {
+        this.self = self;
+    }
 
     @Transactional("neo4jTransactionManager")
     public void syncItem(Item item) {
@@ -81,6 +90,7 @@ public class TradeGraphService {
                     MATCH (source:TradeItem {itemId: $sourceId}), (target:TradeItem {status: 'AVAILABLE'})
                     WHERE target.categoryId IN $desiredCategoryIds
                       AND target.ownerId <> $ownerId
+                      AND target.itemId <> $sourceId
                     CREATE (source)-[:WANTS {matchLevel: 'CATEGORY', weight: 0.5}]->(target)
                     """)
                     .bind(itemId).to("sourceId")
@@ -94,6 +104,7 @@ public class TradeGraphService {
                     MATCH (source:TradeItem {itemId: $sourceId}), (target:TradeItem {status: 'AVAILABLE'})
                     WHERE target.itemTypeId IN $desiredItemTypeIds
                       AND target.ownerId <> $ownerId
+                      AND target.itemId <> $sourceId
                       AND NOT EXISTS { (source)-[:WANTS]->(target) }
                     CREATE (source)-[:WANTS {matchLevel: 'ITEM_TYPE', weight: 0.8}]->(target)
                     """)
@@ -108,6 +119,7 @@ public class TradeGraphService {
                     MATCH (source:TradeItem {status: 'AVAILABLE'}), (target:TradeItem {itemId: $targetId})
                     WHERE $categoryId IN source.desiredCategoryIds
                       AND source.ownerId <> $ownerId
+                      AND source.itemId <> $targetId
                       AND NOT EXISTS { (source)-[:WANTS]->(target) }
                     CREATE (source)-[:WANTS {matchLevel: 'CATEGORY', weight: 0.5}]->(target)
                     """)
@@ -123,6 +135,7 @@ public class TradeGraphService {
                     MATCH (source:TradeItem {status: 'AVAILABLE'}), (target:TradeItem {itemId: $targetId})
                     WHERE $itemTypeId IN source.desiredItemTypeIds
                       AND source.ownerId <> $ownerId
+                      AND source.itemId <> $targetId
                       AND NOT EXISTS { (source)-[:WANTS]->(target) }
                     CREATE (source)-[:WANTS {matchLevel: 'ITEM_TYPE', weight: 0.8}]->(target)
                     """)
@@ -166,11 +179,11 @@ public class TradeGraphService {
         log.info("Found {} available items to index", availableItems.size());
 
         for (Item item : availableItems) {
-            syncItem(item);
+            self.syncItem(item);
         }
 
         for (Item item : availableItems) {
-            computeEdges(item);
+            self.computeEdges(item);
         }
 
         log.info("Graph rebuild complete: {} nodes, {} edges",

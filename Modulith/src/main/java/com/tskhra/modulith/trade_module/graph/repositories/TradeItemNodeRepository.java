@@ -32,8 +32,9 @@ public interface TradeItemNodeRepository extends Neo4jRepository<TradeItemNode, 
     @Query("""
             MATCH path = (start:TradeItem {itemId: $itemId})-[:WANTS*2..6]->(start)
             WITH path, nodes(path)[0..-1] AS ns
-            WHERE ALL(i IN range(0, size(ns)-1) WHERE
-              NONE(j IN range(i+1, size(ns)-1) WHERE ns[i].ownerId = ns[j].ownerId))
+            WHERE ALL(n IN ns WHERE n.status = 'AVAILABLE')
+              AND ALL(i IN range(0, size(ns)-1) WHERE
+                NONE(j IN range(i+1, size(ns)-1) WHERE ns[i].ownerId = ns[j].ownerId))
             RETURN [n IN ns | {
               itemId: n.itemId,
               ownerId: n.ownerId,
