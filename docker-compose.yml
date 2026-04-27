@@ -206,7 +206,7 @@ services:
 #      - micro-network
 
 
-  # Neo4j
+  # Neo4j test
   neo4j:
     image: neo4j:5.26-community
     container_name: neo4j-tskhra
