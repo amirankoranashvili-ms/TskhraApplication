@@ -29,25 +29,6 @@ public interface TradeItemNodeRepository extends Neo4jRepository<TradeItemNode, 
             "RETURN n")
     List<TradeItemNode> findItemsWhoseDesiredCategoriesInclude(List<Long> desiredCategoryIds, Long excludeOwnerId);
 
-    @Query("""
-            MATCH path = (start:TradeItem {itemId: $itemId})-[:WANTS*2..6]->(start)
-            WITH path, nodes(path)[0..-1] AS ns
-            WHERE ALL(n IN ns WHERE n.status = 'AVAILABLE')
-              AND ALL(i IN range(0, size(ns)-1) WHERE
-                NONE(j IN range(i+1, size(ns)-1) WHERE ns[i].ownerId = ns[j].ownerId))
-            RETURN [n IN ns | {
-              itemId: n.itemId,
-              ownerId: n.ownerId,
-              name: n.name,
-              categoryName: n.categoryName,
-              estimatedValue: n.estimatedValue
-            }] AS chain,
-            size(ns) AS chainLength
-            ORDER BY chainLength ASC
-            LIMIT $maxResults
-            """)
-    List<Map<String, Object>> findChainsForItem(String itemId, int maxResults);
-
     @Query("MATCH (n:TradeItem {itemId: $itemId})-[r:WANTS]->() DELETE r")
     void deleteOutgoingWants(String itemId);
 
