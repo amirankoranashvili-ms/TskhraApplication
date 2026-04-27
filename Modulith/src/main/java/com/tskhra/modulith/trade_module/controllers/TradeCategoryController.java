@@ -3,6 +3,7 @@ package com.tskhra.modulith.trade_module.controllers;
 import com.tskhra.modulith.trade_module.model.responses.ItemTypeAttributeSummaryDto;
 import com.tskhra.modulith.trade_module.model.responses.ItemTypeSummaryDto;
 import com.tskhra.modulith.trade_module.model.responses.TradeCategorySummaryDto;
+import com.tskhra.modulith.trade_module.model.responses.TradeCategoryTreeDto;
 import com.tskhra.modulith.trade_module.services.ItemTypeAdminService;
 import com.tskhra.modulith.trade_module.services.ItemTypeAttributeAdminService;
 import com.tskhra.modulith.trade_module.services.TradeCategoryAdminService;
@@ -26,6 +27,12 @@ public class TradeCategoryController {
     private final TradeCategoryAdminService categoryService;
     private final ItemTypeAdminService itemTypeService;
     private final ItemTypeAttributeAdminService itemTypeAttributeService;
+
+    @Operation(summary = "Get full trade category tree")
+    @GetMapping("/tree")
+    public ResponseEntity<List<TradeCategoryTreeDto>> getCategoryTree() {
+        return ResponseEntity.ok(categoryService.getCategoryTree());
+    }
 
     @Operation(summary = "List all root trade categories")
     @GetMapping

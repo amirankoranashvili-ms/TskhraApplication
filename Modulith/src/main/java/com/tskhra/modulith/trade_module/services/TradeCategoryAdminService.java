@@ -7,6 +7,7 @@ import com.tskhra.modulith.trade_module.model.requests.TradeCategoryBulkDto;
 import com.tskhra.modulith.trade_module.model.requests.TradeCategoryCreateDto;
 import com.tskhra.modulith.trade_module.model.responses.BulkImportResult;
 import com.tskhra.modulith.trade_module.model.responses.TradeCategorySummaryDto;
+import com.tskhra.modulith.trade_module.model.responses.TradeCategoryTreeDto;
 import com.tskhra.modulith.trade_module.repositories.TradeCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,13 @@ public class TradeCategoryAdminService {
 
         TradeCategory saved = tradeCategoryRepository.save(category);
         return toDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TradeCategoryTreeDto> getCategoryTree() {
+        return tradeCategoryRepository.findAllParentsWithChildren().stream()
+                .map(this::toTreeDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -107,6 +115,14 @@ public class TradeCategoryAdminService {
         TradeCategory category = tradeCategoryRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFoundException("Category not found"));
         tradeCategoryRepository.delete(category);
+    }
+
+    private TradeCategoryTreeDto toTreeDto(TradeCategory c) {
+        List<TradeCategoryTreeDto> children = c.getChildren() == null ? List.of() :
+                c.getChildren().stream()
+                        .map(this::toTreeDto)
+                        .toList();
+        return new TradeCategoryTreeDto(c.getId(), c.getName(), c.getSlug(), children);
     }
 
     private TradeCategorySummaryDto toDto(TradeCategory c) {

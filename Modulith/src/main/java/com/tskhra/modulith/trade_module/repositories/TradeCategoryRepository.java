@@ -22,6 +22,9 @@ public interface TradeCategoryRepository extends JpaRepository<TradeCategory, In
     @Query("SELECT tc FROM TradeCategory tc WHERE tc.parent IS NULL")
     List<TradeCategory> findAllParents();
 
+    @Query("SELECT DISTINCT tc FROM TradeCategory tc LEFT JOIN FETCH tc.children WHERE tc.parent IS NULL")
+    List<TradeCategory> findAllParentsWithChildren();
+
     Page<TradeCategory> findAllByParentIsNull(Pageable pageable);
 
     @Query("SELECT COUNT(tc) > 0 FROM TradeCategory tc WHERE tc.parent.id = :categoryId")
