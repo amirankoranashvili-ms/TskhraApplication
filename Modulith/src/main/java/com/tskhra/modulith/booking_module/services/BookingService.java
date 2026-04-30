@@ -90,29 +90,29 @@ public class BookingService {
 
         bookingRepository.save(booking);
 
-        eventPublisher.publishEvent(new BookingStatusChangedEvent(
-                booking.getId(), business.getUserId(), BookingStatus.AWAITING,
-                service.getName(), business.getName()
-        ));
+//        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+//                booking.getId(), business.getUserId(), BookingStatus.AWAITING,
+//                service.getName(), business.getName()
+//        ));
 
         BookingEvent bookingEvent = new BookingEvent(business.getId(), bookedBy, service.getId(), booking.getBookingDate(), booking.getStartTime());
         simpMessagingTemplate.convertAndSend("/topic/bookings", "User " + userId + " has booked a service: " + service.getName() + " on " + request.date() + " at " + request.startTime());
         simpMessagingTemplate.convertAndSendToUser(businessOwnerId, "/queue/messages", objectMapper.writeValueAsString(bookingEvent));
 
-        eventPublisher.publishEvent(new BookingCreatedEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "booking_service",
-                booking.getId().toString(),
-                new BookingCreatedEvent.Payload(
-                        business.getId().toString(),
-                        service.getId().toString(),
-                        userKeycloakId,
-                        booking.getId().toString(),
-                        request.date().toString(),
-                        request.startTime()
-                )
-        ));
+//        eventPublisher.publishEvent(new BookingCreatedEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "booking_service",
+//                booking.getId().toString(),
+//                new BookingCreatedEvent.Payload(
+//                        business.getId().toString(),
+//                        service.getId().toString(),
+//                        userKeycloakId,
+//                        booking.getId().toString(),
+//                        request.date().toString(),
+//                        request.startTime()
+//                )
+//        ));
     }
 
     private boolean isTimeAvailable(Long businessId, LocalDate date, int startTime, int endTime) {
@@ -184,10 +184,10 @@ public class BookingService {
         booking.setBookingStatus(BookingStatus.SCHEDULED);
         bookingRepository.save(booking);
 
-        eventPublisher.publishEvent(new BookingStatusChangedEvent(
-                booking.getId(), booking.getUserId(), BookingStatus.SCHEDULED,
-                service.getName(), business.getName()
-        ));
+//        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+//                booking.getId(), booking.getUserId(), BookingStatus.SCHEDULED,
+//                service.getName(), business.getName()
+//        ));
 
         BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.SCHEDULED, booking.getBookingDate(), booking.getStartTime()
@@ -196,16 +196,16 @@ public class BookingService {
         simpMessagingTemplate.convertAndSendToUser(
                 bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
 
-        eventPublisher.publishEvent(new BookingApprovedEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "approve_booking_service_by_business",
-                booking.getId().toString(),
-                new BookingApprovedEvent.Payload(
-                        business.getId().toString(),
-                        booking.getId().toString()
-                )
-        ));
+//        eventPublisher.publishEvent(new BookingApprovedEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "approve_booking_service_by_business",
+//                booking.getId().toString(),
+//                new BookingApprovedEvent.Payload(
+//                        business.getId().toString(),
+//                        booking.getId().toString()
+//                )
+//        ));
     }
 
     @Transactional
@@ -240,16 +240,16 @@ public class BookingService {
         simpMessagingTemplate.convertAndSendToUser(
                 bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
 
-        eventPublisher.publishEvent(new BookingRejectedEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "reject_booking_service_by_business",
-                booking.getId().toString(),
-                new BookingRejectedEvent.Payload(
-                        business.getId().toString(),
-                        booking.getId().toString()
-                )
-        ));
+//        eventPublisher.publishEvent(new BookingRejectedEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "reject_booking_service_by_business",
+//                booking.getId().toString(),
+//                new BookingRejectedEvent.Payload(
+//                        business.getId().toString(),
+//                        booking.getId().toString()
+//                )
+//        ));
     }
 
     @Transactional
@@ -272,10 +272,10 @@ public class BookingService {
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_BUSINESS);
         bookingRepository.save(booking);
 
-        eventPublisher.publishEvent(new BookingStatusChangedEvent(
-                booking.getId(), booking.getUserId(), BookingStatus.CANCELLED_BY_BUSINESS,
-                service.getName(), business.getName()
-        ));
+//        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+//                booking.getId(), booking.getUserId(), BookingStatus.CANCELLED_BY_BUSINESS,
+//                service.getName(), business.getName()
+//        ));
 
         BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.CANCELLED_BY_BUSINESS, booking.getBookingDate(), booking.getStartTime()
@@ -284,16 +284,16 @@ public class BookingService {
         simpMessagingTemplate.convertAndSendToUser(
                 bookedBy, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
 
-        eventPublisher.publishEvent(new BookingCancelledByBusinessEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "cancel_booking_by_business_after_approve",
-                booking.getId().toString(),
-                new BookingCancelledByBusinessEvent.Payload(
-                        business.getId().toString(),
-                        booking.getId().toString()
-                )
-        ));
+//        eventPublisher.publishEvent(new BookingCancelledByBusinessEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "cancel_booking_by_business_after_approve",
+//                booking.getId().toString(),
+//                new BookingCancelledByBusinessEvent.Payload(
+//                        business.getId().toString(),
+//                        booking.getId().toString()
+//                )
+//        ));
     }
 
     @Transactional
@@ -318,10 +318,10 @@ public class BookingService {
 
         Service service = booking.getService();
         Business business = service.getBusiness();
-        eventPublisher.publishEvent(new BookingStatusChangedEvent(
-                booking.getId(), business.getUserId(), BookingStatus.CANCELLED_BY_USER,
-                service.getName(), business.getName()
-        ));
+//        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+//                booking.getId(), business.getUserId(), BookingStatus.CANCELLED_BY_USER,
+//                service.getName(), business.getName()
+//        ));
 
         BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.CANCELLED_BY_USER, booking.getBookingDate(), booking.getStartTime()
@@ -331,17 +331,17 @@ public class BookingService {
                 businessOwner, "/queue/statuschange", objectMapper.writeValueAsString(statusChangeEvent));
 
         String userKeycloakId = jwt.getClaimAsString("sub");
-        eventPublisher.publishEvent(new BookingCancelledByUserEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "cancel_booking_by_user",
-                booking.getId().toString(),
-                new BookingCancelledByUserEvent.Payload(
-                        userKeycloakId,
-                        booking.getId().toString(),
-                        previousStatus
-                )
-        ));
+//        eventPublisher.publishEvent(new BookingCancelledByUserEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "cancel_booking_by_user",
+//                booking.getId().toString(),
+//                new BookingCancelledByUserEvent.Payload(
+//                        userKeycloakId,
+//                        booking.getId().toString(),
+//                        previousStatus
+//                )
+//        ));
     }
 
     public List<BookingDto> getAwaitingBookings(Long businessId, Lang lang, Jwt jwt) {
