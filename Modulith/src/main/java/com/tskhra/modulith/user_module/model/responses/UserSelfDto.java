@@ -5,6 +5,7 @@ import java.util.Set;
 
 public record UserSelfDto(
         String userName,
+        String userId,
         String firstName,
         String lastName,
         String userEmail,
