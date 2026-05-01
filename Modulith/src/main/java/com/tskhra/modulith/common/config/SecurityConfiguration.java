@@ -33,7 +33,6 @@ public class SecurityConfiguration {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/chatbot/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -50,7 +49,10 @@ public class SecurityConfiguration {
                         ).permitAll()
                         .requestMatchers("/ws").permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
-                        .requestMatchers("/chain-trades/**", "/chatbot/answers", "/chatbot/questions").authenticated()
+                        .requestMatchers("/chain-trades/**").authenticated()
+                        .requestMatchers("/chatbot/{businessId}").permitAll()
+                        .requestMatchers("/chatbot/**").permitAll()
+                        .requestMatchers("/chat").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
