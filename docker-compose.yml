@@ -109,6 +109,7 @@ services:
       - products
       - cart
       - payment
+      - provider
     networks:
       - micro-network
     extra_hosts:
@@ -354,6 +355,42 @@ services:
       kafka:
         condition: service_started
       redis:
+        condition: service_started
+    networks:
+      - micro-network
+
+
+  # Provider Service (Python/FastAPI)
+  provider:
+    build:
+      context: ./python_web
+      dockerfile: provider/Dockerfile
+    container_name: provider-tskhra
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/provider_db
+      - TSKHRA_DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/tskhra_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_URL=redis://redis:6379
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=tskhra
+      - PRODUCTS_SERVICE_URL=http://products:8004
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=password
+      # TODO: replace with external IP for production (match Java: http://10.227.164.247:9000)
+      - MINIO_PUBLIC_URL=http://localhost:9000
+      - MINIO_BUCKET=product-images
+      - ROOT_PATH=/ecommerce/provider
+    ports:
+      - "8005:8005"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+      minio:
         condition: service_started
     networks:
       - micro-network

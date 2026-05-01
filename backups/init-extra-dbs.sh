@@ -6,6 +6,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     SELECT 'CREATE DATABASE products_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'products_db')\gexec
     SELECT 'CREATE DATABASE cart_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cart_db')\gexec
     SELECT 'CREATE DATABASE payment_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'payment_db')\gexec
+    SELECT 'CREATE DATABASE provider_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'provider_db')\gexec
 EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "tskhra_db" <<-'EOSQL'
