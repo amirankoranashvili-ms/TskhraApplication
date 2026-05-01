@@ -9,11 +9,11 @@ class Settings(BaseSettings):
     """Application settings populated from environment variables and .env file."""
 
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-    SECRET_KEY: str
-    TOKEN_URL: str = "/auth/token"
     APP_NAME: str = "Payment Service"
     APP_VERSION: str = "0.1.0"
     DATABASE_URL: str
+    KEYCLOAK_URL: str = "http://localhost:8080"
+    KEYCLOAK_REALM: str = "tskhra"
     KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
     REDIS_URL: str = "redis://localhost:6379/0"
 
