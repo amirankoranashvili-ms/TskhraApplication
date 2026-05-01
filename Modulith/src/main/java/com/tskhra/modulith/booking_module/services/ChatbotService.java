@@ -60,9 +60,10 @@ public class ChatbotService {
 
         chatbot.setAiProviderId(generateResponse.providerId());
         chatbot.setChatApiKey(generateResponse.chatApiKey());
+        chatbot.setAdminApiKey(generateResponse.adminApiKey());
         businessChatbotRepository.save(chatbot);
 
-        return new ChatbotConfigDto(generateResponse.providerId(), generateResponse.chatApiKey());
+        return new ChatbotConfigDto(generateResponse.providerId(), generateResponse.chatApiKey(), generateResponse.adminApiKey());
     }
 
     public ChatbotConfigDto getChatbotConfig(Long businessId) {
@@ -73,6 +74,6 @@ public class ChatbotService {
         BusinessChatbot chatbot = businessChatbotRepository.findByBusinessId(businessId)
                 .orElseThrow(() -> new HttpNotFoundException("Chatbot not configured for business: " + businessId));
 
-        return new ChatbotConfigDto(chatbot.getAiProviderId(), chatbot.getChatApiKey());
+        return new ChatbotConfigDto(chatbot.getAiProviderId(), chatbot.getChatApiKey(), chatbot.getAdminApiKey());
     }
 }

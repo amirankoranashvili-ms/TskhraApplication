@@ -30,6 +30,9 @@ public class BusinessChatbot {
     @Column(name = "chat_api_key", nullable = false)
     private String chatApiKey;
 
+    @Column(name = "admin_api_key") // todo add nullable
+    private String adminApiKey;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
