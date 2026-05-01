@@ -72,3 +72,7 @@ sumsub:
   secret-key: ${SUMSUB_SECRET_KEY}
   token: ${SUMSUB_TOKEN}
   level-name: ${SUMSUB_LEVEL_NAME}
+
+ai-service:
+  base-url: ${AI_SERVICE_URL:http://10.227.164.168:8001}
+  api-key: ${AI_SERVICE_API_KEY:placeholder-key}

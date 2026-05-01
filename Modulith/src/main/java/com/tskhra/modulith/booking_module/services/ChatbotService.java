@@ -1,0 +1,89 @@
+package com.tskhra.modulith.booking_module.services;
+
+import com.tskhra.modulith.booking_module.model.domain.Business;
+import com.tskhra.modulith.booking_module.model.domain.BusinessChatbot;
+import com.tskhra.modulith.booking_module.model.requests.ChatbotSubmitRequest;
+import com.tskhra.modulith.booking_module.model.requests.OnboardingGenerateRequest;
+import com.tskhra.modulith.booking_module.model.requests.ProviderCreateRequest;
+import com.tskhra.modulith.booking_module.model.responses.ChatbotConfigDto;
+import com.tskhra.modulith.booking_module.model.responses.ProviderCreateResponse;
+import com.tskhra.modulith.booking_module.repositories.BusinessChatbotRepository;
+import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
+import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
+import com.tskhra.modulith.user_module.services.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ChatbotService {
+
+    private final BusinessChatbotRepository businessChatbotRepository;
+    private final BusinessRepository businessRepository;
+    private final UserService userService;
+    private final AiServiceClient aiServiceClient;
+
+    public List<String> getQuestions(String category) {
+        return aiServiceClient.getQuestions(category);
+    }
+
+    @Transactional
+    public ChatbotConfigDto submitAnswers(ChatbotSubmitRequest request, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+
+        Business business = businessRepository.findById(request.businessId())
+                .orElseThrow(() -> new HttpNotFoundException("Business not found with id: " + request.businessId()));
+
+        if (!business.getUserId().equals(userId)) {
+            throw new HttpForbiddenError("You are not authorized to manage this business's chatbot");
+        }
+
+        String categoryName = business.getCategory().getName();
+
+        ProviderCreateRequest providerRequest = new ProviderCreateRequest(
+                business.getName(),
+                "business-" + business.getId(),
+                categoryName,
+                "",
+                business.getId()
+        );
+        ProviderCreateResponse providerResponse = aiServiceClient.createProvider(providerRequest);
+
+        OnboardingGenerateRequest generateRequest = new OnboardingGenerateRequest(
+                business.getId(),
+                categoryName,
+                request.answers()
+        );
+        aiServiceClient.generateOnboarding(generateRequest);
+
+        BusinessChatbot chatbot = businessChatbotRepository.findByBusinessId(request.businessId())
+                .orElse(BusinessChatbot.builder().business(business).build());
+
+        chatbot.setAiProviderId(providerResponse.providerId());
+        chatbot.setChatApiKey(providerResponse.apiKey());
+        businessChatbotRepository.save(chatbot);
+
+        return new ChatbotConfigDto(providerResponse.providerId(), providerResponse.apiKey());
+    }
+
+    public ChatbotConfigDto getChatbotConfig(Long businessId, Jwt jwt) {
+        Long userId = userService.getCurrentUser(jwt).getId();
+
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new HttpNotFoundException("Business not found with id: " + businessId));
+
+        if (!business.getUserId().equals(userId)) {
+            throw new HttpForbiddenError("You are not authorized to view this business's chatbot config");
+        }
+
+        BusinessChatbot chatbot = businessChatbotRepository.findByBusinessId(businessId)
+                .orElseThrow(() -> new HttpNotFoundException("Chatbot not configured for business: " + businessId));
+
+        return new ChatbotConfigDto(chatbot.getAiProviderId(), chatbot.getChatApiKey());
+    }
+}

@@ -45,7 +45,8 @@ public class SecurityConfiguration {
                                 "/items/search/suggest",
                                 "/items",
                                 "/trade-categories/**",
-                                "/brands"
+                                "/brands",
+                                "/chatbot/questions"
                         ).permitAll()
                         .requestMatchers("/ws").permitAll()
                         .requestMatchers("/users/register", "/users/kc-register", "/auth/**").permitAll()
