@@ -7,7 +7,7 @@ class KafkaEventPublisher:
     def __init__(
         self,
         producer: AIOKafkaProducer,
-        default_topic: str = "provider-events",
+        default_topic: str = "product-events",
     ) -> None:
         self.producer = producer
         self.default_topic = default_topic

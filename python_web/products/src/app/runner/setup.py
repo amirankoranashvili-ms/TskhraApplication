@@ -14,7 +14,7 @@ from src.app.infra.broker.connection import (
     create_kafka_consumer,
     close_kafka_producer,
 )
-from src.app.infra.broker.consumer import CATALOG_TOPIC, start_catalog_consumer
+from src.app.infra.broker.consumer import PRODUCT_TOPIC, start_product_consumer
 from src.app.infra.search.client import setup_elasticsearch_index
 from src.app.infra.web.controllers.products_controller import products_api, internal_api
 
@@ -22,8 +22,8 @@ from src.app.infra.web.controllers.products_controller import products_api, inte
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_kafka_producer()
-    consumer = await create_kafka_consumer(CATALOG_TOPIC)
-    consumer_task = asyncio.create_task(start_catalog_consumer(consumer))
+    consumer = await create_kafka_consumer(PRODUCT_TOPIC)
+    consumer_task = asyncio.create_task(start_product_consumer(consumer))
 
     try:
         await setup_elasticsearch_index()

@@ -16,7 +16,7 @@ from src.app.core.interactors.handle_product_update import HandleProductUpdateIn
 
 logger = logging.getLogger(__name__)
 
-CATALOG_TOPIC = "catalog-events"
+PRODUCT_TOPIC = "product-events"
 
 
 async def _handle_seller_created(db_session: AsyncSession, payload: dict) -> None:
@@ -123,23 +123,17 @@ EVENT_HANDLERS: dict[str, Callable[[AsyncSession, dict], Awaitable[None]]] = {
 }
 
 
-async def start_catalog_consumer(consumer: AIOKafkaConsumer) -> None:
+async def start_product_consumer(consumer: AIOKafkaConsumer) -> None:
     try:
         async for msg in consumer:
-            payload = msg.value
-            event_type = payload.get("event_type", "")
-
-            handler = EVENT_HANDLERS.get(event_type)
+            handler = EVENT_HANDLERS.get(msg.key)
             if not handler:
-                logger.warning("No handler for event_type: %s", event_type)
                 continue
 
             async with AsyncSessionLocal() as db_session:
                 try:
-                    await handler(db_session, payload)
+                    await handler(db_session, msg.value)
                 except Exception:
-                    logger.exception(
-                        "Error processing message: event_type=%s", event_type
-                    )
+                    logger.exception("Error processing message: key=%s", msg.key)
     finally:
         await consumer.stop()

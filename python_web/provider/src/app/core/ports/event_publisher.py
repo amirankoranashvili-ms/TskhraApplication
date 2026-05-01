@@ -1,8 +1,4 @@
-"""Port interface for domain event publishing.
-
-Defines the protocol for publishing domain events to a message broker
-(e.g., RabbitMQ) for asynchronous inter-service communication.
-"""
+"""Port interface for domain event publishing."""
 
 from typing import Protocol
 

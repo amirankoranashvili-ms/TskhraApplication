@@ -26,6 +26,7 @@ async def create_kafka_consumer(*topics: str) -> AIOKafkaConsumer:
         bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
         group_id=settings.KAFKA_GROUP_ID,
         value_deserializer=lambda v: __import__("json").loads(v),
+        key_deserializer=lambda k: k.decode() if k else None,
         auto_offset_reset="earliest",
         enable_auto_commit=True,
     )
