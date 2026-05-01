@@ -7,6 +7,7 @@ import com.tskhra.modulith.booking_module.model.requests.OnboardingGenerateReque
 import com.tskhra.modulith.booking_module.model.requests.ProviderCreateRequest;
 import com.tskhra.modulith.booking_module.model.responses.ChatbotConfigDto;
 import com.tskhra.modulith.booking_module.model.responses.ProviderCreateResponse;
+import com.tskhra.modulith.booking_module.model.responses.QuestionsResponse;
 import com.tskhra.modulith.booking_module.repositories.BusinessChatbotRepository;
 import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
@@ -18,7 +19,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ChatbotService {
     private final UserService userService;
     private final AiServiceClient aiServiceClient;
 
-    public List<String> getQuestions(String category) {
+    public QuestionsResponse getQuestions(String category) {
         return aiServiceClient.getQuestions(category);
     }
 

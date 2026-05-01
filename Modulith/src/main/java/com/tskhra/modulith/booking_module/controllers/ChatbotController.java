@@ -2,6 +2,7 @@ package com.tskhra.modulith.booking_module.controllers;
 
 import com.tskhra.modulith.booking_module.model.requests.ChatbotSubmitRequest;
 import com.tskhra.modulith.booking_module.model.responses.ChatbotConfigDto;
+import com.tskhra.modulith.booking_module.model.responses.QuestionsResponse;
 import com.tskhra.modulith.booking_module.services.ChatbotService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -12,7 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/chatbot")
@@ -23,9 +23,9 @@ public class ChatbotController {
 
     @Operation(summary = "Get chatbot onboarding questions by category")
     @GetMapping("/questions")
-    public ResponseEntity<List<String>> getQuestions(@AuthenticationPrincipal Jwt jwt,
-                                                     @RequestParam String category) {
-        List<String> questions = chatbotService.getQuestions(category);
+    public ResponseEntity<QuestionsResponse> getQuestions(@AuthenticationPrincipal Jwt jwt,
+                                                         @RequestParam String category) {
+        QuestionsResponse questions = chatbotService.getQuestions(category);
         return ResponseEntity.ok(questions);
     }
 
