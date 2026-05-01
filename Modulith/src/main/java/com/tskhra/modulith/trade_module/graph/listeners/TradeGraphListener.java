@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -23,7 +24,7 @@ public class TradeGraphListener {
     private final ItemRepository itemRepository;
 
     @Async
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onItemCreated(ItemCreatedEvent event) {
         try {
@@ -33,12 +34,12 @@ public class TradeGraphListener {
             graphService.computeEdges(item);
             log.info("Synced new item {} to trade graph", event.itemId());
         } catch (Exception e) {
-            log.info("Failed to sync item {} to trade graph", event.itemId(), e);
+            log.error("Failed to sync item {} to trade graph", event.itemId(), e);
         }
     }
 
     @Async
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onItemStatusChanged(ItemStatusChangedEvent event) {
         try {
