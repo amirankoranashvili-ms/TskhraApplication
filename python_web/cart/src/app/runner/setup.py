@@ -1,15 +1,19 @@
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from backend_common.database.migration import run_migrations
 from backend_common.error_handlers import register_exception_handlers
 from backend_common.logging import setup_logging
 from backend_common.middleware import RequestLoggingMiddleware
 
 from src.app.core.config import settings
+
+ALEMBIC_INI = Path(__file__).resolve().parent.parent.parent.parent / "alembic.ini"
 from src.app.core.facades.catalog_facade import CatalogFacade
 from src.app.infra.database.config import engine
 from src.app.infra.web.controllers.cart_controller import cart_router
@@ -18,6 +22,8 @@ from src.app.infra.web.dependables import init_cart_deps
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    run_migrations(ALEMBIC_INI, settings.DATABASE_URL.replace("+asyncpg", ""))
+
     producer = AIOKafkaProducer(
         bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
         value_serializer=lambda v: __import__("json").dumps(v).encode(),

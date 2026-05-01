@@ -1,6 +1,7 @@
 import json
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from aiokafka import AIOKafkaProducer
 from backend_common.cache.client import create_redis_client
@@ -14,7 +15,11 @@ from backend_common.middleware import RequestLoggingMiddleware
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from backend_common.database.migration import run_migrations
+
 from src.app.core.config import settings
+
+ALEMBIC_INI = Path(__file__).resolve().parent.parent.parent.parent / "alembic.ini"
 from src.app.infra.broker.consumer import CheckoutEventConsumer, VendorStatusConsumer
 from src.app.infra.broker.publisher import KafkaEventPublisher
 from src.app.infra.database.config import engine
@@ -45,6 +50,8 @@ def _create_payment_gateway():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    run_migrations(ALEMBIC_INI, settings.DATABASE_URL.replace("+asyncpg", ""))
+
     producer = AIOKafkaProducer(
         bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
         value_serializer=lambda v: json.dumps(v).encode(),

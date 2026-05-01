@@ -1,8 +1,10 @@
 import json
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from aiokafka import AIOKafkaProducer
+from backend_common.database.migration import run_migrations
 from backend_common.error_handlers import register_exception_handlers
 from backend_common.logging import setup_logging
 from backend_common.middleware import RequestLoggingMiddleware
@@ -10,6 +12,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.app.core.config import settings
+
+ALEMBIC_INI = Path(__file__).resolve().parent.parent.parent.parent / "alembic.ini"
 from src.app.infra.broker.consumer import VendorReplyConsumer
 from src.app.infra.broker.publisher import KafkaEventPublisher, ProductEventPublisher
 from src.app.infra.http_client.catalog_client import (
@@ -30,6 +34,8 @@ from src.app.infra.web.dependables import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    run_migrations(ALEMBIC_INI, settings.DATABASE_URL.replace("+asyncpg", ""))
+
     init_catalog_http_client()
     init_iban_http_client()
 
