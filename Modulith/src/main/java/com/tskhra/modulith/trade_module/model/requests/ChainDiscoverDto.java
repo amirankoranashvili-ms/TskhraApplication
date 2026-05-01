@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ChainDiscoverDto(
-        @NotNull UUID itemId,
-        @Min(2) @Max(8) int maxLength
+        @NotNull UUID itemId
+//        @Min(2) @Max(8) int maxLength
 ) {
-    public ChainDiscoverDto {
-        if (maxLength == 0) maxLength = 6;
-    }
+//    public ChainDiscoverDto {
+//        if (maxLength == 0) maxLength = 6;
+//    }
 }

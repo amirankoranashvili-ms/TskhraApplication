@@ -31,62 +31,55 @@ public class ChainTradeController {
 
     @Operation(summary = "Discover chain trade opportunities for an item")
     @PostMapping("/discover")
-    public ResponseEntity<List<ChainCandidateDto>> discover(
-            @Valid @RequestBody ChainDiscoverDto dto,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<List<ChainCandidateDto>> discover(@Valid @RequestBody ChainDiscoverDto dto,
+                                                            @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(chainTradeService.discoverChains(dto.itemId(), 20, jwt));
     }
 
     @Operation(summary = "Propose a chain trade")
     @PostMapping
-    public ResponseEntity<ChainTradeSummaryDto> propose(
-            @Valid @RequestBody ChainProposalDto dto,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<ChainTradeSummaryDto> propose(@Valid @RequestBody ChainProposalDto dto,
+                                                        @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.status(HttpStatus.CREATED).body(chainTradeService.proposeChain(dto, jwt));
     }
 
     @Operation(summary = "Get chain trade details")
     @GetMapping("/{chainId}")
-    public ResponseEntity<ChainTradeSummaryDto> getDetails(
-            @PathVariable UUID chainId,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<ChainTradeSummaryDto> getDetails(@PathVariable UUID chainId,
+                                                           @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(chainTradeService.getChainDetails(chainId, jwt));
     }
 
     @Operation(summary = "Accept participation in a chain trade")
     @PutMapping("/{chainId}/accept")
-    public ResponseEntity<Void> accept(
-            @PathVariable UUID chainId,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Void> accept(@PathVariable UUID chainId,
+                                       @AuthenticationPrincipal Jwt jwt) {
         chainTradeService.acceptChain(chainId, jwt);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Reject a chain trade (breaks the chain)")
     @PutMapping("/{chainId}/reject")
-    public ResponseEntity<Void> reject(
-            @PathVariable UUID chainId,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Void> reject(@PathVariable UUID chainId,
+                                       @AuthenticationPrincipal Jwt jwt) {
         chainTradeService.rejectChain(chainId, jwt);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Confirm handoff of your item in the chain")
     @PutMapping("/{chainId}/confirm")
-    public ResponseEntity<Void> confirm(
-            @PathVariable UUID chainId,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Void> confirm(@PathVariable UUID chainId,
+                                        @AuthenticationPrincipal Jwt jwt) {
         chainTradeService.confirmHandoff(chainId, jwt);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "List your chain trades")
     @GetMapping("/me")
-    public ResponseEntity<Page<ChainTradeSummaryDto>> myChainTrades(
-            @RequestParam(required = false) ChainStatus status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Page<ChainTradeSummaryDto>> myChainTrades(@RequestParam(required = false) ChainStatus status,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "20") int size,
+                                                                    @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(chainTradeService.getMyChainTrades(jwt, status, PageRequest.of(page, size)));
     }
 

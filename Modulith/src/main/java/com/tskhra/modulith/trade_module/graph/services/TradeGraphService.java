@@ -180,7 +180,7 @@ public class TradeGraphService {
     @Transactional(value = "neo4jTransactionManager", readOnly = true)
     public List<Map<String, Object>> findChains(UUID itemId, int maxResults) {
         return neo4jClient.query("""
-                MATCH path = (start:TradeItem {itemId: $itemId})-[:WANTS*2..6]->(start)
+                MATCH path = (start:TradeItem {itemId: $itemId})-[:WANTS*3..8]->(start)
                 WITH path, nodes(path)[0..-1] AS ns
                 WHERE ALL(n IN ns WHERE n.status = 'AVAILABLE')
                   AND ALL(i IN range(0, size(ns)-1) WHERE
