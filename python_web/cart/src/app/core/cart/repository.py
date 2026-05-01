@@ -1,0 +1,29 @@
+"""Abstract repository interface for cart persistence.
+
+Defines the protocol that concrete cart repository implementations must
+follow, enabling dependency inversion between the domain and infrastructure layers.
+"""
+
+from typing import Protocol
+from uuid import UUID
+
+from src.app.core.cart.entities import Cart, CartItem
+
+
+class ICartRepository(Protocol):
+    """Protocol defining the cart persistence contract.
+
+    All methods use async I/O to support non-blocking database operations.
+    """
+
+    async def get_active_cart_by_user(self, user_id: UUID) -> Cart | None: ...
+    async def create(self, cart: Cart) -> Cart: ...
+    async def update(self, cart: Cart) -> Cart: ...
+    async def add_item(self, item: CartItem) -> CartItem: ...
+    async def update_item(self, item: CartItem) -> CartItem: ...
+    async def remove_item(self, item_id: UUID, cart_id: UUID) -> None: ...
+    async def get_item_by_id(self, item_id: UUID, cart_id: UUID) -> CartItem | None: ...
+    async def get_item_by_product(
+        self, cart_id: UUID, product_id: int
+    ) -> CartItem | None: ...
+    async def clear_items(self, cart_id: UUID) -> None: ...
