@@ -57,6 +57,12 @@
         <dependency>
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-starter-jpa</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.modulith</groupId>
+                    <artifactId>spring-modulith-events-jpa</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
