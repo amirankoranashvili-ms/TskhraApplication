@@ -8,8 +8,10 @@ import com.tskhra.modulith.trade_module.model.events.ItemStatusChangedEvent;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.modulith.events.ApplicationModuleListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +21,8 @@ public class TradeGraphListener {
     private final TradeGraphService graphService;
     private final ItemRepository itemRepository;
 
-    @ApplicationModuleListener
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onItemCreated(ItemCreatedEvent event) {
         try {
             Item item = itemRepository.findById(event.itemId()).orElse(null);
@@ -32,7 +35,8 @@ public class TradeGraphListener {
         }
     }
 
-    @ApplicationModuleListener
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onItemStatusChanged(ItemStatusChangedEvent event) {
         try {
             if (event.newStatus() == ItemStatus.AVAILABLE) {
