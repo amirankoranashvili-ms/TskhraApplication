@@ -9,6 +9,8 @@ volumes:
   redis_data:
   kafka_data:
   neo4j_data:
+  rabbitmq_data:
+  meilisearch_data:
 
 services:
 
@@ -22,7 +24,8 @@ services:
       - POSTGRES_DB=keycloak_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups/keycloak_backup.sql:/docker-entrypoint-initdb.d/keycloak_backup.sql
+      - ./backups/init-extra-dbs.sh:/docker-entrypoint-initdb.d/01-init-extra-dbs.sh
+      - ./backups/keycloak_backup.sql:/docker-entrypoint-initdb.d/02-keycloak_backup.sql
     ports:
       - "5432:5432"
     networks:
@@ -76,7 +79,7 @@ services:
     container_name: redis-tskhra
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -257,5 +260,75 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
       - kafka
+    networks:
+      - micro-network
+
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-tskhra
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - micro-network
+
+
+  # Meilisearch
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch-tskhra
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: masterKey
+      MEILI_ENV: development
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - micro-network
+
+
+  # Products Service (Python/FastAPI)
+  products:
+    build:
+      context: ./python_web
+      dockerfile: products/Dockerfile
+    container_name: products-tskhra
+    environment:
+      DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/products_db
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: products-service
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports:
+      - "8004:8004"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
     networks:
       - micro-network
