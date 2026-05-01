@@ -65,15 +65,10 @@ public class ChatbotService {
         return new ChatbotConfigDto(generateResponse.providerId(), generateResponse.chatApiKey());
     }
 
-    public ChatbotConfigDto getChatbotConfig(Long businessId, Jwt jwt) {
-        Long userId = userService.getCurrentUser(jwt).getId();
+    public ChatbotConfigDto getChatbotConfig(Long businessId) {
 
-        Business business = businessRepository.findById(businessId)
+        businessRepository.findById(businessId)
                 .orElseThrow(() -> new HttpNotFoundException("Business not found with id: " + businessId));
-
-        if (!business.getUserId().equals(userId)) {
-            throw new HttpForbiddenError("You are not authorized to view this business's chatbot config");
-        }
 
         BusinessChatbot chatbot = businessChatbotRepository.findByBusinessId(businessId)
                 .orElseThrow(() -> new HttpNotFoundException("Chatbot not configured for business: " + businessId));

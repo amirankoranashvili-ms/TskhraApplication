@@ -24,7 +24,7 @@ public class ChatbotController {
     @Operation(summary = "Get chatbot onboarding questions by category")
     @GetMapping("/questions")
     public ResponseEntity<QuestionsResponse> getQuestions(@AuthenticationPrincipal Jwt jwt,
-                                                         @RequestParam String category) {
+                                                          @RequestParam String category) {
         QuestionsResponse questions = chatbotService.getQuestions(category);
         return ResponseEntity.ok(questions);
     }
@@ -39,9 +39,8 @@ public class ChatbotController {
 
     @Operation(summary = "Get chatbot configuration for a business")
     @GetMapping("/{businessId}")
-    public ResponseEntity<ChatbotConfigDto> getChatbotConfig(@AuthenticationPrincipal Jwt jwt,
-                                                              @PathVariable Long businessId) {
-        ChatbotConfigDto config = chatbotService.getChatbotConfig(businessId, jwt);
+    public ResponseEntity<ChatbotConfigDto> getChatbotConfig(@PathVariable Long businessId) {
+        ChatbotConfigDto config = chatbotService.getChatbotConfig(businessId);
         return ResponseEntity.ok(config);
     }
 }
