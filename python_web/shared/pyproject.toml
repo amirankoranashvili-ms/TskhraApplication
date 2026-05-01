@@ -20,6 +20,7 @@ dependencies = [
     "python-magic>=0.4.27",
     "miniopy-async>=1.21",
     "neo4j>=5.18.0",
+    "python-jose[cryptography]>=3.3.0",
 ]
 
 [build-system]
