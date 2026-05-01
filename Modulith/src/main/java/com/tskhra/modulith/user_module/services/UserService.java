@@ -158,7 +158,7 @@ public class UserService {
 
         return new UserSelfDto(
                 user.getUsername(),
-                jwt.getSubject(),
+                user.getId().toString(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
