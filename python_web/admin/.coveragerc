@@ -1,0 +1,17 @@
+[run]
+concurrency = greenlet, thread
+
+omit =
+    app/infra/database/alembic/*
+    app/infra/database/migration.py
+    app/runner/asgi.py
+    app/runner/main.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if __name__ == .__main__.:
+    raise NotImplementedError
+    pass
