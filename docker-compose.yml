@@ -110,6 +110,7 @@ services:
       - cart
       - payment
       - provider
+      - admin
     networks:
       - micro-network
     extra_hosts:
@@ -391,6 +392,31 @@ services:
       redis:
         condition: service_started
       minio:
+        condition: service_started
+    networks:
+      - micro-network
+
+
+  # Admin Panel (Python/FastAPI + SQLAdmin)
+  admin:
+    build:
+      context: ./python_web
+      dockerfile: admin/Dockerfile
+    container_name: admin-tskhra
+    environment:
+      - PRODUCTS_DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/products_db
+      - VENDOR_DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/provider_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SECRET_KEY=admin-secret-key-change-me
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - SESSION_HTTPS_ONLY=false
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
         condition: service_started
     networks:
       - micro-network
