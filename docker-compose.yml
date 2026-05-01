@@ -106,6 +106,9 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - modulith
+      - products
+      - cart
+      - payment
     networks:
       - micro-network
     extra_hosts:
@@ -276,6 +279,7 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: tskhra
+      ROOT_PATH: /ecommerce/products
     ports:
       - "8004:8004"
     depends_on:
@@ -303,6 +307,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: tskhra
+      ROOT_PATH: /ecommerce/cart
     ports:
       - "8006:8006"
     depends_on:
@@ -323,11 +328,24 @@ services:
       dockerfile: payment/Dockerfile
     container_name: payment-tskhra
     environment:
-      DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/payment_db
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      REDIS_URL: redis://redis:6379
-      PAYMENT_PROVIDER: mock
-      SECRET_KEY: dev-secret-key
+      - DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/payment_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_URL=redis://redis:6379
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=tskhra
+      - ROOT_PATH=/ecommerce/payment
+      - APP_NAME=PaymentService
+      - ALLOWED_REDIRECT_ORIGINS=${ALLOWED_REDIRECT_ORIGINS:-}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-}
+      - PAYMENT_PROVIDER=${PAYMENT_PROVIDER:-mock}
+      - KEEPZ_IDENTIFIER=${KEEPZ_IDENTIFIER:-}
+      - KEEPZ_INTEGRATOR_ID=${KEEPZ_INTEGRATOR_ID:-}
+      - KEEPZ_RECEIVER_ID=${KEEPZ_RECEIVER_ID:-}
+      - KEEPZ_RECEIVER_TYPE=${KEEPZ_RECEIVER_TYPE:-BRANCH}
+      - KEEPZ_RSA_PUBLIC_KEY=${KEEPZ_RSA_PUBLIC_KEY:-}
+      - KEEPZ_RSA_PRIVATE_KEY=${KEEPZ_RSA_PRIVATE_KEY:-}
+      - KEEPZ_BASE_URL=${KEEPZ_BASE_URL:-}
+      - KEEPZ_CALLBACK_URL=${KEEPZ_CALLBACK_URL:-}
     ports:
       - "8007:8007"
     depends_on:
