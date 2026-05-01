@@ -228,10 +228,10 @@ public class BookingService {
         booking.setBookingStatus(BookingStatus.REJECTED);
         bookingRepository.save(booking);
 
-        eventPublisher.publishEvent(new BookingStatusChangedEvent(
-                booking.getId(), booking.getUserId(), BookingStatus.REJECTED,
-                service.getName(), business.getName()
-        ));
+//        eventPublisher.publishEvent(new BookingStatusChangedEvent(
+//                booking.getId(), booking.getUserId(), BookingStatus.REJECTED,
+//                service.getName(), business.getName()
+//        ));
 
         BookingStatusChangeEvent statusChangeEvent = new BookingStatusChangeEvent(
                 service.getId(), business.getId(), BookingStatus.REJECTED, booking.getBookingDate(), booking.getStartTime()

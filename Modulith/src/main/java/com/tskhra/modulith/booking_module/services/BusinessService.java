@@ -145,31 +145,31 @@ public class BusinessService {
                 .map(rt -> new BusinessRegisteredEvent.TimeInterval(rt.getWeekDay().name(), rt.getStartTime(), rt.getEndTime()))
                 .toList();
 
-        eventPublisher.publishEvent(new BusinessRegisteredEvent(
-                UUID.randomUUID().toString(),
-                now,
-                "register_new_individual_business",
-                savedBusiness.getId().toString(),
-                new BusinessRegisteredEvent.Payload(
-                        savedBusiness.getId().toString(),
-                        dto.businessName(),
-                        dto.businessNameKa(),
-                        dto.callType().name(),
-                        dto.cityId(),
-                        dto.addressDetails(),
-                        dto.addressDetailsKa(),
-                        dto.description(),
-                        dto.descriptionKa(),
-                        dto.subcategoryId(),
-                        workTimeIntervals,
-                        restTimeIntervals,
-                        new BusinessRegisteredEvent.InfoPayload(
-                                dto.info().phoneNumber(),
-                                dto.info().instagramUrl(),
-                                dto.info().facebookUrl()
-                        )
-                )
-        ));
+//        eventPublisher.publishEvent(new BusinessRegisteredEvent(
+//                UUID.randomUUID().toString(),
+//                now,
+//                "register_new_individual_business",
+//                savedBusiness.getId().toString(),
+//                new BusinessRegisteredEvent.Payload(
+//                        savedBusiness.getId().toString(),
+//                        dto.businessName(),
+//                        dto.businessNameKa(),
+//                        dto.callType().name(),
+//                        dto.cityId(),
+//                        dto.addressDetails(),
+//                        dto.addressDetailsKa(),
+//                        dto.description(),
+//                        dto.descriptionKa(),
+//                        dto.subcategoryId(),
+//                        workTimeIntervals,
+//                        restTimeIntervals,
+//                        new BusinessRegisteredEvent.InfoPayload(
+//                                dto.info().phoneNumber(),
+//                                dto.info().instagramUrl(),
+//                                dto.info().facebookUrl()
+//                        )
+//                )
+//        ));
 
         return savedBusiness.getId();
     }

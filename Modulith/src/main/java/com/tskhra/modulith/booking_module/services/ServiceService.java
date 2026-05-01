@@ -75,22 +75,22 @@ public class ServiceService {
 
         Service savedService = serviceRepository.save(service);
 
-        eventPublisher.publishEvent(new ServiceCreatedEvent(
-                UUID.randomUUID().toString(),
-                LocalDateTime.now(),
-                "create_new_service",
-                savedService.getId().toString(),
-                new ServiceCreatedEvent.Payload(
-                        businessId.toString(),
-                        savedService.getId().toString(),
-                        dto.name(),
-                        dto.nameKa(),
-                        dto.description(),
-                        dto.descriptionKa(),
-                        dto.price(),
-                        dto.duration()
-                )
-        ));
+//        eventPublisher.publishEvent(new ServiceCreatedEvent(
+//                UUID.randomUUID().toString(),
+//                LocalDateTime.now(),
+//                "create_new_service",
+//                savedService.getId().toString(),
+//                new ServiceCreatedEvent.Payload(
+//                        businessId.toString(),
+//                        savedService.getId().toString(),
+//                        dto.name(),
+//                        dto.nameKa(),
+//                        dto.description(),
+//                        dto.descriptionKa(),
+//                        dto.price(),
+//                        dto.duration()
+//                )
+//        ));
 
         return savedService.getId();
     }
@@ -273,16 +273,16 @@ public class ServiceService {
             service.setActivityStatus(ActivityStatus.INACTIVE);
             serviceRepository.save(service);
 
-            eventPublisher.publishEvent(new ServiceDeactivatedEvent(
-                    UUID.randomUUID().toString(),
-                    LocalDateTime.now(),
-                    "deactivate_service",
-                    serviceId.toString(),
-                    new ServiceDeactivatedEvent.Payload(
-                            businessId.toString(),
-                            serviceId.toString()
-                    )
-            ));
+//            eventPublisher.publishEvent(new ServiceDeactivatedEvent(
+//                    UUID.randomUUID().toString(),
+//                    LocalDateTime.now(),
+//                    "deactivate_service",
+//                    serviceId.toString(),
+//                    new ServiceDeactivatedEvent.Payload(
+//                            businessId.toString(),
+//                            serviceId.toString()
+//                    )
+//            ));
         }
     }
 
