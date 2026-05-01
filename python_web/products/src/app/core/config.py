@@ -19,8 +19,6 @@ class Settings(BaseSettings):
     """
 
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-    SECRET_KEY: str = "change-me-in-production"
-    TOKEN_URL: str = "/auth/token"
     APP_NAME: str = "Vipo Products"
     APP_VERSION: str = "1.0.0"
 
@@ -30,6 +28,9 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
     ELASTICSEARCH_URL: str = "http://localhost:9200"
     ELASTICSEARCH_PASSWORD: str = ""
+
+    KEYCLOAK_URL: str = "http://localhost:8080"
+    KEYCLOAK_REALM: str = "tskhra"
 
     BRAND_FIELD_ALIASES: list[str] = ["brand", "brand_id", "ბრენდი"]
     model_config = SettingsConfigDict(
