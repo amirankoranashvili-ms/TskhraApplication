@@ -1,6 +1,5 @@
 package com.tskhra.modulith;
 
-import com.tskhra.modulith.common.properties.AiServiceProperties;
 import com.tskhra.modulith.common.properties.KeycloakProperties;
 import com.tskhra.modulith.common.properties.MinioProperties;
 import com.tskhra.modulith.common.properties.ElasticsearchProperties;
@@ -17,7 +16,7 @@ import java.util.TimeZone;
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
-@EnableConfigurationProperties({KeycloakProperties.class, MinioProperties.class, SumsubProperties.class, ElasticsearchProperties.class, AiServiceProperties.class})
+@EnableConfigurationProperties({KeycloakProperties.class, MinioProperties.class, SumsubProperties.class, ElasticsearchProperties.class})
 public class ModulithApplication {
 
     @PostConstruct
