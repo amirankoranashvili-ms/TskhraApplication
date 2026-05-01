@@ -35,7 +35,7 @@ public class BusinessController {
                                                                 @Valid @RequestBody BusinessRegistrationDto dto) {
 
         Long id = businessService.register(dto, jwt);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new BusinessIdResponseDto(id.toString()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BusinessIdResponseDto(id.toString(), jwt.getSubject()));
     }
 
     @Operation(summary = "Get current user's businesses")
