@@ -91,10 +91,12 @@ public class TradeGraphService {
 
         if (!desiredCategoryIds.isEmpty()) {
             neo4jClient.query("""
-                    MATCH (source:TradeItem {itemId: $sourceId}), (target:TradeItem {status: 'AVAILABLE'})
+                    MATCH (source:TradeItem {itemId: $sourceId})
+                    WITH source
+                    MATCH (target:TradeItem {status: 'AVAILABLE'})
                     WHERE target.categoryId IN $desiredCategoryIds
                       AND target.ownerId <> $ownerId
-                      AND target.itemId <> $sourceId
+                      AND target.itemId <> source.itemId
                     CREATE (source)-[:WANTS {matchLevel: 'CATEGORY', weight: 0.5}]->(target)
                     """)
                     .bind(itemId).to("sourceId")
@@ -105,10 +107,12 @@ public class TradeGraphService {
 
         if (!desiredItemTypeIds.isEmpty()) {
             neo4jClient.query("""
-                    MATCH (source:TradeItem {itemId: $sourceId}), (target:TradeItem {status: 'AVAILABLE'})
+                    MATCH (source:TradeItem {itemId: $sourceId})
+                    WITH source
+                    MATCH (target:TradeItem {status: 'AVAILABLE'})
                     WHERE target.itemTypeId IN $desiredItemTypeIds
                       AND target.ownerId <> $ownerId
-                      AND target.itemId <> $sourceId
+                      AND target.itemId <> source.itemId
                       AND NOT EXISTS { (source)-[:WANTS]->(target) }
                     CREATE (source)-[:WANTS {matchLevel: 'ITEM_TYPE', weight: 0.8}]->(target)
                     """)
@@ -120,10 +124,12 @@ public class TradeGraphService {
 
         if (categoryId != null) {
             neo4jClient.query("""
-                    MATCH (source:TradeItem {status: 'AVAILABLE'}), (target:TradeItem {itemId: $targetId})
+                    MATCH (target:TradeItem {itemId: $targetId})
+                    WITH target
+                    MATCH (source:TradeItem {status: 'AVAILABLE'})
                     WHERE $categoryId IN source.desiredCategoryIds
                       AND source.ownerId <> $ownerId
-                      AND source.itemId <> $targetId
+                      AND source.itemId <> target.itemId
                       AND NOT EXISTS { (source)-[:WANTS]->(target) }
                     CREATE (source)-[:WANTS {matchLevel: 'CATEGORY', weight: 0.5}]->(target)
                     """)
@@ -136,10 +142,12 @@ public class TradeGraphService {
         Integer itemTypeId = item.getItemType() != null ? item.getItemType().getId() : null;
         if (itemTypeId != null) {
             neo4jClient.query("""
-                    MATCH (source:TradeItem {status: 'AVAILABLE'}), (target:TradeItem {itemId: $targetId})
+                    MATCH (target:TradeItem {itemId: $targetId})
+                    WITH target
+                    MATCH (source:TradeItem {status: 'AVAILABLE'})
                     WHERE $itemTypeId IN source.desiredItemTypeIds
                       AND source.ownerId <> $ownerId
-                      AND source.itemId <> $targetId
+                      AND source.itemId <> target.itemId
                       AND NOT EXISTS { (source)-[:WANTS]->(target) }
                     CREATE (source)-[:WANTS {matchLevel: 'ITEM_TYPE', weight: 0.8}]->(target)
                     """)
