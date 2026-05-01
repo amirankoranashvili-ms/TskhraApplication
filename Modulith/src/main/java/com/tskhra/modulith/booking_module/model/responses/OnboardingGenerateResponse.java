@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ProviderCreateResponse(
+public record OnboardingGenerateResponse(
         @JsonProperty("provider_id") String providerId,
-        @JsonProperty("api_key") String apiKey
+        @JsonProperty("chat_api_key") String chatApiKey
 ) {
 }

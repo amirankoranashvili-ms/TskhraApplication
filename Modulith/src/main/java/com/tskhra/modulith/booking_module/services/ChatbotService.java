@@ -4,9 +4,8 @@ import com.tskhra.modulith.booking_module.model.domain.Business;
 import com.tskhra.modulith.booking_module.model.domain.BusinessChatbot;
 import com.tskhra.modulith.booking_module.model.requests.ChatbotSubmitRequest;
 import com.tskhra.modulith.booking_module.model.requests.OnboardingGenerateRequest;
-import com.tskhra.modulith.booking_module.model.requests.ProviderCreateRequest;
 import com.tskhra.modulith.booking_module.model.responses.ChatbotConfigDto;
-import com.tskhra.modulith.booking_module.model.responses.ProviderCreateResponse;
+import com.tskhra.modulith.booking_module.model.responses.OnboardingGenerateResponse;
 import com.tskhra.modulith.booking_module.model.responses.QuestionsResponse;
 import com.tskhra.modulith.booking_module.repositories.BusinessChatbotRepository;
 import com.tskhra.modulith.booking_module.repositories.BusinessRepository;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -50,30 +48,21 @@ public class ChatbotService {
 
         String categoryName = business.getCategory().getName();
 
-        ProviderCreateRequest providerRequest = new ProviderCreateRequest(
-                business.getName(),
-                "business-" + business.getId(),
-                categoryName,
-                "",
-                business.getId()
-        );
-        ProviderCreateResponse providerResponse = aiServiceClient.createProvider(providerRequest);
-
         OnboardingGenerateRequest generateRequest = new OnboardingGenerateRequest(
                 business.getId(),
                 categoryName,
                 request.answers()
         );
-        aiServiceClient.generateOnboarding(generateRequest);
+        OnboardingGenerateResponse generateResponse = aiServiceClient.generateOnboarding(generateRequest);
 
         BusinessChatbot chatbot = businessChatbotRepository.findByBusinessId(request.businessId())
                 .orElse(BusinessChatbot.builder().business(business).build());
 
-        chatbot.setAiProviderId(providerResponse.providerId());
-        chatbot.setChatApiKey(providerResponse.apiKey());
+        chatbot.setAiProviderId(generateResponse.providerId());
+        chatbot.setChatApiKey(generateResponse.chatApiKey());
         businessChatbotRepository.save(chatbot);
 
-        return new ChatbotConfigDto(providerResponse.providerId(), providerResponse.apiKey());
+        return new ChatbotConfigDto(generateResponse.providerId(), generateResponse.chatApiKey());
     }
 
     public ChatbotConfigDto getChatbotConfig(Long businessId, Jwt jwt) {
