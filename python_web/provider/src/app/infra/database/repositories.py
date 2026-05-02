@@ -7,9 +7,11 @@ order repository protocols using async SQLAlchemy sessions.
 from uuid import UUID
 
 from sqlalchemy import delete, func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from src.app.core.sellers.exceptions import SellerAlreadyExistsException
 from src.app.core.orders.entities import VendorOrder, VendorOrderStatus
 from src.app.core.orders.repository import IVendorOrderRepository
 from src.app.core.products.entities import ProductUploadTask, Status
@@ -54,7 +56,11 @@ class SqlAlchemySellerRepository(ISellerRepository):
             bank_account_number=seller_data.bank_account_number,
         )
         self.db_session.add(new_seller)
-        await self.db_session.flush()
+        try:
+            await self.db_session.flush()
+        except IntegrityError:
+            await self.db_session.rollback()
+            raise SellerAlreadyExistsException()
         await self.db_session.refresh(new_seller)
         return PlatformSeller.model_validate(new_seller)
 

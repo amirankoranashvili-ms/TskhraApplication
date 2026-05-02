@@ -24,7 +24,7 @@ class VendorSellerDb(VendorBase):
     contact_phone = Column(String(50), nullable=True)
     contact_email = Column(String(255), nullable=True)
     bank_account_number = Column(String(50), nullable=True)
-    status = Column(String(20), nullable=False, default="pending")
+    status = Column(String(20), nullable=False, default="PENDING")
     is_deleted = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

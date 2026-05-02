@@ -4,6 +4,7 @@ import logging
 
 from aiokafka import AIOKafkaConsumer
 from pydantic import BaseModel, field_validator
+from sqlalchemy import select
 
 from src.app.core.constants import VerificationRequestType, VerificationStatus
 from src.app.infra.database.models.products import VerificationRequestDb
@@ -56,6 +57,20 @@ class VerificationConsumer:
                     continue
 
                 async with async_session() as db_session:
+                    existing = await db_session.execute(
+                        select(VerificationRequestDb).where(
+                            VerificationRequestDb.supplier_id == validated.supplier_id,
+                            VerificationRequestDb.request_type == VerificationRequestType.SELLER.value,
+                            VerificationRequestDb.status == VerificationStatus.PENDING.value,
+                        )
+                    )
+                    if existing.scalar_one_or_none():
+                        logger.info(
+                            "Skipping duplicate seller verification for supplier_id=%s",
+                            validated.supplier_id,
+                        )
+                        continue
+
                     verification_request = VerificationRequestDb(
                         request_type=VerificationRequestType.SELLER.value,
                         supplier_id=validated.supplier_id,

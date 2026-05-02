@@ -6,7 +6,7 @@ IBANs, and legal addresses used in seller registration.
 
 import re
 
-NAME_REGEX = r"^[a-zA-Zა-ჰ]+$"
+NAME_REGEX = r"^[a-zA-Zა-ჰ]+(\s[a-zA-Zა-ჰ]+)*$"
 IBAN_LENGTH = 22
 IBAN_COUNTRY_CODE = "GE"
 ID_NUMBER_LENGTH = (11, 9)
@@ -24,9 +24,9 @@ def validate_and_format_name(v: str) -> str:
     Raises:
         ValueError: If the name contains non-letter characters.
     """
-    if not re.match(NAME_REGEX, v):
-        raise ValueError("Name must contain only letters.")
-    return v.title()
+    if not re.match(NAME_REGEX, v.strip()):
+        raise ValueError("Name must contain only letters and spaces.")
+    return v.strip().title()
 
 
 def lower_case_email(v: str) -> str:

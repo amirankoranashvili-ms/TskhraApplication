@@ -255,7 +255,7 @@ class VerificationRequestDb(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     request_type = Column(String(30), nullable=False)
     status = Column(
-        String(20), nullable=False, default="pending", server_default="pending"
+        String(20), nullable=False, default="PENDING", server_default="PENDING"
     )
     supplier_id = Column(
         Integer, ForeignKey("suppliers.id", ondelete="SET NULL"), nullable=True
@@ -265,7 +265,7 @@ class VerificationRequestDb(Base):
     )
     resolved_by_admin_id = Column(String(36), nullable=True)
     rejection_reason = Column(String, nullable=True)
-    created_at = Column(DateTime, server_default=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
     resolved_at = Column(DateTime, nullable=True)
 
     supplier = relationship("SupplierDb")
