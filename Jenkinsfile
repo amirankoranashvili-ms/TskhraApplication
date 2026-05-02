@@ -26,12 +26,12 @@ pipeline {
                 sh 'cp /opt/secrets/modulith.env ./.env'
                 sh 'cp /opt/secrets/firebase-service-account.json ./firebase-service-account.json'
                 echo 'Recreating Elasticsearch container...'
-                sh 'docker compose -p tskhraapplication up -d --force-recreate elasticsearch'
+//                 sh 'docker compose -p tskhraapplication up -d --force-recreate elasticsearch'
                 echo 'Rebuilding and starting Docker container...'
-                sh 'docker compose -p tskhraapplication up -d --build modulith'
-                sh 'docker compose -p tskhraapplication up -d --build nginx'
+                sh 'docker compose up -d --build'
+//                 sh 'docker compose -p tskhraapplication up -d --build modulith'
+//                 sh 'docker compose -p tskhraapplication up -d --build nginx'
                 sh 'rm .env'
-
             }
         }
 
