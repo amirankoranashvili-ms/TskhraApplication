@@ -28,7 +28,7 @@ pipeline {
                 echo 'Recreating Elasticsearch container...'
 //                 sh 'docker compose -p tskhraapplication up -d --force-recreate elasticsearch'
                 echo 'Rebuilding and starting Docker container...'
-                sh 'docker compose up -d --build'
+                sh 'docker compose -p tskhraapplication up -d --build'
 //                 sh 'docker compose -p tskhraapplication up -d --build modulith'
 //                 sh 'docker compose -p tskhraapplication up -d --build nginx'
                 sh 'rm .env'
