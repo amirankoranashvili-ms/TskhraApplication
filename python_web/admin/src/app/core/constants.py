@@ -13,9 +13,9 @@ class SessionKeys:
 class VerificationStatus(str, Enum):
     """Possible statuses for a verification request."""
 
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
 
 
 class VerificationRequestType(str, Enum):
@@ -28,6 +28,6 @@ class VerificationRequestType(str, Enum):
 class VendorStatus(str, Enum):
     """Possible statuses for a vendor seller."""
 
-    ACTIVE = "active"
-    REJECTED = "rejected"
-    PENDING = "pending"
+    ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
+    PENDING = "PENDING"

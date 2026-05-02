@@ -27,12 +27,6 @@ async def _handle_seller_created(db_session: AsyncSession, payload: dict) -> Non
         "Seller with supplier_id=%s created successfully.", payload.get("supplier_id")
     )
 
-    vr_repo = SqlAlchemyVerificationRequestRepository(db_session)
-    await vr_repo.create_verification_request(
-        request_type="seller",
-        supplier_id=payload["supplier_id"],
-    )
-
 
 async def _handle_seller_updated(db_session: AsyncSession, payload: dict) -> None:
     logger.info("Received seller update request from Provider...")
@@ -40,12 +34,6 @@ async def _handle_seller_updated(db_session: AsyncSession, payload: dict) -> Non
     await seller_repo.update_seller(payload)
     logger.info(
         "Seller with supplier_id=%s updated successfully.", payload.get("supplier_id")
-    )
-
-    vr_repo = SqlAlchemyVerificationRequestRepository(db_session)
-    await vr_repo.create_verification_request(
-        request_type="seller",
-        supplier_id=payload["supplier_id"],
     )
 
 
