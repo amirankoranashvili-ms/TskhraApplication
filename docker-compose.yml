@@ -22,7 +22,8 @@ services:
       - POSTGRES_DB=keycloak_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups/keycloak_backup.sql:/docker-entrypoint-initdb.d/keycloak_backup.sql
+      - ./backups/init-extra-dbs.sh:/docker-entrypoint-initdb.d/01-init-extra-dbs.sh
+      - ./backups/kc.sql:/docker-entrypoint-initdb.d/kc.sql
     ports:
       - "5432:5432"
     networks:
@@ -58,7 +59,7 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HTTP_PORT=8080
-      - KC_HOSTNAME=10.227.164.247 # add WORKS!
+      - KC_HOSTNAME=localhost
     ports:
       - "8080:8080"
     volumes:
@@ -76,7 +77,7 @@ services:
     container_name: redis-tskhra
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -105,6 +106,11 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - modulith
+      - products
+      - cart
+      - payment
+      - provider
+      - admin
     networks:
       - micro-network
     extra_hosts:
@@ -257,5 +263,160 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
       - kafka
+    networks:
+      - micro-network
+
+
+  # Products Service (Python/FastAPI)
+  products:
+    build:
+      context: ./python_web
+      dockerfile: products/Dockerfile
+    container_name: products-tskhra
+    environment:
+      DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/products_db
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: products-service
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: tskhra
+      ROOT_PATH: /ecommerce/products
+    ports:
+      - "8004:8004"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - micro-network
+
+
+  # Cart Service (Python/FastAPI)
+  cart:
+    build:
+      context: ./python_web
+      dockerfile: cart/Dockerfile
+    container_name: cart-tskhra
+    environment:
+      DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/cart_db
+      PRODUCTS_SERVICE_URL: http://products:8004
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: tskhra
+      ROOT_PATH: /ecommerce/cart
+    ports:
+      - "8006:8006"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      products:
+        condition: service_started
+    networks:
+      - micro-network
+
+
+  # Payment Service (Python/FastAPI)
+  payment:
+    build:
+      context: ./python_web
+      dockerfile: payment/Dockerfile
+    container_name: payment-tskhra
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/payment_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_URL=redis://redis:6379
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=tskhra
+      - ROOT_PATH=/ecommerce/payment
+      - APP_NAME=PaymentService
+      - ALLOWED_REDIRECT_ORIGINS=${ALLOWED_REDIRECT_ORIGINS:-}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-}
+      - PAYMENT_PROVIDER=${PAYMENT_PROVIDER:-mock}
+      - KEEPZ_IDENTIFIER=${KEEPZ_IDENTIFIER:-}
+      - KEEPZ_INTEGRATOR_ID=${KEEPZ_INTEGRATOR_ID:-}
+      - KEEPZ_RECEIVER_ID=${KEEPZ_RECEIVER_ID:-}
+      - KEEPZ_RECEIVER_TYPE=${KEEPZ_RECEIVER_TYPE:-BRANCH}
+      - KEEPZ_RSA_PUBLIC_KEY=${KEEPZ_RSA_PUBLIC_KEY:-}
+      - KEEPZ_RSA_PRIVATE_KEY=${KEEPZ_RSA_PRIVATE_KEY:-}
+      - KEEPZ_BASE_URL=${KEEPZ_BASE_URL:-}
+      - KEEPZ_CALLBACK_URL=${KEEPZ_CALLBACK_URL:-}
+    ports:
+      - "8007:8007"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - micro-network
+
+
+  # Provider Service (Python/FastAPI)
+  provider:
+    build:
+      context: ./python_web
+      dockerfile: provider/Dockerfile
+    container_name: provider-tskhra
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/provider_db
+      - TSKHRA_DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/tskhra_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_URL=redis://redis:6379
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=tskhra
+      - PRODUCTS_SERVICE_URL=http://products:8004
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=password
+      # TODO: replace with external IP for production (match Java: http://10.227.164.247:9000)
+      - MINIO_PUBLIC_URL=http://localhost:9000
+      - MINIO_BUCKET=product-images
+      - ROOT_PATH=/ecommerce/provider
+    ports:
+      - "8005:8005"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+    networks:
+      - micro-network
+
+
+  # Admin Panel (Python/FastAPI + SQLAdmin)
+  admin:
+    build:
+      context: ./python_web
+      dockerfile: admin/Dockerfile
+    container_name: admin-tskhra
+    environment:
+      - PRODUCTS_DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/products_db
+      - VENDOR_DATABASE_URL=postgresql+asyncpg://admin:password@postgres:5432/provider_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SECRET_KEY=admin-secret-key-change-me
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - SESSION_HTTPS_ONLY=false
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
     networks:
       - micro-network

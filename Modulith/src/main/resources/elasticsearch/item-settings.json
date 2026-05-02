@@ -1,5 +1,6 @@
 {
   "max_result_window": 10000,
+  "max_ngram_diff": 7,
   "analysis": {
     "filter": {
       "ngram_filter": {

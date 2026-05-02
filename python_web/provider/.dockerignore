@@ -1,0 +1,9 @@
+postgres_data/
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+.idea/
+.claude/
+.env
