@@ -59,7 +59,7 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HTTP_PORT=8080
-      - KC_HOSTNAME=localhost
+      - KC_HOSTNAME=10.227.164.247
     ports:
       - "8080:8080"
     volumes:
@@ -378,8 +378,7 @@ services:
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=admin
       - MINIO_SECRET_KEY=password
-      # TODO: replace with external IP for production (match Java: http://10.227.164.247:9000)
-      - MINIO_PUBLIC_URL=http://localhost:9000
+      - MINIO_PUBLIC_URL=http://10.227.164.247:9000
       - MINIO_BUCKET=product-images
       - ROOT_PATH=/ecommerce/provider
     ports:
