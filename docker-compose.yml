@@ -9,6 +9,7 @@ volumes:
   redis_data:
   kafka_data:
   neo4j_data:
+  modulith_logs:
 
 services:
 
@@ -135,6 +136,7 @@ services:
       - ./.env
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+      - modulith_logs:/app/logs
     ports:
       - "8081:8081"
     depends_on:
@@ -198,18 +200,33 @@ services:
 
 
   # Kibana
-#  kibana:
-#    image: docker.elastic.co/kibana/kibana:9.0.0
-#    container_name: kibana
-#    environment:
-#      # Tells Kibana where to find Elasticsearch on the bridge network
-#      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-#    ports:
-#      - "5601:5601"
-#    depends_on:
-#      - elasticsearch
-#    networks:
-#      - micro-network
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.0.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - micro-network
+
+
+  # Filebeat
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:9.0.0
+    container_name: filebeat-tskhra
+    user: root
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - modulith_logs:/app/logs:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - micro-network
 
 
   # Neo4j test

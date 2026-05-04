@@ -20,6 +20,7 @@ import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TradeService {
@@ -114,7 +116,10 @@ public class TradeService {
         tradeOffer.setOfferItems(offerItems);
         tradeOffer.setFairnessRatio(calculateFairnessRatio(offererItems, responderItems));
 
-        return tradeOfferRepository.save(tradeOffer);
+        TradeOffer saved = tradeOfferRepository.save(tradeOffer);
+        log.info("Trade offer created: offerId={}, offererId={}, responderId={}, itemCount={}",
+                saved.getId(), offererId, responderId, offerItems.size());
+        return saved;
     }
 
     @Transactional
@@ -154,6 +159,7 @@ public class TradeService {
         offer.setStatus(TradeStatus.ACCEPTED);
         offer.setExpiresAt(Instant.now().plus(CONFIRMATION_EXPIRY_HOURS, ChronoUnit.HOURS));
         tradeOfferRepository.save(offer);
+        log.info("Trade offer accepted: offerId={}, responderId={}", offerId, userId);
 
         // Auto-reject other PENDING offers involving these items
         List<TradeOffer> conflicting = tradeOfferRepository.findAllByItemIdsAndStatus(itemIds, TradeStatus.PENDING);
@@ -178,6 +184,7 @@ public class TradeService {
 
         offer.setStatus(TradeStatus.REJECTED);
         tradeOfferRepository.save(offer);
+        log.info("Trade offer rejected: offerId={}, responderId={}", offerId, userId);
     }
 
     @Transactional
@@ -195,6 +202,7 @@ public class TradeService {
 
         offer.setStatus(TradeStatus.WITHDRAWN);
         tradeOfferRepository.save(offer);
+        log.info("Trade offer withdrawn: offerId={}, offererId={}", offerId, userId);
     }
 
     @Transactional
@@ -216,7 +224,9 @@ public class TradeService {
         // Create counter-offer with swapped roles
         TradeOffer counter = createOffer(dto, jwt);
         counter.setParent(original);
-        return tradeOfferRepository.save(counter);
+        TradeOffer savedCounter = tradeOfferRepository.save(counter);
+        log.info("Counter-offer created: originalOfferId={}, counterOfferId={}", offerId, savedCounter.getId());
+        return savedCounter;
     }
 
     @Transactional
@@ -234,6 +244,7 @@ public class TradeService {
 
         offer.setStatus(TradeStatus.CANCELED);
         tradeOfferRepository.save(offer);
+        log.info("Trade offer cancelled: offerId={}, cancelledBy={}", offerId, userId);
 
         releaseItems(offer);
     }
@@ -262,9 +273,12 @@ public class TradeService {
             throw new HttpForbiddenError("Only participants can confirm handoff");
         }
 
+        log.info("Handoff confirmed: offerId={}, confirmedBy={}", offerId, userId);
+
         // If both confirmed, complete the trade
         if (offer.getOffererConfirmedAt() != null && offer.getResponderConfirmedAt() != null) {
             offer.setStatus(TradeStatus.COMPLETED);
+            log.info("Trade completed: offerId={}", offerId);
             offer.getOfferItems().stream()
                     .map(OfferItem::getItem)
                     .forEach(item -> {

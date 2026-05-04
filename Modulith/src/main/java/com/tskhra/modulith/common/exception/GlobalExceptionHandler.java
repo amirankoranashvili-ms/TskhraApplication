@@ -3,6 +3,7 @@ package com.tskhra.modulith.common.exception;
 import com.tskhra.modulith.common.exception.custom_status_exceptions.CustomStatusException;
 import com.tskhra.modulith.common.exception.http_exceptions.*;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,11 +14,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpException.class)
     public ResponseEntity<ErrorResponse> handleHttpException(HttpException ex) {
+        log.warn("HttpException [{}]: {}", ex.getStatus().value(), ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 ex.getStatus().value(),
                 ex.getMessage(),
@@ -28,6 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpConflictException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(HttpConflictException ex) {
+        log.warn("Conflict: {}", ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 ex.getMessage(),
@@ -51,6 +55,7 @@ public class GlobalExceptionHandler {
         List<String> errors = new java.util.ArrayList<>(fieldErrors);
         errors.addAll(globalErrors);
 
+        log.warn("Validation failed: {}", errors);
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 errors.toString(),
@@ -61,6 +66,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(HttpNotFoundException ex) {
+        log.warn("Not found: {}", ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
@@ -71,6 +77,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpBadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(HttpBadRequestException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
@@ -81,6 +88,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpUnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedFound(HttpUnauthorizedException ex) {
+        log.warn("Unauthorized: {}", ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage(),
@@ -91,6 +99,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpForbiddenError.class)
     public ResponseEntity<ErrorResponse> handleForbiddenFound(HttpForbiddenError ex) {
+        log.warn("Forbidden: {}", ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 ex.getMessage(),
@@ -109,6 +118,7 @@ public class GlobalExceptionHandler {
                 })
                 .collect(Collectors.joining(", "));
 
+        log.warn("Constraint violation: {}", message);
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 message,
@@ -123,11 +133,23 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = ex.getHttpStatus();
         int customStatusCode = ex.getCustomStatusCode();
 
+        log.warn("Custom status [{}]: {}", customStatusCode, message);
         ErrorResponse response = new ErrorResponse(
                 customStatusCode,
                 message,
                 Instant.now().toString()
         );
         return new ResponseEntity<>(response, httpStatus);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex) {
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "An unexpected error occurred",
+                Instant.now().toString()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

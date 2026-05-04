@@ -18,6 +18,7 @@ import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeChainRepository;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChainTradeService {
@@ -122,6 +124,8 @@ public class ChainTradeService {
         chain.setLinks(links);
 
         TradeChain saved = chainRepository.save(chain);
+        log.info("Chain trade proposed: chainId={}, initiatorId={}, participantCount={}",
+                saved.getId(), initiatorId, items.size());
         return toSummaryDto(saved);
     }
 
@@ -141,6 +145,7 @@ public class ChainTradeService {
         }
 
         myLink.setAcceptedAt(LocalDateTime.now());
+        log.info("Chain trade accepted by participant: chainId={}, userId={}", chainId, userId);
 
         boolean allAccepted = chain.getLinks().stream()
                 .allMatch(l -> l.getAcceptedAt() != null);
@@ -169,6 +174,7 @@ public class ChainTradeService {
 
             chain.setStatus(ChainStatus.ACTIVE);
             chain.setExpiresAt(Instant.now().plus(ACTIVE_EXPIRY_HOURS, ChronoUnit.HOURS));
+            log.info("Chain trade activated: chainId={}, itemCount={}", chainId, lockedItems.size());
         }
 
         chainRepository.save(chain);
@@ -191,6 +197,7 @@ public class ChainTradeService {
 
         chain.setStatus(ChainStatus.BROKEN);
         chainRepository.save(chain);
+        log.info("Chain trade rejected: chainId={}, rejectedBy={}", chainId, userId);
     }
 
     @Transactional
@@ -209,12 +216,14 @@ public class ChainTradeService {
         }
 
         myLink.setConfirmedAt(LocalDateTime.now());
+        log.info("Chain handoff confirmed: chainId={}, confirmedBy={}", chainId, userId);
 
         boolean allConfirmed = chain.getLinks().stream()
                 .allMatch(l -> l.getConfirmedAt() != null);
 
         if (allConfirmed) {
             chain.setStatus(ChainStatus.COMPLETED);
+            log.info("Chain trade completed: chainId={}", chainId);
             chain.getLinks().forEach(link -> {
                 Item item = link.getItem();
                 item.setStatus(ItemStatus.TRADED);

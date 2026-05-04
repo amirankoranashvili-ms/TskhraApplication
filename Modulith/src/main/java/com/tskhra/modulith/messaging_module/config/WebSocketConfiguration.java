@@ -1,7 +1,9 @@
 package com.tskhra.modulith.messaging_module.config;
 
+import com.tskhra.modulith.common.logging.WebSocketMdcInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -31,6 +33,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 // by emulating the behavior over HTTP.
 //                .withSockJS()
         ;
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new WebSocketMdcInterceptor());
     }
 
     @Override

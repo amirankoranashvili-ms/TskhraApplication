@@ -12,6 +12,7 @@ import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class BookingService {
@@ -89,6 +91,8 @@ public class BookingService {
                 .build();
 
         bookingRepository.save(booking);
+        log.info("Booking created: bookingId={}, userId={}, serviceId={}, businessId={}, date={}, startTime={}",
+                booking.getId(), userId, service.getId(), business.getId(), request.date(), request.startTime());
 
 //        eventPublisher.publishEvent(new BookingStatusChangedEvent(
 //                booking.getId(), business.getUserId(), BookingStatus.AWAITING,
@@ -183,6 +187,7 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.SCHEDULED);
         bookingRepository.save(booking);
+        log.info("Booking approved: bookingId={}, approvedBy={}", bookingId, userId);
 
 //        eventPublisher.publishEvent(new BookingStatusChangedEvent(
 //                booking.getId(), booking.getUserId(), BookingStatus.SCHEDULED,
@@ -227,6 +232,7 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.REJECTED);
         bookingRepository.save(booking);
+        log.info("Booking rejected: bookingId={}, rejectedBy={}", bookingId, userId);
 
 //        eventPublisher.publishEvent(new BookingStatusChangedEvent(
 //                booking.getId(), booking.getUserId(), BookingStatus.REJECTED,
@@ -271,6 +277,7 @@ public class BookingService {
 
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_BUSINESS);
         bookingRepository.save(booking);
+        log.info("Booking cancelled by business: bookingId={}, cancelledBy={}", bookingId, userId);
 
 //        eventPublisher.publishEvent(new BookingStatusChangedEvent(
 //                booking.getId(), booking.getUserId(), BookingStatus.CANCELLED_BY_BUSINESS,
@@ -315,6 +322,7 @@ public class BookingService {
         String previousStatus = booking.getBookingStatus().name();
         booking.setBookingStatus(BookingStatus.CANCELLED_BY_USER);
         bookingRepository.save(booking);
+        log.info("Booking cancelled by user: bookingId={}, userId={}", bookingId, userId);
 
         Service service = booking.getService();
         Business business = service.getBusiness();

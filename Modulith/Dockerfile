@@ -12,6 +12,7 @@ RUN ./mvnw clean package -DskipTests -B
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
+RUN mkdir -p /app/logs
 COPY --from=build /build/target/Modulith-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8081

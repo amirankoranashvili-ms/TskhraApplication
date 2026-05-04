@@ -12,6 +12,7 @@ import com.tskhra.modulith.user_module.model.requests.VerifyRequest;
 import com.tskhra.modulith.user_module.model.responses.TokensResponse;
 import com.tskhra.modulith.user_module.repositories.UserDevicesRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CredentialService {
@@ -58,6 +60,7 @@ public class CredentialService {
                 .build();
 
         userDevicesRepository.save(device);
+        log.info("Device registered: deviceId={}, userId={}", deviceId, userKeycloakId);
     }
 
     @Transactional
@@ -95,9 +98,11 @@ public class CredentialService {
 
         boolean isValidSignature = verifySignature(publicKey, challenge, request.signature());
         if (!isValidSignature) {
+            log.warn("Biometric login failed: deviceId={}, type={}", request.deviceId(), type);
             throw new HttpUnauthorizedException("Invalid signature.");
         }
 
+        log.info("Biometric login successful: deviceId={}, type={}", request.deviceId(), type);
         return authService.exchangeTokenForUser(device.getUserId());
     }
 
