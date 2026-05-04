@@ -26,24 +26,23 @@ public class TokenAuthInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
-        log.info("WebSocket handshake interceptor called");
         String token = UriComponentsBuilder.fromUri(request.getURI())
                 .build()
                 .getQueryParams()
                 .getFirst("token");
 
         if (token == null || token.isBlank()) {
-            log.warn("WebSocket token is null or blank");
+            log.debug("WebSocket handshake rejected: no token");
             return false;
         }
 
         try {
             Jwt jwt = jwtDecoder.decode(token);
             attributes.put("userId", jwt.getSubject());
-            log.info("WebSocket token validated for userId={}", jwt.getSubject());
+            log.info("WebSocket connected: userId={}", jwt.getSubject());
             return true;
         } catch (JwtException e) {
-            log.warn("WebSocket invalid token: {}", e.getMessage());
+            log.debug("WebSocket handshake rejected: {}", e.getMessage());
             return false;
         }
 
