@@ -14,12 +14,15 @@ filebeat.inputs:
 output.elasticsearch:
   hosts: ["http://elasticsearch:9200"]
   index: "modulith-logs-%{+yyyy.MM.dd}"
+  allow_older_versions: true
 
 setup.ilm.enabled: false
 setup.template.name: "modulith-logs"
 setup.template.pattern: "modulith-logs-*"
+setup.template.overwrite: true
 setup.template.settings:
   index.number_of_shards: 1
   index.number_of_replicas: 0
+setup.data_stream.enabled: false
 
 logging.level: warning
