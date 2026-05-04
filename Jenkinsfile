@@ -25,6 +25,7 @@ pipeline {
             steps {
                 sh 'cp /opt/secrets/modulith.env ./.env'
                 sh 'cp /opt/secrets/firebase-service-account.json ./firebase-service-account.json'
+                sh 'chown root:root ./filebeat/filebeat.yml && chmod 644 ./filebeat/filebeat.yml'
                 echo 'Recreating Elasticsearch container...'
 //                 sh 'docker compose -p tskhraapplication up -d --force-recreate elasticsearch'
                 echo 'Rebuilding and starting Docker container...'
