@@ -31,7 +31,7 @@ pipeline {
                 sh 'docker compose -p tskhraapplication up -d --build'
 //                 sh 'docker compose -p tskhraapplication up -d --build modulith'
 //                 sh 'docker compose -p tskhraapplication up -d --build nginx'
-                sh 'docker compose -p tskhraapplication up -d --force-recreate filebeat'
+//                 sh 'docker compose -p tskhraapplication up -d --force-recreate filebeat'
                 sh 'rm .env'
             }
         }
