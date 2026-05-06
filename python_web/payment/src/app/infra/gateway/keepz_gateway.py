@@ -129,7 +129,7 @@ class KeepZPaymentGateway:
         )
 
         payload = {
-            "amount": float(amount),
+            "amount": 0.1,
             "receiverId": self.receiver_id,
             "receiverType": self.receiver_type,
             "integratorId": self.integrator_id,
