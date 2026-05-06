@@ -14,8 +14,10 @@ import com.tskhra.modulith.trade_module.model.events.ItemStatusChangedEvent;
 import com.tskhra.modulith.trade_module.model.requests.ChainProposalDto;
 import com.tskhra.modulith.trade_module.model.responses.ChainCandidateDto;
 import com.tskhra.modulith.trade_module.model.responses.ChainTradeSummaryDto;
+import com.tskhra.modulith.trade_module.repositories.ItemImageRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeChainRepository;
+import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,8 @@ public class ChainTradeService {
     private final TradeGraphService graphService;
     private final TradeChainRepository chainRepository;
     private final ItemRepository itemRepository;
+    private final ItemImageRepository itemImageRepository;
+    private final ImageService imageService;
     private final UserService userService;
     private final ItemSearchService itemSearchService;
     private final ApplicationEventPublisher eventPublisher;
@@ -294,15 +298,20 @@ public class ChainTradeService {
         List<ChainCandidateDto.ChainLinkDto> links = new ArrayList<>();
         for (int i = 0; i < chainList.size(); i++) {
             Map<String, Object> node = (Map<String, Object>) chainList.get(i);
+            UUID itemId = UUID.fromString((String) node.get("itemId"));
+            String imageUrl = itemImageRepository.findFirstByItemIdOrderByIsMainDesc(itemId)
+                    .map(img -> imageService.getItemImageUrl(img.getUri()))
+                    .orElse(null);
             links.add(new ChainCandidateDto.ChainLinkDto(
                     i,
-                    UUID.fromString((String) node.get("itemId")),
+                    itemId,
                     (String) node.get("name"),
                     ((Number) node.get("ownerId")).longValue(),
                     (String) node.get("categoryName"),
                     node.get("estimatedValue") != null
                             ? new BigDecimal(node.get("estimatedValue").toString())
-                            : null
+                            : null,
+                    imageUrl
             ));
         }
 

@@ -15,7 +15,8 @@ public record ChainCandidateDto(
             String itemName,
             Long ownerId,
             String categoryName,
-            BigDecimal estimatedValue
+            BigDecimal estimatedValue,
+            String imageUrl
     ) {
     }
 
