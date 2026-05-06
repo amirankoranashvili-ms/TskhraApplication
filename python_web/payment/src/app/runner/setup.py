@@ -99,11 +99,20 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    cors_origins = settings.cors_allowed_origins
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=cors_origins,
-        allow_credentials=cors_origins != ["*"],
+        allow_origins=[
+            "https://elegant-empanada-7041fb.netlify.app",
+            "https://unfleeced-ariana-uncried.ngrok-free.dev",
+            "http://localhost:4200",
+            "http://localhost:5173",
+            "http://0.0.0.0:5173",
+            "http://0.0.0.0:8001",
+            "http://0.0.0.0:8002",
+            "https://vipo-web-app.vercel.app",
+            "https://tskhra-web.vercel.app"
+        ],
+        allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
