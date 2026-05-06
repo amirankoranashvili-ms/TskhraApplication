@@ -11,12 +11,15 @@ import com.tskhra.modulith.trade_module.model.domain.TradeChain;
 import com.tskhra.modulith.trade_module.model.enums.ChainStatus;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.events.ItemStatusChangedEvent;
+import com.tskhra.modulith.trade_module.model.domain.TradeOffer;
+import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import com.tskhra.modulith.trade_module.model.requests.ChainProposalDto;
 import com.tskhra.modulith.trade_module.model.responses.ChainCandidateDto;
 import com.tskhra.modulith.trade_module.model.responses.ChainTradeSummaryDto;
 import com.tskhra.modulith.trade_module.repositories.ItemImageRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeChainRepository;
+import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
 import com.tskhra.modulith.common.services.ImageService;
 import com.tskhra.modulith.user_module.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,7 @@ public class ChainTradeService {
 
     private final TradeGraphService graphService;
     private final TradeChainRepository chainRepository;
+    private final TradeOfferRepository tradeOfferRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final ImageService imageService;
@@ -128,6 +132,20 @@ public class ChainTradeService {
         chain.setLinks(links);
 
         TradeChain saved = chainRepository.save(chain);
+
+        for (ChainLink link : saved.getLinks()) {
+            if (!link.getGiverId().equals(initiatorId)) {
+                TradeOffer offer = TradeOffer.builder()
+                        .offererId(initiatorId)
+                        .responderId(link.getGiverId())
+                        .tradeChain(saved)
+                        .status(TradeStatus.PENDING)
+                        .expiresAt(saved.getExpiresAt())
+                        .build();
+                tradeOfferRepository.save(offer);
+            }
+        }
+
         log.info("Chain trade proposed: chainId={}, initiatorId={}, participantCount={}",
                 saved.getId(), initiatorId, items.size());
         return toSummaryDto(saved);
@@ -164,6 +182,7 @@ public class ChainTradeService {
                     .allMatch(item -> item.getStatus() == ItemStatus.AVAILABLE);
             if (!allAvailable) {
                 chain.setStatus(ChainStatus.BROKEN);
+                syncOfferStatuses(chain, TradeStatus.CANCELED);
                 chainRepository.save(chain);
                 throw new HttpBadRequestException("One or more items are no longer available — chain broken");
             }
@@ -178,6 +197,7 @@ public class ChainTradeService {
 
             chain.setStatus(ChainStatus.ACTIVE);
             chain.setExpiresAt(Instant.now().plus(ACTIVE_EXPIRY_HOURS, ChronoUnit.HOURS));
+            syncOfferStatuses(chain, TradeStatus.ACCEPTED);
             log.info("Chain trade activated: chainId={}, itemCount={}", chainId, lockedItems.size());
         }
 
@@ -200,6 +220,7 @@ public class ChainTradeService {
         }
 
         chain.setStatus(ChainStatus.BROKEN);
+        syncOfferStatuses(chain, TradeStatus.CANCELED);
         chainRepository.save(chain);
         log.info("Chain trade rejected: chainId={}, rejectedBy={}", chainId, userId);
     }
@@ -227,6 +248,7 @@ public class ChainTradeService {
 
         if (allConfirmed) {
             chain.setStatus(ChainStatus.COMPLETED);
+            syncOfferStatuses(chain, TradeStatus.COMPLETED);
             log.info("Chain trade completed: chainId={}", chainId);
             chain.getLinks().forEach(link -> {
                 Item item = link.getItem();
@@ -275,9 +297,16 @@ public class ChainTradeService {
                 releaseChainItems(chain);
             }
             chain.setStatus(ChainStatus.EXPIRED);
+            syncOfferStatuses(chain, TradeStatus.EXPIRED);
             chainRepository.save(chain);
             throw new HttpBadRequestException("This chain trade has expired");
         }
+    }
+
+    void syncOfferStatuses(TradeChain chain, TradeStatus status) {
+        List<TradeOffer> offers = tradeOfferRepository.findAllByTradeChainId(chain.getId());
+        offers.forEach(o -> o.setStatus(status));
+        tradeOfferRepository.saveAll(offers);
     }
 
     private void releaseChainItems(TradeChain chain) {

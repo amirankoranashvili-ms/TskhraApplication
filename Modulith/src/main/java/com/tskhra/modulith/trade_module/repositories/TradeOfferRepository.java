@@ -36,4 +36,6 @@ public interface TradeOfferRepository extends JpaRepository<TradeOffer, UUID> {
 
     @Query("SELECT t FROM TradeOffer t WHERE t.status IN :statuses AND t.expiresAt < :now")
     List<TradeOffer> findExpiredOffers(@Param("statuses") List<TradeStatus> statuses, @Param("now") Instant now);
+
+    List<TradeOffer> findAllByTradeChainId(UUID tradeChainId);
 }

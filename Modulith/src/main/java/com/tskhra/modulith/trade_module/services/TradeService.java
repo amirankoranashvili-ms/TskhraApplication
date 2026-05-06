@@ -3,8 +3,10 @@ package com.tskhra.modulith.trade_module.services;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpBadRequestException;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpForbiddenError;
 import com.tskhra.modulith.common.exception.http_exceptions.HttpNotFoundException;
+import com.tskhra.modulith.trade_module.model.domain.ChainLink;
 import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.domain.OfferItem;
+import com.tskhra.modulith.trade_module.model.domain.TradeChain;
 import com.tskhra.modulith.trade_module.model.domain.TradeOffer;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
 import com.tskhra.modulith.trade_module.model.enums.OwningSide;
@@ -15,6 +17,7 @@ import com.tskhra.modulith.trade_module.model.domain.ItemImage;
 import com.tskhra.modulith.trade_module.model.enums.OfferDirection;
 import com.tskhra.modulith.trade_module.model.responses.TradeOfferSummaryDto;
 import com.tskhra.modulith.trade_module.elastic.services.ItemSearchService;
+import com.tskhra.modulith.trade_module.repositories.ItemImageRepository;
 import com.tskhra.modulith.trade_module.repositories.ItemRepository;
 import com.tskhra.modulith.trade_module.repositories.TradeOfferRepository;
 import com.tskhra.modulith.common.services.ImageService;
@@ -48,7 +51,9 @@ public class TradeService {
     private final ImageService imageService;
     private final ItemSearchService itemSearchService;
     private final ItemRepository itemRepository;
+    private final ItemImageRepository itemImageRepository;
     private final TradeOfferRepository tradeOfferRepository;
+    private final ChainTradeService chainTradeService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -126,6 +131,12 @@ public class TradeService {
     public void acceptOffer(UUID offerId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         TradeOffer offer = getOfferOrThrow(offerId);
+
+        if (offer.getTradeChain() != null) {
+            chainTradeService.acceptChain(offer.getTradeChain().getId(), jwt);
+            return;
+        }
+
         checkExpiry(offer);
 
         if (offer.getStatus() != TradeStatus.PENDING) {
@@ -173,6 +184,12 @@ public class TradeService {
     public void rejectOffer(UUID offerId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         TradeOffer offer = getOfferOrThrow(offerId);
+
+        if (offer.getTradeChain() != null) {
+            chainTradeService.rejectChain(offer.getTradeChain().getId(), jwt);
+            return;
+        }
+
         checkExpiry(offer);
 
         if (offer.getStatus() != TradeStatus.PENDING) {
@@ -191,6 +208,11 @@ public class TradeService {
     public void withdrawOffer(UUID offerId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         TradeOffer offer = getOfferOrThrow(offerId);
+
+        if (offer.getTradeChain() != null) {
+            throw new HttpBadRequestException("Cannot withdraw a chain trade offer");
+        }
+
         checkExpiry(offer);
 
         if (offer.getStatus() != TradeStatus.PENDING) {
@@ -209,6 +231,11 @@ public class TradeService {
     public TradeOffer counterOffer(UUID offerId, TradeOfferCreationDto dto, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         TradeOffer original = getOfferOrThrow(offerId);
+
+        if (original.getTradeChain() != null) {
+            throw new HttpBadRequestException("Cannot counter a chain trade offer");
+        }
+
         checkExpiry(original);
 
         if (original.getStatus() != TradeStatus.PENDING) {
@@ -233,6 +260,12 @@ public class TradeService {
     public void cancelOffer(UUID offerId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         TradeOffer offer = getOfferOrThrow(offerId);
+
+        if (offer.getTradeChain() != null) {
+            chainTradeService.rejectChain(offer.getTradeChain().getId(), jwt);
+            return;
+        }
+
         checkExpiry(offer);
 
         if (offer.getStatus() != TradeStatus.ACCEPTED) {
@@ -253,6 +286,12 @@ public class TradeService {
     public void confirmHandoff(UUID offerId, Jwt jwt) {
         Long userId = userService.getCurrentUser(jwt).getId();
         TradeOffer offer = getOfferOrThrow(offerId);
+
+        if (offer.getTradeChain() != null) {
+            chainTradeService.confirmHandoff(offer.getTradeChain().getId(), jwt);
+            return;
+        }
+
         checkExpiry(offer);
 
         if (offer.getStatus() != TradeStatus.ACCEPTED) {
@@ -314,6 +353,10 @@ public class TradeService {
     }
 
     private TradeOfferSummaryDto toOfferSummaryDto(TradeOffer offer) {
+        if (offer.getTradeChain() != null) {
+            return toChainOfferSummaryDto(offer);
+        }
+
         List<TradeOfferSummaryDto.OfferItemDto> offererItems = offer.getOfferItems().stream()
                 .filter(oi -> oi.getOwningSide() == OwningSide.OFFERER)
                 .map(oi -> toOfferItemDto(oi.getItem()))
@@ -330,6 +373,39 @@ public class TradeService {
                 offer.getResponderId(),
                 offer.getStatus(),
                 offer.getFairnessRatio(),
+                offer.getExpiresAt(),
+                offererItems,
+                responderItems,
+                offer.getCreatedAt()
+        );
+    }
+
+    private TradeOfferSummaryDto toChainOfferSummaryDto(TradeOffer offer) {
+        Long participantId = offer.getResponderId();
+        TradeChain chain = offer.getTradeChain();
+
+        ChainLink givingLink = chain.getLinks().stream()
+                .filter(l -> l.getGiverId().equals(participantId))
+                .findFirst().orElse(null);
+
+        ChainLink receivingLink = chain.getLinks().stream()
+                .filter(l -> l.getReceiverId().equals(participantId))
+                .findFirst().orElse(null);
+
+        List<TradeOfferSummaryDto.OfferItemDto> offererItems = receivingLink != null
+                ? List.of(toOfferItemDto(receivingLink.getItem()))
+                : List.of();
+
+        List<TradeOfferSummaryDto.OfferItemDto> responderItems = givingLink != null
+                ? List.of(toOfferItemDto(givingLink.getItem()))
+                : List.of();
+
+        return new TradeOfferSummaryDto(
+                offer.getId(),
+                offer.getOffererId(),
+                offer.getResponderId(),
+                offer.getStatus(),
+                null,
                 offer.getExpiresAt(),
                 offererItems,
                 responderItems,

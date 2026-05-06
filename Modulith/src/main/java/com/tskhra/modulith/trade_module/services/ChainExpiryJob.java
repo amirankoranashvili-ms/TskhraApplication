@@ -5,6 +5,7 @@ import com.tskhra.modulith.trade_module.model.domain.Item;
 import com.tskhra.modulith.trade_module.model.domain.TradeChain;
 import com.tskhra.modulith.trade_module.model.enums.ChainStatus;
 import com.tskhra.modulith.trade_module.model.enums.ItemStatus;
+import com.tskhra.modulith.trade_module.model.enums.TradeStatus;
 import com.tskhra.modulith.trade_module.model.events.ItemStatusChangedEvent;
 import com.tskhra.modulith.trade_module.repositories.TradeChainRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.List;
 public class ChainExpiryJob {
 
     private final TradeChainRepository chainRepository;
+    private final ChainTradeService chainTradeService;
     private final ItemSearchService itemSearchService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -35,6 +37,7 @@ public class ChainExpiryJob {
                 .findAllByStatusAndExpiresAtBefore(ChainStatus.PROPOSED, now);
         for (TradeChain chain : expiredProposed) {
             chain.setStatus(ChainStatus.EXPIRED);
+            chainTradeService.syncOfferStatuses(chain, TradeStatus.EXPIRED);
             log.info("Expired PROPOSED chain {}", chain.getId());
         }
         chainRepository.saveAll(expiredProposed);
@@ -50,6 +53,7 @@ public class ChainExpiryJob {
                 eventPublisher.publishEvent(new ItemStatusChangedEvent(item.getId(), oldStatus, ItemStatus.AVAILABLE));
             });
             chain.setStatus(ChainStatus.EXPIRED);
+            chainTradeService.syncOfferStatuses(chain, TradeStatus.EXPIRED);
             log.info("Expired ACTIVE chain {}, released items", chain.getId());
         }
         chainRepository.saveAll(expiredActive);
