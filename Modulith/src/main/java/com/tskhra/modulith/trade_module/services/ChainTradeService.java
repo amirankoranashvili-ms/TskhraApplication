@@ -320,15 +320,21 @@ public class ChainTradeService {
 
     private ChainTradeSummaryDto toSummaryDto(TradeChain chain) {
         List<ChainTradeSummaryDto.ChainLinkSummaryDto> links = chain.getLinks().stream()
-                .map(l -> new ChainTradeSummaryDto.ChainLinkSummaryDto(
-                        l.getPosition(),
-                        l.getGiverId(),
-                        l.getItem().getId(),
-                        l.getItem().getName(),
-                        l.getReceiverId(),
-                        l.getAcceptedAt() != null,
-                        l.getConfirmedAt() != null
-                ))
+                .map(l -> {
+                    String imageUrl = itemImageRepository.findFirstByItemIdOrderByIsMainDesc(l.getItem().getId())
+                            .map(img -> imageService.getItemImageUrl(img.getUri()))
+                            .orElse(null);
+                    return new ChainTradeSummaryDto.ChainLinkSummaryDto(
+                            l.getPosition(),
+                            l.getGiverId(),
+                            l.getItem().getId(),
+                            l.getItem().getName(),
+                            l.getReceiverId(),
+                            l.getAcceptedAt() != null,
+                            l.getConfirmedAt() != null,
+                            imageUrl
+                    );
+                })
                 .toList();
 
         return new ChainTradeSummaryDto(

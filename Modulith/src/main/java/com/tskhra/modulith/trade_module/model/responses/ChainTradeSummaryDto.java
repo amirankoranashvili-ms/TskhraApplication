@@ -24,7 +24,8 @@ public record ChainTradeSummaryDto(
             String itemName,
             Long receiverId,
             boolean accepted,
-            boolean confirmed
+            boolean confirmed,
+            String imageUrl
     ) {
     }
 
