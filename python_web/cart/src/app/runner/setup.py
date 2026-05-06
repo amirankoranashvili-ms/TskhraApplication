@@ -56,6 +56,8 @@ def create_app() -> FastAPI:
             "https://elegant-empanada-7041fb.netlify.app",
             "https://unfleeced-ariana-uncried.ngrok-free.dev",
             "http://localhost:4200",
+            "http://localhost:5173",
+            "http://0.0.0.0:5173",
             "http://0.0.0.0:8001",
             "http://0.0.0.0:8002",
             "https://vipo-web-app.vercel.app",
