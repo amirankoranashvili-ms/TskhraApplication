@@ -65,6 +65,7 @@ def create_app() -> FastAPI:
             "http://0.0.0.0:8001",
             "http://0.0.0.0:8002",
             "https://vipo-web-app.vercel.app",
+            "https://tskhra-web.vercel.app"
         ],
         allow_credentials=True,
         allow_methods=["*"],
