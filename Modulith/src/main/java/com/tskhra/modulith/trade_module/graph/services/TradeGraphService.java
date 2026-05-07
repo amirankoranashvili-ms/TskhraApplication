@@ -233,6 +233,25 @@ public class TradeGraphService {
     }
 
     @Transactional(value = "neo4jTransactionManager", readOnly = true)
+    public boolean isValidChain(List<UUID> itemIds) {
+        for (int i = 0; i < itemIds.size(); i++) {
+            String from = itemIds.get(i).toString();
+            String to = itemIds.get((i + 1) % itemIds.size()).toString();
+            Long count = neo4jClient.query("""
+                            MATCH (a:TradeItem {itemId: $from})-[:WANTS]->(b:TradeItem {itemId: $to})
+                            RETURN count(*) AS cnt
+                            """)
+                    .bind(from).to("from")
+                    .bind(to).to("to")
+                    .fetchAs(Long.class)
+                    .mappedBy((ts, r) -> r.get("cnt").asLong())
+                    .one().orElse(0L);
+            if (count == 0) return false;
+        }
+        return true;
+    }
+
+    @Transactional(value = "neo4jTransactionManager", readOnly = true)
     public Map<String, Long> getStats() {
         return Map.of(
                 "nodes", nodeRepository.countNodes(),

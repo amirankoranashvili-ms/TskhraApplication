@@ -71,10 +71,21 @@ public class ChainTradeService {
         }
 
         List<Map<String, Object>> rawChains = graphService.findChains(itemId, maxResults);
-        return rawChains.stream()
+        List<ChainCandidateDto> candidates = rawChains.stream()
                 .map(this::toChainCandidate)
                 .filter(Objects::nonNull)
                 .toList();
+
+        Map<Integer, Set<UUID>> seenEndItemsByLength = new HashMap<>();
+        List<ChainCandidateDto> filtered = new ArrayList<>();
+        for (ChainCandidateDto c : candidates) {
+            UUID endItemId = c.links().getLast().itemId();
+            Set<UUID> seen = seenEndItemsByLength.computeIfAbsent(c.length(), k -> new HashSet<>());
+            if (seen.add(endItemId)) {
+                filtered.add(c);
+            }
+        }
+        return filtered;
     }
 
     @Transactional
@@ -102,6 +113,10 @@ public class ChainTradeService {
             if (!ownerIds.add(item.getOwnerId())) {
                 throw new HttpBadRequestException("Each participant must appear exactly once in the chain");
             }
+        }
+
+        if (!graphService.isValidChain(dto.itemIds())) {
+            throw new HttpBadRequestException("Proposed chain does not form a valid trade path");
         }
 
         TradeChain chain = TradeChain.builder()
