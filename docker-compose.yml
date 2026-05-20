@@ -101,6 +101,7 @@ services:
   nginx:
     image: nginx:alpine
     container_name: nginx-gateway-tskhra
+    restart: unless-stopped
     ports:
       - "8888:80"
     volumes:
